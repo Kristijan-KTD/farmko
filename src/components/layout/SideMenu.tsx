@@ -1,17 +1,20 @@
-import { X, User, ShoppingBag, Camera, Store, Search, MessageCircle, Bell, MapPin, LogOut, Users } from "lucide-react";
-import { useNavigate } from "react-router-dom";
+import { X, User, ShoppingBag, Camera, Store, Search, MessageCircle, Bell, MapPin, LogOut, Users, Home } from "lucide-react";
+import { useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 
 interface SideMenuProps {
   isOpen: boolean;
   onClose: () => void;
+  isDesktop?: boolean;
 }
 
-const SideMenu = ({ isOpen, onClose }: SideMenuProps) => {
+const SideMenu = ({ isOpen, onClose, isDesktop = false }: SideMenuProps) => {
   const navigate = useNavigate();
+  const location = useLocation();
   const { user, logout } = useAuth();
 
   const farmerMenuItems = [
+    { icon: Home, label: "Home", path: "/home" },
     { icon: User, label: "Profile", path: "/profile" },
     { icon: ShoppingBag, label: "Post Item for Sell", path: "/post-item" },
     { icon: Camera, label: "My Instafarm", path: "/instafarm" },
@@ -23,6 +26,7 @@ const SideMenu = ({ isOpen, onClose }: SideMenuProps) => {
   ];
 
   const customerMenuItems = [
+    { icon: Home, label: "Home", path: "/home" },
     { icon: User, label: "Profile", path: "/profile" },
     { icon: Search, label: "Explore", path: "/explore" },
     { icon: Users, label: "Find Farmer", path: "/find-farmer" },
@@ -35,15 +39,71 @@ const SideMenu = ({ isOpen, onClose }: SideMenuProps) => {
 
   const handleNavigate = (path: string) => {
     navigate(path);
-    onClose();
+    if (!isDesktop) onClose();
   };
 
   const handleLogout = () => {
     logout();
     navigate("/");
-    onClose();
+    if (!isDesktop) onClose();
   };
 
+  // Desktop persistent sidebar
+  if (isDesktop) {
+    return (
+      <div className="h-screen bg-primary sticky top-0 flex flex-col">
+        <div className="p-6">
+          <h2 className="text-xl font-bold text-primary-foreground">Farmko</h2>
+          <p className="text-primary-foreground/70 text-xs capitalize mt-1">{user?.role} Account</p>
+        </div>
+
+        {/* User info */}
+        <div className="px-6 pb-4 flex items-center gap-3">
+          <div className="w-10 h-10 rounded-full bg-primary-foreground/20 flex items-center justify-center overflow-hidden">
+            {user?.avatar ? (
+              <img src={user.avatar} alt="" className="w-full h-full object-cover" />
+            ) : (
+              <User className="w-5 h-5 text-primary-foreground" />
+            )}
+          </div>
+          <div>
+            <p className="text-sm font-medium text-primary-foreground">{user?.name}</p>
+            <p className="text-xs text-primary-foreground/70">{user?.email}</p>
+          </div>
+        </div>
+
+        <div className="flex-1 flex flex-col gap-0.5 px-3 overflow-y-auto">
+          {menuItems.map(({ icon: Icon, label, path }) => {
+            const isActive = location.pathname === path;
+            return (
+              <button
+                key={path}
+                onClick={() => handleNavigate(path)}
+                className={`flex items-center gap-3 text-primary-foreground py-2.5 px-3 rounded-lg transition-colors text-left text-sm ${
+                  isActive ? "bg-sidebar-accent font-semibold" : "hover:bg-sidebar-accent/50"
+                }`}
+              >
+                <Icon className="w-5 h-5" />
+                <span>{label}</span>
+              </button>
+            );
+          })}
+        </div>
+
+        <div className="p-3 mt-auto">
+          <button
+            onClick={handleLogout}
+            className="flex items-center gap-3 text-primary-foreground py-2.5 px-3 rounded-lg hover:bg-sidebar-accent transition-colors w-full text-left text-sm"
+          >
+            <LogOut className="w-5 h-5" />
+            <span>Log Out</span>
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  // Mobile drawer sidebar
   return (
     <>
       {isOpen && (
@@ -60,16 +120,21 @@ const SideMenu = ({ isOpen, onClose }: SideMenuProps) => {
           </button>
 
           <div className="flex flex-col gap-1">
-            {menuItems.map(({ icon: Icon, label, path }) => (
-              <button
-                key={path}
-                onClick={() => handleNavigate(path)}
-                className="flex items-center gap-4 text-primary-foreground py-3 px-2 rounded-lg hover:bg-sidebar-accent transition-colors text-left"
-              >
-                <Icon className="w-5 h-5" />
-                <span className="text-sm font-medium">{label}</span>
-              </button>
-            ))}
+            {menuItems.map(({ icon: Icon, label, path }) => {
+              const isActive = location.pathname === path;
+              return (
+                <button
+                  key={path}
+                  onClick={() => handleNavigate(path)}
+                  className={`flex items-center gap-4 text-primary-foreground py-3 px-2 rounded-lg hover:bg-sidebar-accent transition-colors text-left ${
+                    isActive ? "bg-sidebar-accent font-semibold" : ""
+                  }`}
+                >
+                  <Icon className="w-5 h-5" />
+                  <span className="text-sm font-medium">{label}</span>
+                </button>
+              );
+            })}
           </div>
 
           <div className="mt-auto">

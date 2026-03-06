@@ -1,20 +1,44 @@
-import { useState } from "react";
-import { User, Mail, Phone, MapPin, FileText } from "lucide-react";
+import { useState, useRef } from "react";
+import { User, Mail, Phone, MapPin, FileText, Camera } from "lucide-react";
 import MobileLayout from "@/components/layout/MobileLayout";
 import PageHeader from "@/components/layout/PageHeader";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/contexts/AuthContext";
+import { useToast } from "@/hooks/use-toast";
 
 const EditProfile = () => {
   const { user, updateProfile } = useAuth();
+  const { toast } = useToast();
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const [name, setName] = useState(user?.name || "");
   const [email, setEmail] = useState(user?.email || "");
   const [phone, setPhone] = useState(user?.phone || "");
   const [location, setLocation] = useState(user?.location || "");
   const [bio, setBio] = useState(user?.bio || "");
+  const [avatarPreview, setAvatarPreview] = useState(user?.avatar || "");
+
+  const handlePhotoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      if (file.size > 5 * 1024 * 1024) {
+        toast({ title: "File too large", description: "Please select an image under 5MB", variant: "destructive" });
+        return;
+      }
+      const reader = new FileReader();
+      reader.onload = (ev) => {
+        setAvatarPreview(ev.target?.result as string);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
 
   const handleSave = () => {
-    updateProfile({ name, email, phone, location, bio });
+    if (!name.trim()) {
+      toast({ title: "Name required", description: "Please enter your full name", variant: "destructive" });
+      return;
+    }
+    updateProfile({ name, email, phone, location, bio, avatar: avatarPreview });
+    toast({ title: "Profile updated", description: "Your changes have been saved" });
   };
 
   const fields = [
@@ -32,12 +56,26 @@ const EditProfile = () => {
       <div className="flex-1">
         <div className="flex justify-center mb-8">
           <div className="relative">
-            <div className="w-20 h-20 rounded-full bg-muted flex items-center justify-center">
-              <User className="w-10 h-10 text-muted-foreground" />
+            <div className="w-20 h-20 rounded-full bg-muted flex items-center justify-center overflow-hidden">
+              {avatarPreview ? (
+                <img src={avatarPreview} alt="Avatar" className="w-full h-full object-cover" />
+              ) : (
+                <User className="w-10 h-10 text-muted-foreground" />
+              )}
             </div>
-            <button className="absolute bottom-0 right-0 w-6 h-6 bg-primary rounded-full flex items-center justify-center">
-              <span className="text-primary-foreground text-xs">✎</span>
+            <button
+              onClick={() => fileInputRef.current?.click()}
+              className="absolute bottom-0 right-0 w-7 h-7 bg-primary rounded-full flex items-center justify-center shadow-md"
+            >
+              <Camera className="w-3.5 h-3.5 text-primary-foreground" />
             </button>
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept="image/*"
+              onChange={handlePhotoUpload}
+              className="hidden"
+            />
           </div>
         </div>
 

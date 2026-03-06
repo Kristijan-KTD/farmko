@@ -22,6 +22,17 @@ interface AuthContextType {
   updateProfile: (updates: Partial<User>) => void;
 }
 
+const MOCK_USERS: Record<string, { password: string; user: User }> = {
+  "farmer@farmko.com": {
+    password: "farmer123",
+    user: { id: "1", name: "John Doe", email: "farmer@farmko.com", role: "farmer", avatar: "", location: "Springfield, IL", bio: "Local organic farmer" },
+  },
+  "customer@farmko.com": {
+    password: "customer123",
+    user: { id: "2", name: "Jane Smith", email: "customer@farmko.com", role: "customer", avatar: "", location: "Chicago, IL", bio: "Fresh food lover" },
+  },
+};
+
 const AuthContext = createContext<AuthContextType>({} as AuthContextType);
 
 export const useAuth = () => useContext(AuthContext);
@@ -30,21 +41,26 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
 
   const login = (email: string, _password: string) => {
-    // Mock login - will be replaced with Lovable Cloud
-    setUser({
-      id: "1",
-      name: "John Doe",
-      email,
-      role: "farmer",
-      avatar: "",
-      location: "Springfield, IL",
-      bio: "Local organic farmer",
-    });
+    const mockUser = MOCK_USERS[email];
+    if (mockUser) {
+      setUser({ ...mockUser.user });
+    } else {
+      // Fallback for any email
+      setUser({
+        id: "1",
+        name: "John Doe",
+        email,
+        role: "farmer",
+        avatar: "",
+        location: "Springfield, IL",
+        bio: "Local organic farmer",
+      });
+    }
   };
 
   const register = (name: string, email: string, _password: string, role: UserRole) => {
     setUser({
-      id: "1",
+      id: String(Date.now()),
       name,
       email,
       role,

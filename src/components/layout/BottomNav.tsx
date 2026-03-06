@@ -26,7 +26,7 @@ const BottomNav = () => {
   const items = user?.role === "farmer" ? farmerItems : customerItems;
 
   return (
-    <div className="fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-md bg-background border-t border-border z-50">
+    <div className="fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-md bg-background border-t border-border z-50 lg:hidden">
       <nav className="flex justify-around items-center h-16 px-2">
         {items.map(({ icon: Icon, path, label }) => {
           const isActive = location.pathname === path;
