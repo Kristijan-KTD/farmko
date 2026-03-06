@@ -1,6 +1,7 @@
 import { useNavigate } from "react-router-dom";
 import { useEffect } from "react";
 import MobileLayout from "@/components/layout/MobileLayout";
+import farmkoLogo from "@/assets/farmko-logo-white.png";
 
 const Splash = () => {
   const navigate = useNavigate();
