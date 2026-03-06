@@ -36,14 +36,26 @@ const Home = () => {
 
   return (
     <MobileLayout>
-      <SideMenu isOpen={menuOpen} onClose={() => setMenuOpen(false)} />
-      <TopBar onMenuOpen={() => setMenuOpen(true)} />
+      {/* Mobile-only side menu drawer */}
+      <div className="lg:hidden">
+        <SideMenu isOpen={menuOpen} onClose={() => setMenuOpen(false)} />
+      </div>
+      <div className="lg:hidden">
+        <TopBar onMenuOpen={() => setMenuOpen(true)} />
+      </div>
+      <div className="hidden lg:block py-4">
+        <h1 className="text-xl font-bold text-foreground">Dashboard</h1>
+      </div>
 
-      <div className="flex-1 pb-20">
+      <div className="flex-1 pb-20 lg:pb-4">
         {/* Welcome */}
         <div className="flex items-center gap-4 mb-8">
           <div className="w-16 h-16 rounded-full bg-muted overflow-hidden flex items-center justify-center">
-            <User className="w-8 h-8 text-muted-foreground" />
+            {user?.avatar ? (
+              <img src={user.avatar} alt="" className="w-full h-full object-cover" />
+            ) : (
+              <User className="w-8 h-8 text-muted-foreground" />
+            )}
           </div>
           <div>
             <h2 className="text-lg font-bold text-foreground">{user?.name || "User"}</h2>
@@ -52,7 +64,7 @@ const Home = () => {
         </div>
 
         {/* Feature grid */}
-        <div className="grid grid-cols-3 gap-4">
+        <div className="grid grid-cols-3 lg:grid-cols-4 gap-4">
           {features.map(({ icon: Icon, label, path, color }) => (
             <button
               key={path}
@@ -68,7 +80,9 @@ const Home = () => {
         </div>
       </div>
 
-      <BottomNav />
+      <div className="lg:hidden">
+        <BottomNav />
+      </div>
     </MobileLayout>
   );
 };
