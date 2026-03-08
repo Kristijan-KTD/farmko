@@ -13,6 +13,7 @@ const SideMenu = ({ isOpen, onClose, isDesktop = false }: SideMenuProps) => {
   const navigate = useNavigate();
   const location = useLocation();
   const { user, logout } = useAuth();
+  const { isAdmin } = useAdmin();
 
   const farmerMenuItems = [
     { icon: Home, label: "Home", path: "/home" },
