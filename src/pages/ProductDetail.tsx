@@ -43,6 +43,7 @@ const ProductDetail = () => {
   const [submitting, setSubmitting] = useState(false);
   const [farmerPlan, setFarmerPlan] = useState<string | null>(null);
   const [isFavorited, setIsFavorited] = useState(false);
+  const [currentImageIndex, setCurrentImageIndex] = useState(0);
 
   useEffect(() => {
     if (!id) return;
