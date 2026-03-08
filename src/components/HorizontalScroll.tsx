@@ -46,11 +46,11 @@ const HorizontalScroll = ({ children, className, scrollAmount = 200 }: Horizonta
   };
 
   return (
-    <div className="relative group">
+    <div className="relative">
       {canScrollLeft && (
         <button
           onClick={() => scroll("left")}
-          className="absolute left-0 top-1/2 -translate-y-1/2 z-10 w-8 h-8 rounded-full bg-card border border-border shadow-md flex items-center justify-center text-foreground hover:bg-secondary transition-colors -ml-1"
+          className="absolute left-0 top-1/2 -translate-y-1/2 z-10 w-8 h-8 rounded-full bg-card border border-border shadow-md flex items-center justify-center text-foreground hover:bg-secondary transition-colors"
           aria-label="Scroll left"
         >
           <ChevronLeft className="w-4 h-4" />
@@ -60,7 +60,9 @@ const HorizontalScroll = ({ children, className, scrollAmount = 200 }: Horizonta
       <div
         ref={ref}
         className={cn(
-          "flex overflow-x-auto overflow-y-hidden no-scrollbar",
+          "flex overflow-x-auto overflow-y-hidden no-scrollbar scroll-smooth",
+          canScrollLeft && "pl-6",
+          canScrollRight && "pr-6",
           className
         )}
       >
@@ -70,7 +72,7 @@ const HorizontalScroll = ({ children, className, scrollAmount = 200 }: Horizonta
       {canScrollRight && (
         <button
           onClick={() => scroll("right")}
-          className="absolute right-0 top-1/2 -translate-y-1/2 z-10 w-8 h-8 rounded-full bg-card border border-border shadow-md flex items-center justify-center text-foreground hover:bg-secondary transition-colors -mr-1"
+          className="absolute right-0 top-1/2 -translate-y-1/2 z-10 w-8 h-8 rounded-full bg-card border border-border shadow-md flex items-center justify-center text-foreground hover:bg-secondary transition-colors"
           aria-label="Scroll right"
         >
           <ChevronRight className="w-4 h-4" />
