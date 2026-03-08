@@ -123,7 +123,7 @@ const Explore = () => {
         {/* ── Categories ── */}
         <section>
           <h2 className="text-base font-bold text-foreground mb-3">Categories</h2>
-          <div className="flex gap-3 horizontal-scroll pb-2">
+          <HorizontalScroll className="gap-3 pb-2">
             {CATEGORIES.map((cat) => {
               const Icon = cat.icon;
               const isActive = selectedCategory === cat.key;
