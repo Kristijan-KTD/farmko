@@ -39,10 +39,6 @@ const Profile = () => {
     setPortalLoading(false);
   };
 
-  const handleLogout = async () => {
-    await logout();
-    navigate("/login");
-  };
 
   return (
     <MobileLayout>
