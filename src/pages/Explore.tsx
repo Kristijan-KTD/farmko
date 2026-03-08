@@ -1,8 +1,9 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { Search, Package, Crown, Clock, Sparkles } from "lucide-react";
 import MobileLayout from "@/components/layout/MobileLayout";
 import PageHeader from "@/components/layout/PageHeader";
 import BottomNav from "@/components/layout/BottomNav";
+import HorizontalScroll from "@/components/HorizontalScroll";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
@@ -122,7 +123,7 @@ const Explore = () => {
         {/* ── Categories ── */}
         <section>
           <h2 className="text-base font-bold text-foreground mb-3">Categories</h2>
-          <div className="flex gap-3 horizontal-scroll pb-2">
+          <HorizontalScroll className="gap-3 pb-2">
             {CATEGORIES.map((cat) => {
               const Icon = cat.icon;
               const isActive = selectedCategory === cat.key;
@@ -151,7 +152,7 @@ const Explore = () => {
                 </button>
               );
             })}
-          </div>
+          </HorizontalScroll>
         </section>
 
         {loading ? (
@@ -169,7 +170,7 @@ const Explore = () => {
                 <Clock className="w-4 h-4 text-primary" />
                 <h2 className="text-base font-bold text-foreground">New products</h2>
               </div>
-              <div className="flex gap-3 horizontal-scroll pb-2 lg:grid lg:grid-cols-4 xl:grid-cols-5 lg:overflow-visible lg:touch-auto">
+              <HorizontalScroll className="gap-3 pb-2 lg:!grid lg:grid-cols-4 xl:grid-cols-5 lg:!overflow-visible">
                 {newProducts.map((product) => (
                   <button
                     key={product.id}
@@ -209,7 +210,7 @@ const Explore = () => {
                     </div>
                   </button>
                 ))}
-              </div>
+              </HorizontalScroll>
             </section>
 
             {/* ── Recommended ── */}
