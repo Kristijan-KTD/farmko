@@ -1,4 +1,4 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { User, Mail, Phone, MapPin, FileText, Camera } from "lucide-react";
 import MobileLayout from "@/components/layout/MobileLayout";
 import PageHeader from "@/components/layout/PageHeader";
@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
+import LocationPicker from "@/components/LocationPicker";
 
 const EditProfile = () => {
   const { user, updateProfile } = useAuth();
@@ -18,6 +19,19 @@ const EditProfile = () => {
   const [avatarPreview, setAvatarPreview] = useState(user?.avatar_url || "");
   const [avatarFile, setAvatarFile] = useState<File | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [latitude, setLatitude] = useState<number | null>(null);
+  const [longitude, setLongitude] = useState<number | null>(null);
+
+  // Load existing coordinates
+  useEffect(() => {
+    if (user) {
+      supabase.from("profiles").select("latitude, longitude").eq("id", user.id).single()
+        .then(({ data }) => {
+          if (data?.latitude) setLatitude(data.latitude);
+          if (data?.longitude) setLongitude(data.longitude);
+        });
+    }
+  }, [user]);
 
   const handlePhotoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -42,7 +56,6 @@ const EditProfile = () => {
     setIsLoading(true);
     let avatar_url = user?.avatar_url || null;
 
-    // Upload avatar if changed
     if (avatarFile && user) {
       const ext = avatarFile.name.split(".").pop();
       const filePath = `${user.id}/avatar.${ext}`;
@@ -56,14 +69,28 @@ const EditProfile = () => {
       }
     }
 
-    await updateProfile({ name, phone, location, bio, avatar_url });
+    // Update profile including coordinates
+    if (user) {
+      await supabase.from("profiles").update({
+        name, phone, location, bio, avatar_url,
+        latitude, longitude,
+      }).eq("id", user.id);
+
+      await updateProfile({ name, phone, location, bio, avatar_url });
+    }
+
     toast({ title: "Profile updated", description: "Your changes have been saved" });
     setIsLoading(false);
   };
 
+  const handleLocationChange = (lat: number, lng: number) => {
+    setLatitude(lat);
+    setLongitude(lng);
+  };
+
   const fields = [
     { icon: User, label: "Full Name", value: name, onChange: setName },
-    { icon: Mail, label: "Email Address", value: user?.email || "", onChange: () => {} , disabled: true },
+    { icon: Mail, label: "Email Address", value: user?.email || "", onChange: () => {}, disabled: true },
     { icon: Phone, label: "Phone Number", value: phone, onChange: setPhone },
     { icon: MapPin, label: "Location", value: location, onChange: setLocation },
     { icon: FileText, label: "Bio", value: bio, onChange: setBio },
@@ -113,6 +140,13 @@ const EditProfile = () => {
               />
             </div>
           ))}
+
+          {/* Map location picker */}
+          <LocationPicker
+            latitude={latitude}
+            longitude={longitude}
+            onLocationChange={handleLocationChange}
+          />
         </div>
       </div>
 
