@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { User, ShoppingBag, Camera, Store, Search, MessageCircle, Bell, MapPin, Users } from "lucide-react";
+import { User, ShoppingBag, Camera, Store, Search, MessageCircle, Bell, MapPin, Users, BarChart3, Crown } from "lucide-react";
 import MobileLayout from "@/components/layout/MobileLayout";
 import TopBar from "@/components/layout/TopBar";
 import BottomNav from "@/components/layout/BottomNav";
@@ -17,6 +17,8 @@ const Home = () => {
     { icon: ShoppingBag, label: "Post Item", path: "/post-item", color: "bg-orange-50 text-orange-500" },
     { icon: Camera, label: "Instafarm", path: "/instafarm", color: "bg-blue-50 text-blue-500" },
     { icon: Store, label: "My Store", path: "/my-store", color: "bg-purple-50 text-purple-500" },
+    { icon: BarChart3, label: "Analytics", path: "/analytics", color: "bg-teal-50 text-teal-500" },
+    { icon: Crown, label: "Plans", path: "/plans", color: "bg-yellow-50 text-yellow-600" },
     { icon: Search, label: "Explore", path: "/explore", color: "bg-yellow-50 text-yellow-600" },
     { icon: MessageCircle, label: "Chat", path: "/chat", color: "bg-pink-50 text-pink-500" },
     { icon: Bell, label: "Notifications", path: "/notifications", color: "bg-red-50 text-red-500" },

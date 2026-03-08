@@ -1,20 +1,25 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { Check, ImagePlus, X } from "lucide-react";
 import MobileLayout from "@/components/layout/MobileLayout";
 import PageHeader from "@/components/layout/PageHeader";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
+import { useSubscription } from "@/contexts/SubscriptionContext";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
+import UpgradeModal from "@/components/UpgradeModal";
 
 const PostItem = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
+  const { canCreateListing, plan } = useSubscription();
   const { toast } = useToast();
   const fileRef = useRef<HTMLInputElement>(null);
   const [step, setStep] = useState<"form" | "images" | "done">("form");
   const [isLoading, setIsLoading] = useState(false);
+  const [showUpgrade, setShowUpgrade] = useState(false);
+  const [activeCount, setActiveCount] = useState(0);
   const [form, setForm] = useState({
     name: "",
     description: "",
@@ -24,6 +29,19 @@ const PostItem = () => {
     unit: "",
   });
   const [images, setImages] = useState<{ file: File; preview: string }[]>([]);
+
+  useEffect(() => {
+    if (!user) return;
+    const checkCount = async () => {
+      const { count } = await supabase
+        .from("products")
+        .select("*", { count: "exact", head: true })
+        .eq("farmer_id", user.id)
+        .eq("status", "active");
+      setActiveCount(count || 0);
+    };
+    checkCount();
+  }, [user]);
 
   const handleImageSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(e.target.files || []);
@@ -38,11 +56,23 @@ const PostItem = () => {
     setImages(images.filter((_, i) => i !== index));
   };
 
+  const handleContinue = () => {
+    if (!canCreateListing(activeCount)) {
+      setShowUpgrade(true);
+      return;
+    }
+    setStep("images");
+  };
+
   const handleSubmit = async () => {
     if (!user) return;
+    if (!canCreateListing(activeCount)) {
+      setShowUpgrade(true);
+      return;
+    }
+
     setIsLoading(true);
 
-    // Upload images
     const imageUrls: string[] = [];
     for (const img of images) {
       const ext = img.file.name.split(".").pop();
@@ -121,6 +151,7 @@ const PostItem = () => {
             {isLoading ? "Creating..." : "Create product for sell"}
           </Button>
         </div>
+        <UpgradeModal open={showUpgrade} onClose={() => setShowUpgrade(false)} />
       </MobileLayout>
     );
   }
@@ -138,6 +169,19 @@ const PostItem = () => {
     <MobileLayout>
       <PageHeader title="Post Item for Sell" />
       <div className="flex-1 space-y-5">
+        {/* Listing limit indicator */}
+        <div className="flex items-center justify-between p-3 rounded-xl bg-secondary">
+          <span className="text-xs text-muted-foreground">
+            Active listings: <span className="font-semibold text-foreground">{activeCount}</span>
+            {plan !== "pro" && <> / {plan === "growth" ? 20 : 3}</>}
+          </span>
+          {!canCreateListing(activeCount) && (
+            <button onClick={() => setShowUpgrade(true)} className="text-xs font-semibold text-primary">
+              Upgrade
+            </button>
+          )}
+        </div>
+
         {fields.map(({ key, label, placeholder }) => (
           <div key={key}>
             <label className="text-xs font-medium text-muted-foreground mb-1 block">{label}</label>
@@ -155,10 +199,11 @@ const PostItem = () => {
         ))}
       </div>
       <div className="pb-8 pt-4">
-        <Button onClick={() => setStep("images")} disabled={!form.name.trim()} className="w-full rounded-full h-12 text-base font-semibold">
+        <Button onClick={handleContinue} disabled={!form.name.trim()} className="w-full rounded-full h-12 text-base font-semibold">
           Continue
         </Button>
       </div>
+      <UpgradeModal open={showUpgrade} onClose={() => setShowUpgrade(false)} />
     </MobileLayout>
   );
 };
