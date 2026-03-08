@@ -1,71 +1,81 @@
-import React, { useRef, useEffect } from "react";
+import React, { useRef, useState, useEffect } from "react";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 interface HorizontalScrollProps {
   children: React.ReactNode;
   className?: string;
+  scrollAmount?: number;
 }
 
-/**
- * Horizontal-only scroll container.
- * Combines CSS touch-action with JS preventDefault for maximum
- * cross-browser compatibility on mobile.
- */
-const HorizontalScroll = ({ children, className }: HorizontalScrollProps) => {
+const HorizontalScroll = ({ children, className, scrollAmount = 200 }: HorizontalScrollProps) => {
   const ref = useRef<HTMLDivElement>(null);
+  const [canScrollLeft, setCanScrollLeft] = useState(false);
+  const [canScrollRight, setCanScrollRight] = useState(false);
+
+  const checkScroll = () => {
+    const el = ref.current;
+    if (!el) return;
+    setCanScrollLeft(el.scrollLeft > 2);
+    setCanScrollRight(el.scrollLeft < el.scrollWidth - el.clientWidth - 2);
+  };
 
   useEffect(() => {
     const el = ref.current;
     if (!el) return;
-
-    let startX = 0;
-    let startY = 0;
-    let direction: "h" | "v" | null = null;
-
-    const onTouchStart = (e: TouchEvent) => {
-      startX = e.touches[0].clientX;
-      startY = e.touches[0].clientY;
-      direction = null;
-    };
-
-    const onTouchMove = (e: TouchEvent) => {
-      const dx = Math.abs(e.touches[0].clientX - startX);
-      const dy = Math.abs(e.touches[0].clientY - startY);
-
-      // Determine direction after a small movement threshold
-      if (direction === null && (dx > 3 || dy > 3)) {
-        direction = dx >= dy ? "h" : "v";
-      }
-
-      // If swiping horizontally, prevent the page from scrolling vertically
-      if (direction === "h") {
-        e.preventDefault();
-        e.stopPropagation();
-      }
-    };
-
-    el.addEventListener("touchstart", onTouchStart, { passive: true });
-    el.addEventListener("touchmove", onTouchMove, { passive: false });
-
+    checkScroll();
+    el.addEventListener("scroll", checkScroll, { passive: true });
+    const ro = new ResizeObserver(checkScroll);
+    ro.observe(el);
     return () => {
-      el.removeEventListener("touchstart", onTouchStart);
-      el.removeEventListener("touchmove", onTouchMove);
+      el.removeEventListener("scroll", checkScroll);
+      ro.disconnect();
     };
   }, []);
 
+  // Re-check when children change
+  useEffect(() => {
+    setTimeout(checkScroll, 100);
+  }, [children]);
+
+  const scroll = (dir: "left" | "right") => {
+    ref.current?.scrollBy({
+      left: dir === "left" ? -scrollAmount : scrollAmount,
+      behavior: "smooth",
+    });
+  };
+
   return (
-    <div
-      ref={ref}
-      className={cn(
-        "flex overflow-x-auto overflow-y-hidden no-scrollbar",
-        className
+    <div className="relative group">
+      {canScrollLeft && (
+        <button
+          onClick={() => scroll("left")}
+          className="absolute left-0 top-1/2 -translate-y-1/2 z-10 w-8 h-8 rounded-full bg-card border border-border shadow-md flex items-center justify-center text-foreground hover:bg-secondary transition-colors -ml-1"
+          aria-label="Scroll left"
+        >
+          <ChevronLeft className="w-4 h-4" />
+        </button>
       )}
-      style={{
-        WebkitOverflowScrolling: "touch",
-        overscrollBehaviorX: "contain",
-      }}
-    >
-      {children}
+
+      <div
+        ref={ref}
+        className={cn(
+          "flex overflow-x-auto overflow-y-hidden no-scrollbar",
+          className
+        )}
+      >
+        {children}
+      </div>
+
+      {canScrollRight && (
+        <button
+          onClick={() => scroll("right")}
+          className="absolute right-0 top-1/2 -translate-y-1/2 z-10 w-8 h-8 rounded-full bg-card border border-border shadow-md flex items-center justify-center text-foreground hover:bg-secondary transition-colors -mr-1"
+          aria-label="Scroll right"
+        >
+          <ChevronRight className="w-4 h-4" />
+        </button>
+      )}
     </div>
   );
 };
