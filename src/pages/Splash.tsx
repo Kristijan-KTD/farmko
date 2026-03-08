@@ -40,8 +40,6 @@ const Splash = () => {
         <div className="w-20 h-20 flex items-center justify-center">
           <img src={farmkoLogo} alt="Farmko logo" className="w-20 h-20 object-contain" />
         </div>
-        <h1 className="text-3xl font-bold text-primary-foreground tracking-wide">FARMKO</h1>
-        <p className="text-primary-foreground/80 text-sm">Gateway to Farmko</p>
         
         <div className="flex gap-2 mt-6">
           <span className="w-2 h-2 rounded-full bg-primary-foreground/70 animate-bounce [animation-delay:0ms]" />
