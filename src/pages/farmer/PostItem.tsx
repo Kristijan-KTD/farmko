@@ -255,8 +255,8 @@ const PostItem = () => {
         ))}
       </div>
       <div className="pb-8 pt-4">
-        <Button onClick={handleContinue} disabled={!form.name.trim()} className="w-full rounded-full h-12 text-base font-semibold">
-          Continue
+        <Button onClick={handleContinue} disabled={!form.name.trim() || subLoading} className="w-full rounded-full h-12 text-base font-semibold">
+          {subLoading ? "Loading..." : "Continue"}
         </Button>
       </div>
       <UpgradeModal open={showUpgrade} onClose={() => setShowUpgrade(false)} />
