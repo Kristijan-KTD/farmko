@@ -187,11 +187,13 @@ const Explore = () => {
                       </div>
                     </div>
                     {/* Image */}
-                    <div className="aspect-[4/3] bg-muted flex items-center justify-center relative mx-2 rounded-lg overflow-hidden">
+                    <div className="aspect-square bg-muted relative mx-2 rounded-lg overflow-hidden">
                       {product.images && product.images[0] ? (
-                        <img src={product.images[0]} alt={product.title} className="w-full h-full object-cover" />
+                        <img src={product.images[0]} alt={product.title} className="absolute inset-0 w-full h-full object-cover" />
                       ) : (
-                        <Package className="w-10 h-10 text-muted-foreground/30" />
+                        <div className="absolute inset-0 flex items-center justify-center">
+                          <Package className="w-10 h-10 text-muted-foreground/30" />
+                        </div>
                       )}
                       {product.farmerPlan === "pro" && (
                         <div className="absolute top-1.5 right-1.5 w-5 h-5 rounded-full bg-yellow-500 flex items-center justify-center">
