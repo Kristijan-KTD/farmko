@@ -14,6 +14,38 @@ export type Database = {
   }
   public: {
     Tables: {
+      analytics_events: {
+        Row: {
+          created_at: string
+          event_type: string
+          farmer_id: string
+          id: string
+          reference_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          event_type: string
+          farmer_id: string
+          id?: string
+          reference_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          event_type?: string
+          farmer_id?: string
+          id?: string
+          reference_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "analytics_events_farmer_id_fkey"
+            columns: ["farmer_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       conversations: {
         Row: {
           created_at: string
@@ -56,6 +88,50 @@ export type Database = {
           },
         ]
       }
+      farmer_subscriptions: {
+        Row: {
+          created_at: string
+          farmer_id: string
+          id: string
+          plan: string
+          renewal_date: string | null
+          start_date: string
+          status: string
+          stripe_customer_id: string | null
+          stripe_subscription_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          farmer_id: string
+          id?: string
+          plan?: string
+          renewal_date?: string | null
+          start_date?: string
+          status?: string
+          stripe_customer_id?: string | null
+          stripe_subscription_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          farmer_id?: string
+          id?: string
+          plan?: string
+          renewal_date?: string | null
+          start_date?: string
+          status?: string
+          stripe_customer_id?: string | null
+          stripe_subscription_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "farmer_subscriptions_farmer_id_fkey"
+            columns: ["farmer_id"]
+            isOneToOne: true
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       instafarm_posts: {
         Row: {
           caption: string | null
@@ -82,6 +158,42 @@ export type Database = {
           {
             foreignKeyName: "instafarm_posts_farmer_id_fkey"
             columns: ["farmer_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      listing_views: {
+        Row: {
+          id: string
+          listing_id: string
+          viewed_at: string
+          viewer_id: string | null
+        }
+        Insert: {
+          id?: string
+          listing_id: string
+          viewed_at?: string
+          viewer_id?: string | null
+        }
+        Update: {
+          id?: string
+          listing_id?: string
+          viewed_at?: string
+          viewer_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "listing_views_listing_id_fkey"
+            columns: ["listing_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "listing_views_viewer_id_fkey"
+            columns: ["viewer_id"]
             isOneToOne: false
             referencedRelation: "profiles"
             referencedColumns: ["id"]
