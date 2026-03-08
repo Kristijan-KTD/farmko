@@ -130,12 +130,12 @@ const Explore = () => {
                   key={cat.key}
                   onClick={() => setSelectedCategory(isActive || cat.key === "all" ? null : cat.key)}
                   className={`flex flex-col items-center gap-1.5 min-w-[64px] shrink-0 transition-all ${
-                    isActive ? "opacity-100" : "opacity-70 hover:opacity-100"
+                    isActive || (cat.key === "all" && !selectedCategory) ? "opacity-100" : "opacity-70 hover:opacity-100"
                   }`}
                 >
                   <div
                     className={`w-14 h-14 rounded-2xl flex items-center justify-center border transition-colors ${
-                      isActive
+                      isActive || (cat.key === "all" && !selectedCategory)
                         ? "bg-primary/10 border-primary text-primary"
                         : "bg-card border-border text-muted-foreground"
                     }`}
@@ -143,7 +143,7 @@ const Explore = () => {
                     <Icon className="w-6 h-6" />
                   </div>
                   <span className={`text-[11px] leading-tight text-center truncate w-full ${
-                    isActive ? "font-semibold text-primary" : "text-muted-foreground"
+                    isActive || (cat.key === "all" && !selectedCategory) ? "font-semibold text-primary" : "text-muted-foreground"
                   }`}>
                     {cat.label}
                   </span>
