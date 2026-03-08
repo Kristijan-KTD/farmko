@@ -169,7 +169,7 @@ const Radar = () => {
       </div>
 
       {/* Map */}
-      <div className="flex-1 relative overflow-hidden" style={{ minHeight: "calc(100vh - 200px)" }}>
+      <div className="flex-1 relative" style={{ minHeight: "calc(100vh - 160px)" }}>
         {loading ? (
           <div className="absolute inset-0 flex items-center justify-center bg-secondary">
             <Loader2 className="w-8 h-8 animate-spin text-primary" />
@@ -178,8 +178,8 @@ const Radar = () => {
           <MapContainer
             center={defaultCenter}
             zoom={12}
-            className="w-full h-full z-0"
-            style={{ minHeight: "100%" }}
+            className="z-0"
+            style={{ width: "100%", height: "100%", position: "absolute", top: 0, left: 0 }}
             zoomControl={false}
           >
             <TileLayer
