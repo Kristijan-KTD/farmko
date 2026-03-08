@@ -16,7 +16,7 @@ const planColors: Record<string, string> = {
 };
 
 const Profile = () => {
-  const { user, logout } = useAuth();
+  const { user } = useAuth();
   const { plan, subscribed, subscriptionEnd, isLoading: subLoading } = useSubscription();
   const navigate = useNavigate();
   const { toast } = useToast();
