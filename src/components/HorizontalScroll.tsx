@@ -1,4 +1,4 @@
-import React, { useRef, useCallback } from "react";
+import React, { useRef, useEffect } from "react";
 import { cn } from "@/lib/utils";
 
 interface HorizontalScrollProps {
@@ -7,43 +7,52 @@ interface HorizontalScrollProps {
 }
 
 /**
- * A horizontal scroll container that prevents vertical page scrolling
- * while the user is swiping horizontally on mobile.
+ * Horizontal scroll container that prevents vertical page scrolling
+ * when the user swipes horizontally on mobile.
  */
 const HorizontalScroll = ({ children, className }: HorizontalScrollProps) => {
   const ref = useRef<HTMLDivElement>(null);
-  const startX = useRef(0);
-  const startY = useRef(0);
-  const isHorizontal = useRef<boolean | null>(null);
 
-  const onTouchStart = useCallback((e: React.TouchEvent) => {
-    startX.current = e.touches[0].clientX;
-    startY.current = e.touches[0].clientY;
-    isHorizontal.current = null;
-  }, []);
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
 
-  const onTouchMove = useCallback((e: React.TouchEvent) => {
-    const dx = Math.abs(e.touches[0].clientX - startX.current);
-    const dy = Math.abs(e.touches[0].clientY - startY.current);
+    let startX = 0;
+    let startY = 0;
+    let isHorizontal: boolean | null = null;
 
-    // Determine direction on first significant move
-    if (isHorizontal.current === null && (dx > 5 || dy > 5)) {
-      isHorizontal.current = dx > dy;
-    }
+    const onTouchStart = (e: TouchEvent) => {
+      startX = e.touches[0].clientX;
+      startY = e.touches[0].clientY;
+      isHorizontal = null;
+    };
 
-    // If horizontal swipe, prevent the page from scrolling vertically
-    if (isHorizontal.current) {
-      e.stopPropagation();
-      // We can't preventDefault on a passive listener from React,
-      // so we rely on stopPropagation + overflow-hidden trick
-    }
+    const onTouchMove = (e: TouchEvent) => {
+      const dx = Math.abs(e.touches[0].clientX - startX);
+      const dy = Math.abs(e.touches[0].clientY - startY);
+
+      if (isHorizontal === null && (dx > 5 || dy > 5)) {
+        isHorizontal = dx > dy;
+      }
+
+      if (isHorizontal) {
+        e.preventDefault(); // block vertical scroll
+      }
+    };
+
+    // Must be { passive: false } so preventDefault() works
+    el.addEventListener("touchstart", onTouchStart, { passive: true });
+    el.addEventListener("touchmove", onTouchMove, { passive: false });
+
+    return () => {
+      el.removeEventListener("touchstart", onTouchStart);
+      el.removeEventListener("touchmove", onTouchMove);
+    };
   }, []);
 
   return (
     <div
       ref={ref}
-      onTouchStart={onTouchStart}
-      onTouchMove={onTouchMove}
       className={cn(
         "flex overflow-x-auto overflow-y-hidden no-scrollbar",
         className
