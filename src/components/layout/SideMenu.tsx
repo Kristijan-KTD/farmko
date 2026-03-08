@@ -1,6 +1,7 @@
-import { X, User, ShoppingBag, Camera, Store, Search, MessageCircle, Bell, MapPin, LogOut, Users, Home, BarChart3, Crown } from "lucide-react";
+import { X, User, ShoppingBag, Camera, Store, Search, MessageCircle, Bell, MapPin, LogOut, Users, Home, BarChart3, Crown, Shield } from "lucide-react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
+import { useAdmin } from "@/contexts/AdminContext";
 
 interface SideMenuProps {
   isOpen: boolean;
@@ -12,6 +13,7 @@ const SideMenu = ({ isOpen, onClose, isDesktop = false }: SideMenuProps) => {
   const navigate = useNavigate();
   const location = useLocation();
   const { user, logout } = useAuth();
+  const { isAdmin } = useAdmin();
 
   const farmerMenuItems = [
     { icon: Home, label: "Home", path: "/home" },
@@ -37,7 +39,10 @@ const SideMenu = ({ isOpen, onClose, isDesktop = false }: SideMenuProps) => {
     { icon: MapPin, label: "Radar", path: "/radar" },
   ];
 
-  const menuItems = user?.role === "farmer" ? farmerMenuItems : customerMenuItems;
+  const menuItems = [
+    ...(user?.role === "farmer" ? farmerMenuItems : customerMenuItems),
+    ...(isAdmin ? [{ icon: Shield, label: "Admin Panel", path: "/admin" }] : []),
+  ];
 
   const handleNavigate = (path: string) => {
     navigate(path);
