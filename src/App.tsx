@@ -5,6 +5,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { SubscriptionProvider } from "@/contexts/SubscriptionContext";
+import { AdminProvider } from "@/contexts/AdminContext";
 import Splash from "./pages/Splash";
 import Onboarding from "./pages/Onboarding";
 import Login from "./pages/Login";
@@ -28,6 +29,9 @@ import Notifications from "./pages/Notifications";
 import Radar from "./pages/Radar";
 import Plans from "./pages/Plans";
 import SubscriptionSuccess from "./pages/SubscriptionSuccess";
+import AdminDashboard from "./pages/admin/AdminDashboard";
+import AdminSubscriptions from "./pages/admin/AdminSubscriptions";
+import AdminFarmers from "./pages/admin/AdminFarmers";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -36,38 +40,43 @@ const App = () => (
   <QueryClientProvider client={queryClient}>
     <AuthProvider>
       <SubscriptionProvider>
-        <TooltipProvider>
-          <Toaster />
-          <Sonner />
-          <BrowserRouter>
-            <Routes>
-              <Route path="/" element={<Splash />} />
-              <Route path="/onboarding" element={<Onboarding />} />
-              <Route path="/login" element={<Login />} />
-              <Route path="/register" element={<Register />} />
-              <Route path="/forgot-password" element={<ForgotPassword />} />
-              <Route path="/reset-password" element={<ResetPassword />} />
-              <Route path="/home" element={<Home />} />
-              <Route path="/profile" element={<Profile />} />
-              <Route path="/edit-profile" element={<EditProfile />} />
-              <Route path="/post-item" element={<PostItem />} />
-              <Route path="/instafarm" element={<Instafarm />} />
-              <Route path="/my-store" element={<MyStore />} />
-              <Route path="/analytics" element={<Analytics />} />
-              <Route path="/explore" element={<Explore />} />
-              <Route path="/find-farmer" element={<FindFarmer />} />
-              <Route path="/product/:id" element={<ProductDetail />} />
-              <Route path="/farmer/:id" element={<FarmerDetail />} />
-              <Route path="/chat" element={<Chat />} />
-              <Route path="/chat/:id" element={<ChatConversation />} />
-              <Route path="/notifications" element={<Notifications />} />
-              <Route path="/radar" element={<Radar />} />
-              <Route path="/plans" element={<Plans />} />
-              <Route path="/subscription-success" element={<SubscriptionSuccess />} />
-              <Route path="*" element={<NotFound />} />
-            </Routes>
-          </BrowserRouter>
-        </TooltipProvider>
+        <AdminProvider>
+          <TooltipProvider>
+            <Toaster />
+            <Sonner />
+            <BrowserRouter>
+              <Routes>
+                <Route path="/" element={<Splash />} />
+                <Route path="/onboarding" element={<Onboarding />} />
+                <Route path="/login" element={<Login />} />
+                <Route path="/register" element={<Register />} />
+                <Route path="/forgot-password" element={<ForgotPassword />} />
+                <Route path="/reset-password" element={<ResetPassword />} />
+                <Route path="/home" element={<Home />} />
+                <Route path="/profile" element={<Profile />} />
+                <Route path="/edit-profile" element={<EditProfile />} />
+                <Route path="/post-item" element={<PostItem />} />
+                <Route path="/instafarm" element={<Instafarm />} />
+                <Route path="/my-store" element={<MyStore />} />
+                <Route path="/analytics" element={<Analytics />} />
+                <Route path="/explore" element={<Explore />} />
+                <Route path="/find-farmer" element={<FindFarmer />} />
+                <Route path="/product/:id" element={<ProductDetail />} />
+                <Route path="/farmer/:id" element={<FarmerDetail />} />
+                <Route path="/chat" element={<Chat />} />
+                <Route path="/chat/:id" element={<ChatConversation />} />
+                <Route path="/notifications" element={<Notifications />} />
+                <Route path="/radar" element={<Radar />} />
+                <Route path="/plans" element={<Plans />} />
+                <Route path="/subscription-success" element={<SubscriptionSuccess />} />
+                <Route path="/admin" element={<AdminDashboard />} />
+                <Route path="/admin/subscriptions" element={<AdminSubscriptions />} />
+                <Route path="/admin/farmers" element={<AdminFarmers />} />
+                <Route path="*" element={<NotFound />} />
+              </Routes>
+            </BrowserRouter>
+          </TooltipProvider>
+        </AdminProvider>
       </SubscriptionProvider>
     </AuthProvider>
   </QueryClientProvider>

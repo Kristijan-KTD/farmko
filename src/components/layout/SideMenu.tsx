@@ -39,7 +39,10 @@ const SideMenu = ({ isOpen, onClose, isDesktop = false }: SideMenuProps) => {
     { icon: MapPin, label: "Radar", path: "/radar" },
   ];
 
-  const menuItems = user?.role === "farmer" ? farmerMenuItems : customerMenuItems;
+  const menuItems = [
+    ...(user?.role === "farmer" ? farmerMenuItems : customerMenuItems),
+    ...(isAdmin ? [{ icon: Shield, label: "Admin Panel", path: "/admin" }] : []),
+  ];
 
   const handleNavigate = (path: string) => {
     navigate(path);
