@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, useCallback } from "react";
+import { useState, useEffect } from "react";
 import { Search, Package, Crown, Clock, Sparkles } from "lucide-react";
 import MobileLayout from "@/components/layout/MobileLayout";
 import PageHeader from "@/components/layout/PageHeader";
@@ -74,10 +74,8 @@ const Explore = () => {
     return matchesSearch && matchesCategory;
   });
 
-  // New products = latest 10
   const newProducts = filtered.slice(0, 10);
 
-  // Recommended = sorted by plan priority
   const recommended = [...filtered].sort((a, b) => {
     const pa = PLAN_PRIORITY[a.farmerPlan || "starter"] ?? 2;
     const pb = PLAN_PRIORITY[b.farmerPlan || "starter"] ?? 2;
@@ -131,7 +129,7 @@ const Explore = () => {
                 <button
                   key={cat.key}
                   onClick={() => setSelectedCategory(isActive ? null : cat.key)}
-                  className={`flex flex-col items-center gap-1.5 min-w-[64px] transition-all ${
+                  className={`flex flex-col items-center gap-1.5 min-w-[64px] shrink-0 transition-all ${
                     isActive ? "opacity-100" : "opacity-70 hover:opacity-100"
                   }`}
                 >
@@ -172,43 +170,12 @@ const Explore = () => {
               </div>
               <HorizontalScroll className="gap-3 pb-2 lg:!grid lg:grid-cols-4 xl:grid-cols-5 lg:!overflow-visible">
                 {newProducts.map((product) => (
-                  <button
+                  <ProductCard
                     key={product.id}
+                    product={product}
                     onClick={() => handleProductClick(product)}
-                    className="flex flex-col min-w-[160px] lg:min-w-0 rounded-xl border border-border bg-card overflow-hidden text-left hover:shadow-md transition-shadow"
-                  >
-                    {/* Header with farmer info */}
-                    <div className="flex items-center gap-2 px-3 pt-2.5 pb-1">
-                      <div className="w-7 h-7 rounded-full bg-muted flex items-center justify-center text-[10px] font-bold text-muted-foreground uppercase shrink-0">
-                        {product.farmer?.name?.charAt(0) || "?"}
-                      </div>
-                      <div className="min-w-0">
-                        <p className="text-[10px] text-muted-foreground truncate">{formatDate(product.created_at)}</p>
-                        <p className="text-[10px] text-muted-foreground truncate">by {product.farmer?.name || "Unknown"}</p>
-                      </div>
-                    </div>
-                    {/* Image */}
-                    <div className="aspect-square bg-muted relative mx-2 rounded-lg overflow-hidden">
-                      {product.images && product.images[0] ? (
-                        <img src={product.images[0]} alt={product.title} className="absolute inset-0 w-full h-full object-cover" />
-                      ) : (
-                        <div className="absolute inset-0 flex items-center justify-center">
-                          <Package className="w-10 h-10 text-muted-foreground/30" />
-                        </div>
-                      )}
-                      {product.farmerPlan === "pro" && (
-                        <div className="absolute top-1.5 right-1.5 w-5 h-5 rounded-full bg-yellow-500 flex items-center justify-center">
-                          <Crown className="w-3 h-3 text-white" />
-                        </div>
-                      )}
-                    </div>
-                    {/* Info */}
-                    <div className="p-3 space-y-0.5">
-                      <h3 className="text-sm font-semibold text-foreground truncate">{product.title}</h3>
-                      <p className="text-xs text-muted-foreground">{product.stock ?? 0} {product.unit}s total</p>
-                      <span className="text-sm font-bold text-primary block pt-1">${product.price.toFixed(2)}</span>
-                    </div>
-                  </button>
+                    formatDate={formatDate}
+                  />
                 ))}
               </HorizontalScroll>
             </section>
@@ -221,30 +188,12 @@ const Explore = () => {
               </div>
               <div className="space-y-3 lg:grid lg:grid-cols-2 xl:grid-cols-3 lg:gap-3 lg:space-y-0">
                 {recommended.map((product) => (
-                  <button
+                  <RecommendedCard
                     key={product.id}
+                    product={product}
                     onClick={() => handleProductClick(product)}
-                    className="flex items-center gap-3 w-full rounded-xl border border-border bg-card p-3 text-left hover:shadow-md transition-shadow"
-                  >
-                    {/* Thumbnail */}
-                    <div className="w-16 h-16 rounded-xl bg-muted flex items-center justify-center overflow-hidden shrink-0">
-                      {product.images && product.images[0] ? (
-                        <img src={product.images[0]} alt={product.title} className="w-full h-full object-cover" />
-                      ) : (
-                        <Package className="w-6 h-6 text-muted-foreground/30" />
-                      )}
-                    </div>
-                    {/* Details */}
-                    <div className="flex-1 min-w-0">
-                      <h3 className="text-sm font-semibold text-foreground truncate">{product.title}</h3>
-                      <p className="text-xs text-muted-foreground">{product.stock ?? 0} {product.unit}s</p>
-                      <span className="text-sm font-bold text-primary">${product.price.toFixed(2)}</span>
-                    </div>
-                    {/* Date */}
-                    <span className="text-[10px] text-muted-foreground shrink-0 self-end">
-                      {formatDate(product.created_at)}
-                    </span>
-                  </button>
+                    formatDate={formatDate}
+                  />
                 ))}
               </div>
             </section>
@@ -257,6 +206,83 @@ const Explore = () => {
   );
 };
 
+/* ── Sub-components ── */
+
+const ProductCard = ({
+  product,
+  onClick,
+  formatDate,
+}: {
+  product: Product;
+  onClick: () => void;
+  formatDate: (d: string) => string;
+}) => (
+  <button
+    onClick={onClick}
+    className="flex flex-col min-w-[160px] shrink-0 lg:min-w-0 lg:shrink rounded-xl border border-border bg-card overflow-hidden text-left hover:shadow-md transition-shadow"
+  >
+    <div className="flex items-center gap-2 px-3 pt-2.5 pb-1">
+      <div className="w-7 h-7 rounded-full bg-muted flex items-center justify-center text-[10px] font-bold text-muted-foreground uppercase shrink-0">
+        {product.farmer?.name?.charAt(0) || "?"}
+      </div>
+      <div className="min-w-0">
+        <p className="text-[10px] text-muted-foreground truncate">{formatDate(product.created_at)}</p>
+        <p className="text-[10px] text-muted-foreground truncate">by {product.farmer?.name || "Unknown"}</p>
+      </div>
+    </div>
+    <div className="aspect-square bg-muted relative mx-2 rounded-lg overflow-hidden">
+      {product.images && product.images[0] ? (
+        <img src={product.images[0]} alt={product.title} className="absolute inset-0 w-full h-full object-cover" />
+      ) : (
+        <div className="absolute inset-0 flex items-center justify-center">
+          <Package className="w-10 h-10 text-muted-foreground/30" />
+        </div>
+      )}
+      {product.farmerPlan === "pro" && (
+        <div className="absolute top-1.5 right-1.5 w-5 h-5 rounded-full bg-yellow-500 flex items-center justify-center">
+          <Crown className="w-3 h-3 text-white" />
+        </div>
+      )}
+    </div>
+    <div className="p-3 space-y-0.5">
+      <h3 className="text-sm font-semibold text-foreground truncate">{product.title}</h3>
+      <p className="text-xs text-muted-foreground">{product.stock ?? 0} {product.unit}s total</p>
+      <span className="text-sm font-bold text-primary block pt-1">${product.price.toFixed(2)}</span>
+    </div>
+  </button>
+);
+
+const RecommendedCard = ({
+  product,
+  onClick,
+  formatDate,
+}: {
+  product: Product;
+  onClick: () => void;
+  formatDate: (d: string) => string;
+}) => (
+  <button
+    onClick={onClick}
+    className="flex items-center gap-3 w-full rounded-xl border border-border bg-card p-3 text-left hover:shadow-md transition-shadow"
+  >
+    <div className="w-16 h-16 rounded-xl bg-muted flex items-center justify-center overflow-hidden shrink-0">
+      {product.images && product.images[0] ? (
+        <img src={product.images[0]} alt={product.title} className="w-full h-full object-cover" />
+      ) : (
+        <Package className="w-6 h-6 text-muted-foreground/30" />
+      )}
+    </div>
+    <div className="flex-1 min-w-0">
+      <h3 className="text-sm font-semibold text-foreground truncate">{product.title}</h3>
+      <p className="text-xs text-muted-foreground">{product.stock ?? 0} {product.unit}s</p>
+      <span className="text-sm font-bold text-primary">${product.price.toFixed(2)}</span>
+    </div>
+    <span className="text-[10px] text-muted-foreground shrink-0 self-end">
+      {formatDate(product.created_at)}
+    </span>
+  </button>
+);
+
 const LoadingSkeleton = () => (
   <div className="space-y-6">
     <div className="space-y-3">
@@ -265,7 +291,7 @@ const LoadingSkeleton = () => (
         {Array.from({ length: 3 }).map((_, i) => (
           <div key={i} className="min-w-[160px] rounded-xl border border-border bg-card overflow-hidden animate-pulse">
             <div className="p-3 flex items-center gap-2"><div className="w-7 h-7 rounded-full bg-muted" /><div className="h-3 bg-muted rounded w-20" /></div>
-            <div className="aspect-[4/3] bg-muted mx-2 rounded-lg" />
+            <div className="aspect-square bg-muted mx-2 rounded-lg" />
             <div className="p-3 space-y-2"><div className="h-4 bg-muted rounded w-3/4" /><div className="h-3 bg-muted rounded w-1/2" /></div>
           </div>
         ))}
