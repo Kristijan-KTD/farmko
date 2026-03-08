@@ -169,7 +169,7 @@ const Explore = () => {
                 <Clock className="w-4 h-4 text-primary" />
                 <h2 className="text-base font-bold text-foreground">New products</h2>
               </div>
-              <div className="flex gap-3 overflow-x-auto pb-2 no-scrollbar lg:grid lg:grid-cols-4 xl:grid-cols-5 lg:overflow-visible" style={{ touchAction: "pan-x", overscrollBehaviorX: "contain", WebkitOverflowScrolling: "touch" }}>
+              <div className="flex gap-3 horizontal-scroll pb-2 lg:grid lg:grid-cols-4 xl:grid-cols-5 lg:overflow-visible lg:touch-auto">
                 {newProducts.map((product) => (
                   <button
                     key={product.id}
