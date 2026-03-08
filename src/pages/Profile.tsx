@@ -131,13 +131,9 @@ const Profile = () => {
         </div>
       </div>
 
-      <div className="pb-8 pt-4 space-y-3">
+      <div className="pb-8 pt-4">
         <Button onClick={() => navigate("/edit-profile")} className="w-full rounded-full h-12 text-base font-semibold">
           Edit Profile
-        </Button>
-        <Button variant="outline" onClick={handleLogout} className="w-full rounded-full h-12 text-base font-semibold text-destructive border-destructive/30 hover:bg-destructive/10">
-          <LogOut className="w-4 h-4 mr-2" />
-          Log Out
         </Button>
       </div>
     </MobileLayout>
