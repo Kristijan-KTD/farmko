@@ -169,7 +169,7 @@ const Radar = () => {
       </div>
 
       {/* Map */}
-      <div className="flex-1 relative" style={{ minHeight: "calc(100vh - 160px)" }}>
+      <div className="flex-1 relative pb-20" style={{ minHeight: "calc(100vh - 220px)" }}>
         {loading ? (
           <div className="absolute inset-0 flex items-center justify-center bg-secondary">
             <Loader2 className="w-8 h-8 animate-spin text-primary" />
@@ -210,7 +210,7 @@ const Radar = () => {
         )}
 
         {/* Legend */}
-        <div className="absolute left-4 bottom-36 bg-card/90 backdrop-blur-sm rounded-lg p-2 border border-border z-[1000]">
+        <div className="absolute left-4 top-4 bg-card/90 backdrop-blur-sm rounded-lg p-2 border border-border z-[1000]">
           <div className="flex items-center gap-2 mb-1">
             <div className="w-3 h-3 bg-primary rounded-full" />
             <span className="text-[10px] text-foreground">Farmers</span>
@@ -222,7 +222,7 @@ const Radar = () => {
         </div>
 
         {/* Nearby count card */}
-        <div className="absolute bottom-24 left-1/2 -translate-x-1/2 bg-card rounded-xl shadow-lg p-3 flex items-center gap-3 border border-border w-[calc(100%-3rem)] z-[1000]">
+        <div className="absolute bottom-4 left-1/2 -translate-x-1/2 bg-card rounded-xl shadow-lg p-3 flex items-center gap-3 border border-border w-[calc(100%-2rem)] z-[1000]">
           <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
             <MapPin className="w-5 h-5 text-primary" />
           </div>
