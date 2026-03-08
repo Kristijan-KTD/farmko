@@ -24,6 +24,7 @@ import Chat from "./pages/Chat";
 import ChatConversation from "./pages/ChatConversation";
 import Notifications from "./pages/Notifications";
 import Radar from "./pages/Radar";
+import PaymentSuccess from "./pages/PaymentSuccess";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -56,6 +57,7 @@ const App = () => (
             <Route path="/chat/:id" element={<ChatConversation />} />
             <Route path="/notifications" element={<Notifications />} />
             <Route path="/radar" element={<Radar />} />
+            <Route path="/payment-success" element={<PaymentSuccess />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </BrowserRouter>

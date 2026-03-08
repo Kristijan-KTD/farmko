@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Star, MapPin, Package, User, MessageCircle, Loader2 } from "lucide-react";
+import { Star, MapPin, Package, User, MessageCircle, Loader2, ShoppingCart } from "lucide-react";
 import MobileLayout from "@/components/layout/MobileLayout";
 import PageHeader from "@/components/layout/PageHeader";
 import { Button } from "@/components/ui/button";
@@ -39,6 +39,8 @@ const ProductDetail = () => {
   const [hoverRating, setHoverRating] = useState(0);
   const [reviewText, setReviewText] = useState("");
   const [submitting, setSubmitting] = useState(false);
+  const [buying, setBuying] = useState(false);
+  const [quantity, setQuantity] = useState(1);
 
   useEffect(() => {
     if (!id) return;
@@ -280,8 +282,41 @@ const ProductDetail = () => {
         </div>
       </div>
 
-      <div className="pb-8 pt-4">
-        <Button onClick={handleContactFarmer} className="w-full rounded-full h-12 text-base font-semibold gap-2">
+      {user?.role === "customer" && (
+        <div className="space-y-3 pb-4">
+          <div className="flex items-center gap-3">
+            <span className="text-sm font-medium text-foreground">Qty:</span>
+            <div className="flex items-center border border-border rounded-full">
+              <button onClick={() => setQuantity(Math.max(1, quantity - 1))} className="px-3 py-1 text-muted-foreground">−</button>
+              <span className="px-3 text-sm font-semibold text-foreground">{quantity}</span>
+              <button onClick={() => setQuantity(quantity + 1)} className="px-3 py-1 text-muted-foreground">+</button>
+            </div>
+            <span className="ml-auto text-lg font-bold text-primary">${(product.price * quantity).toFixed(2)}</span>
+          </div>
+          <Button
+            onClick={async () => {
+              setBuying(true);
+              const { data, error } = await supabase.functions.invoke("create-checkout", {
+                body: { productId: product.id, quantity },
+              });
+              if (data?.url) {
+                window.open(data.url, "_blank");
+              } else {
+                toast({ title: "Error", description: error?.message || data?.error || "Could not start checkout", variant: "destructive" });
+              }
+              setBuying(false);
+            }}
+            disabled={buying}
+            className="w-full rounded-full h-12 text-base font-semibold gap-2"
+          >
+            {buying ? <Loader2 className="w-5 h-5 animate-spin" /> : <ShoppingCart className="w-5 h-5" />}
+            {buying ? "Processing..." : "Buy Now"}
+          </Button>
+        </div>
+      )}
+
+      <div className="pb-8 pt-2">
+        <Button variant="outline" onClick={handleContactFarmer} className="w-full rounded-full h-12 text-base font-semibold gap-2">
           <MessageCircle className="w-5 h-5" />
           Contact Farmer
         </Button>
