@@ -32,20 +32,24 @@ const Splash = () => {
   }, [isLoading, isAuthenticated, navigate]);
 
   return (
-    <MobileLayout noPadding>
-      <div className="flex-1 bg-primary flex flex-col items-center justify-center relative overflow-hidden">
-        <div className="absolute top-10 left-10 w-32 h-32 rounded-full bg-primary-foreground/10" />
-        <div className="absolute bottom-20 right-5 w-24 h-24 rounded-full bg-primary-foreground/10" />
+    <div className="min-h-screen bg-primary flex flex-col items-center justify-center relative overflow-hidden">
+      <div className="absolute top-10 left-10 w-32 h-32 rounded-full bg-primary-foreground/10" />
+      <div className="absolute bottom-20 right-5 w-24 h-24 rounded-full bg-primary-foreground/10" />
+      
+      <div className="flex flex-col items-center gap-4 z-10">
+        <div className="w-20 h-20 flex items-center justify-center">
+          <img src={farmkoLogo} alt="Farmko logo" className="w-20 h-20 object-contain" />
+        </div>
+        <h1 className="text-3xl font-bold text-primary-foreground tracking-wide">FARMKO</h1>
+        <p className="text-primary-foreground/80 text-sm">Gateway to Farmko</p>
         
-        <div className="flex flex-col items-center gap-4 z-10">
-          <div className="w-20 h-20 flex items-center justify-center">
-            <img src={farmkoLogo} alt="Farmko logo" className="w-20 h-20 object-contain" />
-          </div>
-          <h1 className="text-3xl font-bold text-primary-foreground tracking-wide">FARMKO</h1>
-          <p className="text-primary-foreground/80 text-sm">Gateway to Farmko</p>
+        <div className="flex gap-2 mt-6">
+          <span className="w-2 h-2 rounded-full bg-primary-foreground/70 animate-bounce [animation-delay:0ms]" />
+          <span className="w-2 h-2 rounded-full bg-primary-foreground/70 animate-bounce [animation-delay:150ms]" />
+          <span className="w-2 h-2 rounded-full bg-primary-foreground/70 animate-bounce [animation-delay:300ms]" />
         </div>
       </div>
-    </MobileLayout>
+    </div>
   );
 };
 
