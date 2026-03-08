@@ -23,8 +23,8 @@ const TopBar = ({ onMenuOpen, title }: TopBarProps) => {
           <span className="absolute -top-1 -right-1 w-3 h-3 bg-destructive rounded-full" />
         </button>
         <button onClick={() => navigate("/profile")} className="w-8 h-8 rounded-full bg-muted overflow-hidden">
-          {user?.avatar ? (
-            <img src={user.avatar} alt="" className="w-full h-full object-cover" />
+          {user?.avatar_url ? (
+            <img src={user.avatar_url} alt="" className="w-full h-full object-cover" />
           ) : (
             <div className="w-full h-full flex items-center justify-center text-xs font-bold text-muted-foreground">
               {user?.name?.[0] || "U"}

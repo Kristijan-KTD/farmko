@@ -1,17 +1,35 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Mail } from "lucide-react";
+import { Mail, AlertCircle } from "lucide-react";
 import MobileLayout from "@/components/layout/MobileLayout";
 import PageHeader from "@/components/layout/PageHeader";
 import { Button } from "@/components/ui/button";
+import { supabase } from "@/integrations/supabase/client";
 
 const ForgotPassword = () => {
   const [email, setEmail] = useState("");
   const [sent, setSent] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState("");
   const navigate = useNavigate();
 
-  const handleReset = () => {
-    if (email) setSent(true);
+  const handleReset = async () => {
+    if (!email) return;
+    setIsLoading(true);
+    setError("");
+
+    const { error: err } = await supabase.auth.resetPasswordForEmail(email, {
+      redirectTo: `${window.location.origin}/reset-password`,
+    });
+
+    if (err) {
+      setError(err.message);
+      setIsLoading(false);
+      return;
+    }
+
+    setSent(true);
+    setIsLoading(false);
   };
 
   if (sent) {
@@ -43,6 +61,14 @@ const ForgotPassword = () => {
         <p className="text-sm text-muted-foreground mb-8">
           Enter your email address and we'll send you a link to reset your password.
         </p>
+
+        {error && (
+          <div className="mb-4 p-3 rounded-xl bg-destructive/10 border border-destructive/20 flex items-center gap-2">
+            <AlertCircle className="w-4 h-4 text-destructive flex-shrink-0" />
+            <p className="text-xs text-destructive">{error}</p>
+          </div>
+        )}
+
         <div className="flex items-center gap-3 border-b border-input pb-3">
           <Mail className="w-5 h-5 text-muted-foreground" />
           <input
@@ -50,13 +76,14 @@ const ForgotPassword = () => {
             placeholder="Email Address"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
+            onKeyDown={(e) => e.key === "Enter" && handleReset()}
             className="flex-1 bg-transparent text-sm outline-none placeholder:text-muted-foreground"
           />
         </div>
       </div>
       <div className="pb-8">
-        <Button onClick={handleReset} className="w-full rounded-full h-12 text-base font-semibold">
-          Continue
+        <Button onClick={handleReset} disabled={isLoading} className="w-full rounded-full h-12 text-base font-semibold">
+          {isLoading ? "Sending..." : "Continue"}
         </Button>
       </div>
     </MobileLayout>

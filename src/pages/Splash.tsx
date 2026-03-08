@@ -2,19 +2,38 @@ import { useNavigate } from "react-router-dom";
 import { useEffect } from "react";
 import MobileLayout from "@/components/layout/MobileLayout";
 import farmkoLogo from "@/assets/farmko-logo-white.png";
+import { useAuth } from "@/contexts/AuthContext";
 
 const Splash = () => {
   const navigate = useNavigate();
+  const { isAuthenticated, isLoading } = useAuth();
 
   useEffect(() => {
-    const timer = setTimeout(() => navigate("/onboarding"), 2500);
+    const timer = setTimeout(() => {
+      if (isLoading) return; // wait for auth to resolve
+      if (isAuthenticated) {
+        navigate("/home");
+      } else {
+        navigate("/onboarding");
+      }
+    }, 2500);
     return () => clearTimeout(timer);
-  }, [navigate]);
+  }, [navigate, isAuthenticated, isLoading]);
+
+  // If still loading after splash delay, redirect once resolved
+  useEffect(() => {
+    if (!isLoading) return;
+    const fallback = setTimeout(() => {
+      if (isAuthenticated) {
+        navigate("/home");
+      }
+    }, 4000);
+    return () => clearTimeout(fallback);
+  }, [isLoading, isAuthenticated, navigate]);
 
   return (
     <MobileLayout noPadding>
       <div className="flex-1 bg-primary flex flex-col items-center justify-center relative overflow-hidden">
-        {/* Decorative circles */}
         <div className="absolute top-10 left-10 w-32 h-32 rounded-full bg-primary-foreground/10" />
         <div className="absolute bottom-20 right-5 w-24 h-24 rounded-full bg-primary-foreground/10" />
         
