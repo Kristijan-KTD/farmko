@@ -1,4 +1,4 @@
-import { User, MapPin, Mail, Phone, Crown, ArrowUpRight, Loader2, LogOut } from "lucide-react";
+import { User, MapPin, Mail, Phone, Crown, ArrowUpRight, Loader2 } from "lucide-react";
 import MobileLayout from "@/components/layout/MobileLayout";
 import PageHeader from "@/components/layout/PageHeader";
 import { Button } from "@/components/ui/button";
