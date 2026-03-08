@@ -21,6 +21,7 @@ export interface Category {
 }
 
 export const CATEGORIES: Category[] = [
+  { key: "all", label: "All", icon: LayoutGrid },
   { key: "fruits", label: "Fruits", icon: Cherry },
   { key: "vegetables", label: "Vegetables", icon: Carrot },
   { key: "meat", label: "Meat", icon: Beef },
