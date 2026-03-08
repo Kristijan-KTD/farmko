@@ -6,11 +6,6 @@ import { Button } from "@/components/ui/button";
 import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/hooks/use-toast";
 
-const MOCK_USERS = [
-  { email: "farmer@farmko.com", password: "farmer123", name: "John Doe", role: "farmer" as const },
-  { email: "customer@farmko.com", password: "customer123", name: "Jane Smith", role: "customer" as const },
-];
-
 const validateEmail = (email: string) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 
 const Login = () => {
@@ -46,23 +41,21 @@ const Login = () => {
     setIsLoading(true);
     setErrors({});
 
-    // Simulate network delay
-    await new Promise(resolve => setTimeout(resolve, 1000));
+    const { error } = await login(email, password);
 
-    const foundUser = MOCK_USERS.find(u => u.email === email);
-    if (!foundUser) {
-      setErrors({ general: "No account found with this email address" });
+    if (error) {
+      if (error.toLowerCase().includes("invalid login")) {
+        setErrors({ general: "Invalid email or password" });
+      } else if (error.toLowerCase().includes("email not confirmed")) {
+        setErrors({ general: "Please verify your email address before signing in" });
+      } else {
+        setErrors({ general: error });
+      }
       setIsLoading(false);
       return;
     }
-    if (foundUser.password !== password) {
-      setErrors({ password: "Incorrect password. Please try again" });
-      setIsLoading(false);
-      return;
-    }
 
-    login(email, password);
-    toast({ title: `Welcome back, ${foundUser.name}!` });
+    toast({ title: "Welcome back!" });
     navigate("/home");
     setIsLoading(false);
   };
@@ -72,13 +65,6 @@ const Login = () => {
       <div className="flex-1 flex flex-col pt-12 max-w-md mx-auto w-full">
         <h1 className="text-2xl font-bold text-foreground mb-2">Welcome back</h1>
         <p className="text-muted-foreground text-sm mb-10">Log in to your account</p>
-
-        {/* Demo credentials hint */}
-        <div className="mb-6 p-3 rounded-xl bg-primary/5 border border-primary/20">
-          <p className="text-xs text-primary font-medium mb-1">Demo Accounts:</p>
-          <p className="text-[10px] text-muted-foreground">Farmer: farmer@farmko.com / farmer123</p>
-          <p className="text-[10px] text-muted-foreground">Customer: customer@farmko.com / customer123</p>
-        </div>
 
         {errors.general && (
           <div className="mb-4 p-3 rounded-xl bg-destructive/10 border border-destructive/20 flex items-center gap-2">

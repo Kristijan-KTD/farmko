@@ -5,17 +5,19 @@ import PageHeader from "@/components/layout/PageHeader";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/hooks/use-toast";
+import { supabase } from "@/integrations/supabase/client";
 
 const EditProfile = () => {
   const { user, updateProfile } = useAuth();
   const { toast } = useToast();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [name, setName] = useState(user?.name || "");
-  const [email, setEmail] = useState(user?.email || "");
   const [phone, setPhone] = useState(user?.phone || "");
   const [location, setLocation] = useState(user?.location || "");
   const [bio, setBio] = useState(user?.bio || "");
-  const [avatarPreview, setAvatarPreview] = useState(user?.avatar || "");
+  const [avatarPreview, setAvatarPreview] = useState(user?.avatar_url || "");
+  const [avatarFile, setAvatarFile] = useState<File | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
 
   const handlePhotoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -24,26 +26,44 @@ const EditProfile = () => {
         toast({ title: "File too large", description: "Please select an image under 5MB", variant: "destructive" });
         return;
       }
+      setAvatarFile(file);
       const reader = new FileReader();
-      reader.onload = (ev) => {
-        setAvatarPreview(ev.target?.result as string);
-      };
+      reader.onload = (ev) => setAvatarPreview(ev.target?.result as string);
       reader.readAsDataURL(file);
     }
   };
 
-  const handleSave = () => {
+  const handleSave = async () => {
     if (!name.trim()) {
       toast({ title: "Name required", description: "Please enter your full name", variant: "destructive" });
       return;
     }
-    updateProfile({ name, email, phone, location, bio, avatar: avatarPreview });
+
+    setIsLoading(true);
+    let avatar_url = user?.avatar_url || null;
+
+    // Upload avatar if changed
+    if (avatarFile && user) {
+      const ext = avatarFile.name.split(".").pop();
+      const filePath = `${user.id}/avatar.${ext}`;
+      const { error: uploadErr } = await supabase.storage
+        .from("avatars")
+        .upload(filePath, avatarFile, { upsert: true });
+
+      if (!uploadErr) {
+        const { data } = supabase.storage.from("avatars").getPublicUrl(filePath);
+        avatar_url = data.publicUrl;
+      }
+    }
+
+    await updateProfile({ name, phone, location, bio, avatar_url });
     toast({ title: "Profile updated", description: "Your changes have been saved" });
+    setIsLoading(false);
   };
 
   const fields = [
     { icon: User, label: "Full Name", value: name, onChange: setName },
-    { icon: Mail, label: "Email Address", value: email, onChange: setEmail },
+    { icon: Mail, label: "Email Address", value: user?.email || "", onChange: () => {} , disabled: true },
     { icon: Phone, label: "Phone Number", value: phone, onChange: setPhone },
     { icon: MapPin, label: "Location", value: location, onChange: setLocation },
     { icon: FileText, label: "Bio", value: bio, onChange: setBio },
@@ -80,7 +100,7 @@ const EditProfile = () => {
         </div>
 
         <div className="space-y-5">
-          {fields.map(({ icon: Icon, label, value, onChange }) => (
+          {fields.map(({ icon: Icon, label, value, onChange, disabled }) => (
             <div key={label} className="flex items-center gap-3 border-b border-input pb-3">
               <Icon className="w-5 h-5 text-muted-foreground" />
               <input
@@ -88,7 +108,8 @@ const EditProfile = () => {
                 placeholder={label}
                 value={value}
                 onChange={(e) => onChange(e.target.value)}
-                className="flex-1 bg-transparent text-sm outline-none placeholder:text-muted-foreground"
+                disabled={disabled}
+                className={`flex-1 bg-transparent text-sm outline-none placeholder:text-muted-foreground ${disabled ? "text-muted-foreground" : ""}`}
               />
             </div>
           ))}
@@ -96,8 +117,8 @@ const EditProfile = () => {
       </div>
 
       <div className="pb-8 pt-4">
-        <Button onClick={handleSave} className="w-full rounded-full h-12 text-base font-semibold">
-          Save
+        <Button onClick={handleSave} disabled={isLoading} className="w-full rounded-full h-12 text-base font-semibold">
+          {isLoading ? "Saving..." : "Save"}
         </Button>
       </div>
     </MobileLayout>

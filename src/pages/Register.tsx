@@ -44,11 +44,24 @@ const Register = () => {
 
     setIsLoading(true);
     setErrors({});
-    await new Promise(r => setTimeout(r, 1000));
 
-    register(name, email, password, role);
-    toast({ title: "Account created!", description: `Welcome to Farmko, ${name}` });
-    navigate("/home");
+    const { error } = await register(name, email, password, role);
+
+    if (error) {
+      if (error.toLowerCase().includes("already registered")) {
+        setErrors({ email: "This email is already registered" });
+      } else {
+        setErrors({ general: error });
+      }
+      setIsLoading(false);
+      return;
+    }
+
+    toast({
+      title: "Check your email!",
+      description: "We've sent you a verification link. Please verify your email to sign in.",
+    });
+    navigate("/login");
     setIsLoading(false);
   };
 
@@ -77,6 +90,13 @@ const Register = () => {
             ))}
           </div>
         </div>
+
+        {errors.general && (
+          <div className="mb-4 p-3 rounded-xl bg-destructive/10 border border-destructive/20 flex items-center gap-2">
+            <AlertCircle className="w-4 h-4 text-destructive flex-shrink-0" />
+            <p className="text-xs text-destructive">{errors.general}</p>
+          </div>
+        )}
 
         <div className="space-y-5">
           {[

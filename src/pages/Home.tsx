@@ -36,7 +36,6 @@ const Home = () => {
 
   return (
     <MobileLayout>
-      {/* Mobile-only side menu drawer */}
       <div className="lg:hidden">
         <SideMenu isOpen={menuOpen} onClose={() => setMenuOpen(false)} />
       </div>
@@ -48,11 +47,10 @@ const Home = () => {
       </div>
 
       <div className="flex-1 pb-20 lg:pb-4">
-        {/* Welcome */}
         <div className="flex items-center gap-4 mb-8">
           <div className="w-16 h-16 rounded-full bg-muted overflow-hidden flex items-center justify-center">
-            {user?.avatar ? (
-              <img src={user.avatar} alt="" className="w-full h-full object-cover" />
+            {user?.avatar_url ? (
+              <img src={user.avatar_url} alt="" className="w-full h-full object-cover" />
             ) : (
               <User className="w-8 h-8 text-muted-foreground" />
             )}
@@ -63,7 +61,6 @@ const Home = () => {
           </div>
         </div>
 
-        {/* Feature grid */}
         <div className="grid grid-cols-3 lg:grid-cols-4 gap-4">
           {features.map(({ icon: Icon, label, path, color }) => (
             <button
