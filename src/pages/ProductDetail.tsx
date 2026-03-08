@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
-import { Star, MapPin, Package, User, MessageCircle, Loader2, ShoppingCart } from "lucide-react";
+import { Star, MapPin, Package, User, MessageCircle, Loader2, Crown } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
 import MobileLayout from "@/components/layout/MobileLayout";
 import PageHeader from "@/components/layout/PageHeader";
 import { Button } from "@/components/ui/button";
