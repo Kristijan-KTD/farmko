@@ -1,6 +1,7 @@
-import { X, User, ShoppingBag, Camera, Store, Search, MessageCircle, Bell, MapPin, LogOut, Users, Home, BarChart3, Crown } from "lucide-react";
+import { X, User, ShoppingBag, Camera, Store, Search, MessageCircle, Bell, MapPin, LogOut, Users, Home, BarChart3, Crown, Shield } from "lucide-react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
+import { useAdmin } from "@/contexts/AdminContext";
 
 interface SideMenuProps {
   isOpen: boolean;
