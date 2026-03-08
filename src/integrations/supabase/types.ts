@@ -20,26 +20,46 @@ export type Database = {
           event_type: string
           farmer_id: string
           id: string
+          listing_id: string | null
           reference_id: string | null
+          user_id: string | null
         }
         Insert: {
           created_at?: string
           event_type: string
           farmer_id: string
           id?: string
+          listing_id?: string | null
           reference_id?: string | null
+          user_id?: string | null
         }
         Update: {
           created_at?: string
           event_type?: string
           farmer_id?: string
           id?: string
+          listing_id?: string | null
           reference_id?: string | null
+          user_id?: string | null
         }
         Relationships: [
           {
             foreignKeyName: "analytics_events_farmer_id_fkey"
             columns: ["farmer_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "analytics_events_listing_id_fkey"
+            columns: ["listing_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "analytics_events_user_id_fkey"
+            columns: ["user_id"]
             isOneToOne: false
             referencedRelation: "profiles"
             referencedColumns: ["id"]
@@ -88,6 +108,50 @@ export type Database = {
           },
         ]
       }
+      farmer_daily_stats: {
+        Row: {
+          contact_clicks: number | null
+          created_at: string | null
+          date: string
+          farmer_id: string
+          favorites: number | null
+          id: string
+          listing_clicks: number | null
+          listing_views: number | null
+          profile_views: number | null
+        }
+        Insert: {
+          contact_clicks?: number | null
+          created_at?: string | null
+          date: string
+          farmer_id: string
+          favorites?: number | null
+          id?: string
+          listing_clicks?: number | null
+          listing_views?: number | null
+          profile_views?: number | null
+        }
+        Update: {
+          contact_clicks?: number | null
+          created_at?: string | null
+          date?: string
+          farmer_id?: string
+          favorites?: number | null
+          id?: string
+          listing_clicks?: number | null
+          listing_views?: number | null
+          profile_views?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "farmer_daily_stats_farmer_id_fkey"
+            columns: ["farmer_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       farmer_subscriptions: {
         Row: {
           created_at: string
@@ -127,6 +191,42 @@ export type Database = {
             foreignKeyName: "farmer_subscriptions_farmer_id_fkey"
             columns: ["farmer_id"]
             isOneToOne: true
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      favorites: {
+        Row: {
+          created_at: string | null
+          id: string
+          listing_id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          listing_id: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          listing_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "favorites_listing_id_fkey"
+            columns: ["listing_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "favorites_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
             referencedRelation: "profiles"
             referencedColumns: ["id"]
           },

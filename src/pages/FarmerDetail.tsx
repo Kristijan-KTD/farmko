@@ -1,11 +1,12 @@
 import { useState, useEffect } from "react";
-import { User, MapPin, Package, Image as ImageIcon, MessageCircle, Loader2, Star } from "lucide-react";
+import { User, MapPin, Package, Image as ImageIcon, MessageCircle, Loader2, Star, Heart } from "lucide-react";
 import MobileLayout from "@/components/layout/MobileLayout";
 import PageHeader from "@/components/layout/PageHeader";
 import { Button } from "@/components/ui/button";
 import { useNavigate, useParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
+import { useAnalyticsTracking } from "@/hooks/useAnalyticsTracking";
 
 interface FarmerProfile {
   id: string;
@@ -31,6 +32,7 @@ const FarmerDetail = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const { user } = useAuth();
+  const { trackProfileView, trackListingClick, trackContactFarmer } = useAnalyticsTracking();
   const [farmer, setFarmer] = useState<FarmerProfile | null>(null);
   const [products, setProducts] = useState<Product[]>([]);
   const [photos, setPhotos] = useState<InstafarmPost[]>([]);
@@ -54,12 +56,30 @@ const FarmerDetail = () => {
         setAvgRating(reviewsRes.data.reduce((a, r) => a + r.rating, 0) / reviewsRes.data.length);
       }
       setLoading(false);
+
+      // Track profile view
+      if (profileRes.data && user && user.id !== id) {
+        trackProfileView(id);
+      }
     };
     fetchData();
   }, [id]);
 
+  const handleProductClick = (product: Product) => {
+    if (id && user && user.id !== id) {
+      trackListingClick(id, product.id);
+    }
+    navigate(`/product/${product.id}`);
+  };
+
   const handleContact = async () => {
     if (!user || !farmer) return;
+
+    // Track contact event
+    if (user.id !== farmer.id) {
+      trackContactFarmer(farmer.id);
+    }
+
     const { data: existing } = await supabase
       .from("conversations")
       .select("id")
@@ -151,7 +171,7 @@ const FarmerDetail = () => {
             <h3 className="text-sm font-semibold text-foreground mb-3">Products</h3>
             <div className="space-y-2">
               {products.map((p) => (
-                <button key={p.id} onClick={() => navigate(`/product/${p.id}`)} className="w-full flex items-center gap-3 p-2 rounded-lg border border-border text-left">
+                <button key={p.id} onClick={() => handleProductClick(p)} className="w-full flex items-center gap-3 p-2 rounded-lg border border-border text-left">
                   <div className="w-12 h-12 bg-muted rounded-lg flex items-center justify-center overflow-hidden">
                     {p.images && p.images[0] ? (
                       <img src={p.images[0]} alt="" className="w-full h-full object-cover" />

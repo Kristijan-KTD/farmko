@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Star, MapPin, Package, User, MessageCircle, Loader2, Crown } from "lucide-react";
+import { Star, MapPin, Package, User, MessageCircle, Loader2, Crown, Heart } from "lucide-react";
 import MobileLayout from "@/components/layout/MobileLayout";
 import PageHeader from "@/components/layout/PageHeader";
 import { Button } from "@/components/ui/button";
@@ -7,6 +7,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
+import { useAnalyticsTracking } from "@/hooks/useAnalyticsTracking";
 
 interface Review {
   id: string;
@@ -32,6 +33,7 @@ const ProductDetail = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
   const { toast } = useToast();
+  const { trackListingView, trackContactFarmer, trackFavoriteListing } = useAnalyticsTracking();
   const [product, setProduct] = useState<ProductData | null>(null);
   const [reviews, setReviews] = useState<Review[]>([]);
   const [loading, setLoading] = useState(true);
@@ -40,6 +42,7 @@ const ProductDetail = () => {
   const [reviewText, setReviewText] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [farmerPlan, setFarmerPlan] = useState<string | null>(null);
+  const [isFavorited, setIsFavorited] = useState(false);
 
   useEffect(() => {
     if (!id) return;
@@ -51,15 +54,27 @@ const ProductDetail = () => {
         .maybeSingle();
 
       if (prod) {
-        setProduct({
+        const productData = {
           ...prod,
           farmer: Array.isArray(prod.farmer) ? prod.farmer[0] : prod.farmer,
-        });
+        };
+        setProduct(productData);
 
-        // Track listing view analytics
-        if (user) {
+        // Track listing view & record in listing_views
+        if (user && user.id !== prod.farmer_id) {
+          trackListingView(prod.farmer_id, prod.id);
           await supabase.from("listing_views").insert({ listing_id: prod.id, viewer_id: user.id });
-          await supabase.from("analytics_events").insert({ farmer_id: prod.farmer_id, event_type: "listing_view", reference_id: prod.id });
+        }
+
+        // Check if user has favorited this product
+        if (user) {
+          const { data: fav } = await supabase
+            .from("favorites")
+            .select("id")
+            .eq("user_id", user.id)
+            .eq("listing_id", prod.id)
+            .maybeSingle();
+          setIsFavorited(!!fav);
         }
 
         // Check farmer's plan for badge
@@ -92,6 +107,22 @@ const ProductDetail = () => {
     ? (reviews.reduce((a, r) => a + r.rating, 0) / reviews.length).toFixed(1)
     : "0.0";
 
+  const handleToggleFavorite = async () => {
+    if (!user || !product) return;
+
+    if (isFavorited) {
+      await supabase.from("favorites").delete().eq("user_id", user.id).eq("listing_id", product.id);
+      setIsFavorited(false);
+    } else {
+      await supabase.from("favorites").insert({ user_id: user.id, listing_id: product.id });
+      setIsFavorited(true);
+      // Track favorite event
+      if (user.id !== product.farmer_id) {
+        trackFavoriteListing(product.farmer_id, product.id);
+      }
+    }
+  };
+
   const handleSubmitReview = async () => {
     if (userRating === 0) {
       toast({ title: "Please select a rating", variant: "destructive" });
@@ -123,7 +154,11 @@ const ProductDetail = () => {
     if (!user || !product?.farmer) return;
     const farmerId = product.farmer.id;
 
-    // Find or create conversation
+    // Track contact event
+    if (user.id !== farmerId) {
+      trackContactFarmer(farmerId);
+    }
+
     const { data: existing } = await supabase
       .from("conversations")
       .select("id")
@@ -180,11 +215,19 @@ const ProductDetail = () => {
       <PageHeader title="Product Details" />
 
       <div className="flex-1 space-y-4 pb-4">
-        <div className="aspect-square bg-muted rounded-xl flex items-center justify-center overflow-hidden">
+        <div className="relative aspect-square bg-muted rounded-xl flex items-center justify-center overflow-hidden">
           {product.images && product.images[0] ? (
             <img src={product.images[0]} alt={product.title} className="w-full h-full object-cover" />
           ) : (
             <Package className="w-20 h-20 text-muted-foreground/30" />
+          )}
+          {user && (
+            <button
+              onClick={handleToggleFavorite}
+              className="absolute top-3 right-3 w-10 h-10 rounded-full bg-background/80 backdrop-blur-sm flex items-center justify-center"
+            >
+              <Heart className={`w-5 h-5 ${isFavorited ? "fill-red-500 text-red-500" : "text-muted-foreground"}`} />
+            </button>
           )}
         </div>
 
