@@ -7,7 +7,7 @@ import {
   Nut,
   Wheat,
   Leaf,
-  // Honey doesn't exist, we'll use a custom approach
+  Droplets,
   CakeSlice,
   Wine,
   MoreHorizontal,
@@ -20,7 +20,6 @@ export interface Category {
   icon: LucideIcon;
 }
 
-// Using available lucide icons that best represent each category
 export const CATEGORIES: Category[] = [
   { key: "fruits", label: "Fruits", icon: Cherry },
   { key: "vegetables", label: "Vegetables", icon: Carrot },
@@ -30,7 +29,7 @@ export const CATEGORIES: Category[] = [
   { key: "nuts", label: "Nuts", icon: Nut },
   { key: "grains", label: "Grains", icon: Wheat },
   { key: "herbs", label: "Herbs", icon: Leaf },
-  { key: "honey", label: "Honey", icon: CakeSlice },
+  { key: "honey", label: "Honey", icon: Droplets },
   { key: "baked_goods", label: "Baked Goods", icon: CakeSlice },
   { key: "beverages", label: "Beverages", icon: Wine },
   { key: "other", label: "Other", icon: MoreHorizontal },

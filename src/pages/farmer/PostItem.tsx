@@ -9,6 +9,7 @@ import { useSubscription } from "@/contexts/SubscriptionContext";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import UpgradeModal from "@/components/UpgradeModal";
+import { CATEGORIES } from "@/lib/categories";
 
 const PostItem = () => {
   const navigate = useNavigate();
@@ -156,10 +157,9 @@ const PostItem = () => {
     );
   }
 
-  const fields = [
+  const textFields = [
     { key: "name", label: "Item Title", placeholder: "e.g. Fresh Organic Eggs" },
     { key: "description", label: "Short Description", placeholder: "Describe your product" },
-    { key: "category", label: "Product Category", placeholder: "e.g. Dairy, Vegetables" },
     { key: "price", label: "Price", placeholder: "e.g. 5.00" },
     { key: "quantity", label: "Available Quantity", placeholder: "e.g. 30" },
     { key: "unit", label: "Unit of Measure", placeholder: "e.g. dozen, kg, lb" },
@@ -182,7 +182,62 @@ const PostItem = () => {
           )}
         </div>
 
-        {fields.map(({ key, label, placeholder }) => (
+        {/* Item Title */}
+        <div>
+          <label className="text-xs font-medium text-muted-foreground mb-1 block">Item Title</label>
+          <div className="border-b border-input pb-2">
+            <input
+              type="text"
+              placeholder="e.g. Fresh Organic Eggs"
+              value={form.name}
+              onChange={(e) => setForm({ ...form, name: e.target.value })}
+              className="w-full bg-transparent text-sm outline-none placeholder:text-muted-foreground"
+            />
+          </div>
+        </div>
+
+        {/* Description */}
+        <div>
+          <label className="text-xs font-medium text-muted-foreground mb-1 block">Short Description</label>
+          <div className="border-b border-input pb-2">
+            <input
+              type="text"
+              placeholder="Describe your product"
+              value={form.description}
+              onChange={(e) => setForm({ ...form, description: e.target.value })}
+              className="w-full bg-transparent text-sm outline-none placeholder:text-muted-foreground"
+            />
+          </div>
+        </div>
+
+        {/* Category Picker */}
+        <div>
+          <label className="text-xs font-medium text-muted-foreground mb-2 block">Product Category</label>
+          <div className="flex flex-wrap gap-2">
+            {CATEGORIES.map((cat) => {
+              const Icon = cat.icon;
+              const isActive = form.category === cat.key;
+              return (
+                <button
+                  key={cat.key}
+                  type="button"
+                  onClick={() => setForm({ ...form, category: isActive ? "" : cat.key })}
+                  className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full border text-xs transition-colors ${
+                    isActive
+                      ? "bg-primary text-primary-foreground border-primary"
+                      : "bg-card border-border text-muted-foreground hover:border-primary/50"
+                  }`}
+                >
+                  <Icon className="w-3.5 h-3.5" />
+                  {cat.label}
+                </button>
+              );
+            })}
+          </div>
+        </div>
+
+        {/* Price, Quantity, Unit */}
+        {textFields.filter(f => f.key !== "name" && f.key !== "description").map(({ key, label, placeholder }) => (
           <div key={key}>
             <label className="text-xs font-medium text-muted-foreground mb-1 block">{label}</label>
             <div className="border-b border-input pb-2">
