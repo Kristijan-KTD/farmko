@@ -19,14 +19,27 @@ export const AdminProvider = ({ children }: { children: ReactNode }) => {
 
   useEffect(() => {
     const checkAdmin = async () => {
-      if (!session) {
+      if (!session || !user) {
         setIsAdmin(false);
         setIsLoading(false);
         return;
       }
 
       try {
-        // Try a lightweight admin action to verify
+        // First check if user has an admin role in user_roles table
+        const { data: roleData } = await supabase
+          .from("user_roles")
+          .select("role")
+          .eq("user_id", user.id)
+          .maybeSingle();
+
+        if (!roleData) {
+          setIsAdmin(false);
+          setIsLoading(false);
+          return;
+        }
+
+        // Only call the admin function if user has a role entry
         const { data, error } = await supabase.functions.invoke("admin", {
           body: { action: "get_dashboard_stats" },
         });
@@ -38,7 +51,7 @@ export const AdminProvider = ({ children }: { children: ReactNode }) => {
     };
 
     checkAdmin();
-  }, [session]);
+  }, [session, user]);
 
   const adminAction = async <T = any>(action: string, params: Record<string, any> = {}): Promise<T> => {
     const { data, error } = await supabase.functions.invoke("admin", {
