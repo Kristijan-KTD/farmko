@@ -169,7 +169,7 @@ const Radar = () => {
       </div>
 
       {/* Map */}
-      <div className="flex-1 relative overflow-hidden">
+      <div className="flex-1 relative overflow-hidden" style={{ minHeight: "calc(100vh - 200px)" }}>
         {loading ? (
           <div className="absolute inset-0 flex items-center justify-center bg-secondary">
             <Loader2 className="w-8 h-8 animate-spin text-primary" />
