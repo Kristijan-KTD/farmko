@@ -14,7 +14,7 @@ import { CATEGORIES } from "@/lib/categories";
 const PostItem = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
-  const { canCreateListing, plan } = useSubscription();
+  const { canCreateListing, plan, isLoading: subLoading } = useSubscription();
   const { toast } = useToast();
   const fileRef = useRef<HTMLInputElement>(null);
   const [step, setStep] = useState<"form" | "images" | "done">("form");
@@ -58,6 +58,7 @@ const PostItem = () => {
   };
 
   const handleContinue = () => {
+    if (subLoading) return;
     if (!canCreateListing(activeCount)) {
       setShowUpgrade(true);
       return;
@@ -254,8 +255,8 @@ const PostItem = () => {
         ))}
       </div>
       <div className="pb-8 pt-4">
-        <Button onClick={handleContinue} disabled={!form.name.trim()} className="w-full rounded-full h-12 text-base font-semibold">
-          Continue
+        <Button onClick={handleContinue} disabled={!form.name.trim() || subLoading} className="w-full rounded-full h-12 text-base font-semibold">
+          {subLoading ? "Loading..." : "Continue"}
         </Button>
       </div>
       <UpgradeModal open={showUpgrade} onClose={() => setShowUpgrade(false)} />
