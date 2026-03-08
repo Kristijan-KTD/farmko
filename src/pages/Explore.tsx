@@ -128,7 +128,7 @@ const Explore = () => {
               return (
                 <button
                   key={cat.key}
-                  onClick={() => setSelectedCategory(isActive ? null : cat.key)}
+                  onClick={() => setSelectedCategory(isActive || cat.key === "all" ? null : cat.key)}
                   className={`flex flex-col items-center gap-1.5 min-w-[64px] shrink-0 transition-all ${
                     isActive ? "opacity-100" : "opacity-70 hover:opacity-100"
                   }`}
