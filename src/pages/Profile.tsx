@@ -10,9 +10,14 @@ import { supabase } from "@/integrations/supabase/client";
 import { useState } from "react";
 import { useToast } from "@/hooks/use-toast";
 
+const planIcons: Record<string, any> = {
+  growth: Zap,
+  pro: Crown,
+};
+
 const planColors: Record<string, string> = {
-  growth: "bg-blue-500 text-white",
-  pro: "bg-gradient-to-r from-amber-500 to-yellow-400 text-white",
+  growth: "bg-primary text-primary-foreground",
+  pro: "bg-yellow-500 text-white",
 };
 
 const Profile = () => {
