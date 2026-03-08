@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Star, MapPin, Package, User, MessageCircle, Loader2 } from "lucide-react";
+import { Star, MapPin, Package, User, MessageCircle, Loader2, ShoppingCart } from "lucide-react";
 import MobileLayout from "@/components/layout/MobileLayout";
 import PageHeader from "@/components/layout/PageHeader";
 import { Button } from "@/components/ui/button";
