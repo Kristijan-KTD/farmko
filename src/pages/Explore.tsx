@@ -152,7 +152,7 @@ const Explore = () => {
                 </button>
               );
             })}
-          </div>
+          </HorizontalScroll>
         </section>
 
         {loading ? (
