@@ -9,6 +9,7 @@ import Onboarding from "./pages/Onboarding";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
 import ForgotPassword from "./pages/ForgotPassword";
+import ResetPassword from "./pages/ResetPassword";
 import Home from "./pages/Home";
 import Profile from "./pages/Profile";
 import EditProfile from "./pages/EditProfile";

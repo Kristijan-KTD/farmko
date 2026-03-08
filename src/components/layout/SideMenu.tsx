@@ -60,8 +60,8 @@ const SideMenu = ({ isOpen, onClose, isDesktop = false }: SideMenuProps) => {
         {/* User info */}
         <div className="px-6 pb-4 flex items-center gap-3">
           <div className="w-10 h-10 rounded-full bg-primary-foreground/20 flex items-center justify-center overflow-hidden">
-            {user?.avatar ? (
-              <img src={user.avatar} alt="" className="w-full h-full object-cover" />
+            {user?.avatar_url ? (
+              <img src={user.avatar_url} alt="" className="w-full h-full object-cover" />
             ) : (
               <User className="w-5 h-5 text-primary-foreground" />
             )}
