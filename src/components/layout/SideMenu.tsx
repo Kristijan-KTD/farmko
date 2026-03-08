@@ -58,7 +58,7 @@ const SideMenu = ({ isOpen, onClose, isDesktop = false }: SideMenuProps) => {
   // Desktop persistent sidebar
   if (isDesktop) {
     return (
-      <div className="h-screen bg-primary sticky top-0 flex flex-col">
+      <div className="h-screen bg-primary fixed top-0 left-0 w-64 flex flex-col">
         <div className="p-6">
           <h2 className="text-xl font-bold text-primary-foreground">Farmko</h2>
           <p className="text-primary-foreground/70 text-xs capitalize mt-1">{user?.role} Account</p>
