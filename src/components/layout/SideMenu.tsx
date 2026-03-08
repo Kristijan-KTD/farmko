@@ -19,6 +19,8 @@ const SideMenu = ({ isOpen, onClose, isDesktop = false }: SideMenuProps) => {
     { icon: ShoppingBag, label: "Post Item for Sell", path: "/post-item" },
     { icon: Camera, label: "My Instafarm", path: "/instafarm" },
     { icon: Store, label: "My Store", path: "/my-store" },
+    { icon: BarChart3, label: "Analytics", path: "/analytics" },
+    { icon: Crown, label: "Plans", path: "/plans" },
     { icon: Search, label: "Explore", path: "/explore" },
     { icon: MessageCircle, label: "Chat", path: "/chat" },
     { icon: Bell, label: "Notifications", path: "/notifications" },
