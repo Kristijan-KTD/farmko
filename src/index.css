@@ -95,6 +95,18 @@
   scrollbar-width: none;
 }
 
+/* Horizontal-only scroll containers – prevent vertical scroll chaining */
+.horizontal-scroll {
+  overflow-x: auto;
+  overflow-y: hidden;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior-x: contain;
+  touch-action: pan-x;
+}
+.horizontal-scroll::-webkit-scrollbar {
+  display: none;
+}
+
 /* Underline input style matching Figma */
 .input-underline {
   @apply border-0 border-b border-input bg-transparent rounded-none px-0 focus-visible:ring-0 focus-visible:ring-offset-0 focus-visible:border-primary;
