@@ -40,9 +40,10 @@ const PostItem = () => {
         .eq("farmer_id", user.id)
         .eq("status", "active");
       setActiveCount(count || 0);
+      console.log("PostItem - Active count:", count, "Plan:", plan, "Can create:", canCreateListing(count || 0));
     };
     checkCount();
-  }, [user]);
+  }, [user, plan, canCreateListing]);
 
   const handleImageSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(e.target.files || []);
