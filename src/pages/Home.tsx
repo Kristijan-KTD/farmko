@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { User, ShoppingBag, Camera, Store, Search, MessageCircle, Bell, MapPin, Users } from "lucide-react";
+import { User, ShoppingBag, Camera, Store, Search, MessageCircle, Bell, MapPin, Users, BarChart3, Crown } from "lucide-react";
 import MobileLayout from "@/components/layout/MobileLayout";
 import TopBar from "@/components/layout/TopBar";
 import BottomNav from "@/components/layout/BottomNav";
