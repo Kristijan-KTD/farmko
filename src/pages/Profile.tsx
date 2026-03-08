@@ -2,23 +2,40 @@ import { User, MapPin, Mail, Phone } from "lucide-react";
 import MobileLayout from "@/components/layout/MobileLayout";
 import PageHeader from "@/components/layout/PageHeader";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import { useAuth } from "@/contexts/AuthContext";
+import { useSubscription } from "@/contexts/SubscriptionContext";
 import { useNavigate } from "react-router-dom";
+
+const planColors: Record<string, string> = {
+  growth: "bg-blue-500 text-white",
+  pro: "bg-gradient-to-r from-amber-500 to-yellow-400 text-white",
+};
 
 const Profile = () => {
   const { user } = useAuth();
+  const { plan } = useSubscription();
   const navigate = useNavigate();
+
+  const showBadge = user?.role === "farmer" && plan !== "starter";
 
   return (
     <MobileLayout>
       <PageHeader title="Profile" />
 
       <div className="flex-1 flex flex-col items-center">
-        <div className="w-24 h-24 rounded-full bg-muted flex items-center justify-center mb-4 overflow-hidden">
-          {user?.avatar_url ? (
-            <img src={user.avatar_url} alt="" className="w-full h-full object-cover" />
-          ) : (
-            <User className="w-12 h-12 text-muted-foreground" />
+        <div className="relative mb-4">
+          <div className="w-24 h-24 rounded-full bg-muted flex items-center justify-center overflow-hidden">
+            {user?.avatar_url ? (
+              <img src={user.avatar_url} alt="" className="w-full h-full object-cover" />
+            ) : (
+              <User className="w-12 h-12 text-muted-foreground" />
+            )}
+          </div>
+          {showBadge && (
+            <Badge className={`absolute -bottom-2 left-1/2 -translate-x-1/2 text-[10px] px-2 py-0.5 border-2 border-background shadow-md ${planColors[plan] || ""}`}>
+              {plan === "pro" ? "⭐ Pro" : "Growth"}
+            </Badge>
           )}
         </div>
         <h2 className="text-xl font-bold text-foreground">{user?.name}</h2>
