@@ -22,7 +22,7 @@ const PaymentSuccess = () => {
   }, [orderId]);
 
   return (
-    <MobileLayout hideNav>
+    <MobileLayout>
       <div className="flex-1 flex flex-col items-center justify-center px-6 text-center gap-6">
         <div className="w-20 h-20 rounded-full bg-green-100 flex items-center justify-center">
           <CheckCircle2 className="w-10 h-10 text-green-600" />
