@@ -17,7 +17,7 @@ const MobileLayout = ({ children, className = "", noPadding = false, hideDesktop
     <div className="min-h-screen bg-background flex overflow-x-hidden">
       {/* Desktop sidebar - always visible on large screens when authenticated */}
       {showSidebar && (
-        <div className="hidden lg:block w-64 flex-shrink-0">
+        <div className="hidden lg:block w-64 flex-shrink-0 h-screen sticky top-0">
           <SideMenu isOpen={true} onClose={() => {}} isDesktop />
         </div>
       )}

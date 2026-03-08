@@ -216,8 +216,35 @@ const ProductDetail = () => {
 
       <div className="flex-1 space-y-4 pb-4">
         <div className="relative aspect-square bg-muted rounded-xl flex items-center justify-center overflow-hidden">
-          {product.images && product.images[0] ? (
-            <img src={product.images[0]} alt={product.title} className="w-full h-full object-cover" />
+          {product.images && product.images.length > 0 ? (
+            <>
+              <img src={product.images[currentImageIndex]} alt={product.title} className="w-full h-full object-cover" />
+              {product.images.length > 1 && (
+                <>
+                  <button
+                    onClick={() => setCurrentImageIndex((prev) => (prev - 1 + product.images!.length) % product.images!.length)}
+                    className="absolute left-3 top-1/2 -translate-y-1/2 w-9 h-9 rounded-full bg-background/80 backdrop-blur-sm flex items-center justify-center"
+                  >
+                    <ChevronLeft className="w-5 h-5 text-foreground" />
+                  </button>
+                  <button
+                    onClick={() => setCurrentImageIndex((prev) => (prev + 1) % product.images!.length)}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 w-9 h-9 rounded-full bg-background/80 backdrop-blur-sm flex items-center justify-center"
+                  >
+                    <ChevronRight className="w-5 h-5 text-foreground" />
+                  </button>
+                  <div className="absolute bottom-3 left-1/2 -translate-x-1/2 flex gap-1.5">
+                    {product.images.map((_, idx) => (
+                      <button
+                        key={idx}
+                        onClick={() => setCurrentImageIndex(idx)}
+                        className={`w-2 h-2 rounded-full transition-colors ${idx === currentImageIndex ? "bg-primary" : "bg-background/60"}`}
+                      />
+                    ))}
+                  </div>
+                </>
+              )}
+            </>
           ) : (
             <Package className="w-20 h-20 text-muted-foreground/30" />
           )}
