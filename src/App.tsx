@@ -57,6 +57,7 @@ const App = () => (
             <Route path="/chat/:id" element={<ChatConversation />} />
             <Route path="/notifications" element={<Notifications />} />
             <Route path="/radar" element={<Radar />} />
+            <Route path="/payment-success" element={<PaymentSuccess />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </BrowserRouter>
