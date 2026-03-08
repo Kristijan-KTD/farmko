@@ -55,7 +55,15 @@ export const SubscriptionProvider = ({ children }: { children: ReactNode }) => {
   const [isLoading, setIsLoading] = useState(true);
 
   const refreshSubscription = useCallback(async () => {
-    if (!session || user?.role !== "farmer") {
+    if (!session) {
+      setPlan("starter");
+      setSubscribed(false);
+      setIsLoading(false);
+      return;
+    }
+    // If session exists but user profile hasn't loaded yet, keep loading
+    if (!user) return;
+    if (user.role !== "farmer") {
       setPlan("starter");
       setSubscribed(false);
       setIsLoading(false);
