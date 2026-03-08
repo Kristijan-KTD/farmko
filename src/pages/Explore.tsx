@@ -122,7 +122,7 @@ const Explore = () => {
         {/* ── Categories ── */}
         <section>
           <h2 className="text-base font-bold text-foreground mb-3">Categories</h2>
-          <div className="flex gap-3 overflow-x-auto pb-2 scrollbar-hide">
+          <div className="flex gap-3 overflow-x-auto pb-2 no-scrollbar" style={{ touchAction: "pan-x" }}>
             {CATEGORIES.map((cat) => {
               const Icon = cat.icon;
               const isActive = selectedCategory === cat.key;
@@ -169,7 +169,7 @@ const Explore = () => {
                 <Clock className="w-4 h-4 text-primary" />
                 <h2 className="text-base font-bold text-foreground">New products</h2>
               </div>
-              <div className="flex gap-3 overflow-x-auto pb-2 scrollbar-hide lg:grid lg:grid-cols-4 xl:grid-cols-5 lg:overflow-visible">
+              <div className="flex gap-3 overflow-x-auto pb-2 no-scrollbar lg:grid lg:grid-cols-4 xl:grid-cols-5 lg:overflow-visible" style={{ touchAction: "pan-x" }}>
                 {newProducts.map((product) => (
                   <button
                     key={product.id}
@@ -187,11 +187,13 @@ const Explore = () => {
                       </div>
                     </div>
                     {/* Image */}
-                    <div className="aspect-[4/3] bg-muted flex items-center justify-center relative mx-2 rounded-lg overflow-hidden">
+                    <div className="aspect-square bg-muted relative mx-2 rounded-lg overflow-hidden">
                       {product.images && product.images[0] ? (
-                        <img src={product.images[0]} alt={product.title} className="w-full h-full object-cover" />
+                        <img src={product.images[0]} alt={product.title} className="absolute inset-0 w-full h-full object-cover" />
                       ) : (
-                        <Package className="w-10 h-10 text-muted-foreground/30" />
+                        <div className="absolute inset-0 flex items-center justify-center">
+                          <Package className="w-10 h-10 text-muted-foreground/30" />
+                        </div>
                       )}
                       {product.farmerPlan === "pro" && (
                         <div className="absolute top-1.5 right-1.5 w-5 h-5 rounded-full bg-yellow-500 flex items-center justify-center">
