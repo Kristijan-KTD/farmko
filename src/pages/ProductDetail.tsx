@@ -56,6 +56,20 @@ const ProductDetail = () => {
           ...prod,
           farmer: Array.isArray(prod.farmer) ? prod.farmer[0] : prod.farmer,
         });
+
+        // Track listing view analytics
+        if (user) {
+          await supabase.from("listing_views").insert({ listing_id: prod.id, viewer_id: user.id });
+          await supabase.from("analytics_events").insert({ farmer_id: prod.farmer_id, event_type: "listing_view", reference_id: prod.id });
+        }
+
+        // Check farmer's plan for badge
+        const { data: sub } = await supabase
+          .from("farmer_subscriptions")
+          .select("plan")
+          .eq("farmer_id", prod.farmer_id)
+          .maybeSingle();
+        if (sub) setFarmerPlan(sub.plan);
       }
 
       const { data: revs } = await supabase
