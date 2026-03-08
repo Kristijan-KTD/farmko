@@ -122,7 +122,7 @@ const Explore = () => {
         {/* ── Categories ── */}
         <section>
           <h2 className="text-base font-bold text-foreground mb-3">Categories</h2>
-          <div className="flex gap-3 overflow-x-auto pb-2 no-scrollbar" style={{ touchAction: "pan-x" }}>
+          <div className="flex gap-3 overflow-x-auto pb-2 no-scrollbar" style={{ touchAction: "pan-x", overscrollBehaviorX: "contain", WebkitOverflowScrolling: "touch" }}>
             {CATEGORIES.map((cat) => {
               const Icon = cat.icon;
               const isActive = selectedCategory === cat.key;
