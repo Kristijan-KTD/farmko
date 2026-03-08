@@ -1,4 +1,4 @@
-import { User, MapPin, Mail, Phone, Crown, ArrowUpRight, Loader2, LogOut } from "lucide-react";
+import { User, MapPin, Mail, Phone, Crown, ArrowUpRight, Loader2 } from "lucide-react";
 import MobileLayout from "@/components/layout/MobileLayout";
 import PageHeader from "@/components/layout/PageHeader";
 import { Button } from "@/components/ui/button";
@@ -16,7 +16,7 @@ const planColors: Record<string, string> = {
 };
 
 const Profile = () => {
-  const { user, logout } = useAuth();
+  const { user } = useAuth();
   const { plan, subscribed, subscriptionEnd, isLoading: subLoading } = useSubscription();
   const navigate = useNavigate();
   const { toast } = useToast();
@@ -39,10 +39,6 @@ const Profile = () => {
     setPortalLoading(false);
   };
 
-  const handleLogout = async () => {
-    await logout();
-    navigate("/login");
-  };
 
   return (
     <MobileLayout>
@@ -135,13 +131,9 @@ const Profile = () => {
         </div>
       </div>
 
-      <div className="pb-8 pt-4 space-y-3">
+      <div className="pb-8 pt-4">
         <Button onClick={() => navigate("/edit-profile")} className="w-full rounded-full h-12 text-base font-semibold">
           Edit Profile
-        </Button>
-        <Button variant="outline" onClick={handleLogout} className="w-full rounded-full h-12 text-base font-semibold text-destructive border-destructive/30 hover:bg-destructive/10">
-          <LogOut className="w-4 h-4 mr-2" />
-          Log Out
         </Button>
       </div>
     </MobileLayout>
