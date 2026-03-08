@@ -40,8 +40,7 @@ const ProductDetail = () => {
   const [hoverRating, setHoverRating] = useState(0);
   const [reviewText, setReviewText] = useState("");
   const [submitting, setSubmitting] = useState(false);
-  const [buying, setBuying] = useState(false);
-  const [quantity, setQuantity] = useState(1);
+  const [farmerPlan, setFarmerPlan] = useState<string | null>(null);
 
   useEffect(() => {
     if (!id) return;
