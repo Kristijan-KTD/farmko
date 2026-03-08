@@ -60,12 +60,13 @@ const Profile = () => {
           </div>
           {showBadge && (() => {
             const Icon = planIcons[plan];
-            return (
-              <Badge className={`absolute -bottom-2 left-1/2 -translate-x-1/2 text-[10px] px-2 py-0.5 border-2 border-background shadow-md flex items-center gap-1 ${planColors[plan] || ""}`}>
-                {Icon && <Icon className="w-3 h-3" />}
-                {plan === "pro" ? "Pro Farmer" : "Growth"}
-              </Badge>
-            );
+            return Icon ? (
+              <div className={`absolute -bottom-1 -right-1 w-8 h-8 rounded-full flex items-center justify-center border-2 border-background shadow-md ${
+                plan === "pro" ? "bg-yellow-500 text-white" : "bg-primary text-primary-foreground"
+              }`}>
+                <Icon className="w-4 h-4" />
+              </div>
+            ) : null;
           })()}
         </div>
         <h2 className="text-xl font-bold text-foreground">{user?.name}</h2>
