@@ -14,7 +14,7 @@ import { CATEGORIES } from "@/lib/categories";
 const PostItem = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
-  const { canCreateListing, plan } = useSubscription();
+  const { canCreateListing, plan, isLoading: subLoading } = useSubscription();
   const { toast } = useToast();
   const fileRef = useRef<HTMLInputElement>(null);
   const [step, setStep] = useState<"form" | "images" | "done">("form");
