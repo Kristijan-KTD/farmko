@@ -210,7 +210,7 @@ const Explore = () => {
                     </div>
                   </button>
                 ))}
-              </div>
+              </HorizontalScroll>
             </section>
 
             {/* ── Recommended ── */}
