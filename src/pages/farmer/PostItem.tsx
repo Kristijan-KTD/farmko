@@ -58,6 +58,7 @@ const PostItem = () => {
   };
 
   const handleContinue = () => {
+    if (subLoading) return;
     if (!canCreateListing(activeCount)) {
       setShowUpgrade(true);
       return;
