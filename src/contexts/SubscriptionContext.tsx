@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useState, useEffect, useCallback, ReactNode } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
+import { toast } from "@/hooks/use-toast";
 
 export type PlanTier = "starter" | "growth" | "pro";
 
@@ -92,11 +93,27 @@ export const SubscriptionProvider = ({ children }: { children: ReactNode }) => {
       // If token expires in less than 5 minutes, refresh it proactively
       if (timeUntilExpiry < 300) {
         console.log("Token expiring soon, refreshing session...");
+        toast({
+          title: "Refreshing session...",
+          description: "Keeping you logged in",
+          duration: 2000,
+        });
         const { data: refreshData, error: refreshError } = await supabase.auth.refreshSession();
         if (refreshError) {
           console.error("Failed to refresh session:", refreshError);
+          toast({
+            title: "Session refresh failed",
+            description: "Please log in again if you experience issues",
+            variant: "destructive",
+            duration: 3000,
+          });
         } else if (refreshData.session) {
           console.log("Session refreshed successfully");
+          toast({
+            title: "Session refreshed",
+            description: "You're all set",
+            duration: 2000,
+          });
         }
       }
 
