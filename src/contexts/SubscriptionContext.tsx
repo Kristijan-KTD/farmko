@@ -71,8 +71,21 @@ export const SubscriptionProvider = ({ children }: { children: ReactNode }) => {
     }
 
     try {
+      // Verify session is still valid by checking if it exists on the server
+      const { data: { session: currentSession }, error: sessionError } = await supabase.auth.getSession();
+      
+      // If session doesn't exist or user isn't authenticated, reset to starter
+      if (sessionError || !currentSession) {
+        console.log("Session no longer valid, resetting to starter");
+        setPlan("starter");
+        setSubscribed(false);
+        setSubscriptionEnd(null);
+        setIsLoading(false);
+        return;
+      }
+
       // Check if token is about to expire (within 5 minutes)
-      const expiresAt = session.expires_at;
+      const expiresAt = currentSession.expires_at;
       const now = Math.floor(Date.now() / 1000);
       const timeUntilExpiry = expiresAt ? expiresAt - now : 0;
       
