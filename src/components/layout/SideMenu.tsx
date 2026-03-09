@@ -2,6 +2,7 @@ import { X, User, ShoppingBag, Camera, Store, Search, MessageCircle, Bell, MapPi
 import { useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { useAdmin } from "@/contexts/AdminContext";
+import farmkoLogo from "@/assets/farmko-logo-horizontal.png";
 
 interface SideMenuProps {
   isOpen: boolean;
@@ -60,7 +61,7 @@ const SideMenu = ({ isOpen, onClose, isDesktop = false }: SideMenuProps) => {
     return (
       <div className="h-screen bg-primary fixed top-0 left-0 w-64 flex flex-col">
         <div className="p-6">
-          <h2 className="text-xl font-bold text-primary-foreground">Farmko</h2>
+          <img src={farmkoLogo} alt="Farmko" className="h-8 w-auto" />
           <p className="text-primary-foreground/70 text-xs capitalize mt-1">{user?.role} Account</p>
         </div>
 
