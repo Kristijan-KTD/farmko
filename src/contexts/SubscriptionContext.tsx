@@ -193,8 +193,10 @@ export const SubscriptionProvider = ({ children }: { children: ReactNode }) => {
   const listingLimit = PLANS[plan].listingLimit;
 
   const canCreateListing = (currentCount: number) => {
-    if (plan === "pro") return true;
-    return currentCount < PLANS[plan].listingLimit;
+    const limit = PLANS[plan].listingLimit;
+    // If limit is null or Infinity (Pro plan), allow unlimited
+    if (limit === null || limit === Infinity || plan === "pro") return true;
+    return currentCount < limit;
   };
 
   const hasFeature = (feature: "analytics" | "featured_badge" | "farm_story" | "farm_banner" | "favorites") => {

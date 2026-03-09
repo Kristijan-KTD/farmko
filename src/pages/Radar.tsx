@@ -182,30 +182,34 @@ const Radar = () => {
             style={{ width: "100%", height: "100%", position: "absolute", top: 0, left: 0 }}
             zoomControl={false}
           >
-            <TileLayer
-              attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
-              url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-            />
-
-            {myLocation && (
+            {() => (
               <>
-                <FlyToLocation lat={myLocation.lat} lng={myLocation.lng} />
-                <Marker position={[myLocation.lat, myLocation.lng]} icon={youIcon}>
-                  <Popup>
-                    <span className="font-semibold">You are here</span>
-                  </Popup>
-                </Marker>
+                <TileLayer
+                  attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+                  url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+                />
+
+                {myLocation && (
+                  <>
+                    <FlyToLocation lat={myLocation.lat} lng={myLocation.lng} />
+                    <Marker position={[myLocation.lat, myLocation.lng]} icon={youIcon}>
+                      <Popup>
+                        <span className="font-semibold">You are here</span>
+                      </Popup>
+                    </Marker>
+                  </>
+                )}
+
+                {filteredPins.map((pin) => (
+                  <Marker
+                    key={pin.id}
+                    position={[pin.latitude!, pin.longitude!]}
+                    icon={pin.role === "farmer" ? farmerIcon : customerIcon}
+                    eventHandlers={{ click: () => setSelectedPin(pin) }}
+                  />
+                ))}
               </>
             )}
-
-            {filteredPins.map((pin) => (
-              <Marker
-                key={pin.id}
-                position={[pin.latitude!, pin.longitude!]}
-                icon={pin.role === "farmer" ? farmerIcon : customerIcon}
-                eventHandlers={{ click: () => setSelectedPin(pin) }}
-              />
-            ))}
           </MapContainer>
         )}
 
