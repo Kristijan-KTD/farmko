@@ -72,12 +72,38 @@ export const SubscriptionProvider = ({ children }: { children: ReactNode }) => {
 
     try {
       const { data, error } = await supabase.functions.invoke("check-subscription");
+      
+      // Handle auth errors (401) - session expired or invalid
+      if (error && error.message?.includes("Session expired")) {
+        console.log("Subscription check: Session expired, falling back to local data");
+        const { data: sub } = await supabase
+          .from("farmer_subscriptions")
+          .select("plan")
+          .eq("farmer_id", user!.id)
+          .maybeSingle();
+        setPlan((sub?.plan as PlanTier) || "starter");
+        setSubscribed(false);
+        setIsLoading(false);
+        return;
+      }
+      
+      // Handle successful response
       if (!error && data) {
         setPlan((data.plan as PlanTier) || "starter");
         setSubscribed(data.subscribed || false);
         setSubscriptionEnd(data.subscription_end || null);
+      } else if (error) {
+        // Other errors - fallback to local table
+        console.error("Subscription check error:", error);
+        const { data: sub } = await supabase
+          .from("farmer_subscriptions")
+          .select("plan")
+          .eq("farmer_id", user!.id)
+          .maybeSingle();
+        setPlan((sub?.plan as PlanTier) || "starter");
       }
-    } catch {
+    } catch (err) {
+      console.error("Subscription check exception:", err);
       // Fallback: read from local table
       const { data: sub } = await supabase
         .from("farmer_subscriptions")
