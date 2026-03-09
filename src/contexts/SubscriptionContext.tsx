@@ -71,11 +71,45 @@ export const SubscriptionProvider = ({ children }: { children: ReactNode }) => {
     }
 
     try {
+      // Check if token is about to expire (within 5 minutes)
+      const expiresAt = session.expires_at;
+      const now = Math.floor(Date.now() / 1000);
+      const timeUntilExpiry = expiresAt ? expiresAt - now : 0;
+      
+      // If token expires in less than 5 minutes, refresh it proactively
+      if (timeUntilExpiry < 300) {
+        console.log("Token expiring soon, refreshing session...");
+        const { data: refreshData, error: refreshError } = await supabase.auth.refreshSession();
+        if (refreshError) {
+          console.error("Failed to refresh session:", refreshError);
+        } else if (refreshData.session) {
+          console.log("Session refreshed successfully");
+        }
+      }
+
       const { data, error } = await supabase.functions.invoke("check-subscription");
       
       // Handle auth errors (401) - session expired or invalid
-      if (error && error.message?.includes("Session expired")) {
-        console.log("Subscription check: Session expired, falling back to local data");
+      if (error && (error.message?.includes("Session expired") || error.message?.includes("Auth session missing"))) {
+        console.log("Subscription check: Auth error, attempting session refresh and retry");
+        
+        // Try to refresh the session
+        const { data: refreshData, error: refreshError } = await supabase.auth.refreshSession();
+        
+        if (!refreshError && refreshData.session) {
+          // Retry the subscription check with fresh token
+          const { data: retryData, error: retryError } = await supabase.functions.invoke("check-subscription");
+          
+          if (!retryError && retryData) {
+            setPlan((retryData.plan as PlanTier) || "starter");
+            setSubscribed(retryData.subscribed || false);
+            setSubscriptionEnd(retryData.subscription_end || null);
+            setIsLoading(false);
+            return;
+          }
+        }
+        
+        // If refresh failed or retry failed, fall back to local data
         const { data: sub } = await supabase
           .from("farmer_subscriptions")
           .select("plan")
