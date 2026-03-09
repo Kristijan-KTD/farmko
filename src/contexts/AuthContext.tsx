@@ -142,9 +142,24 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     if (profile) setUser(profile);
   };
 
+  const refreshSession = async (): Promise<boolean> => {
+    try {
+      const { data, error } = await supabase.auth.refreshSession();
+      if (error || !data.session) {
+        console.error("Session refresh failed:", error);
+        return false;
+      }
+      setSession(data.session);
+      return true;
+    } catch (err) {
+      console.error("Session refresh exception:", err);
+      return false;
+    }
+  };
+
   return (
     <AuthContext.Provider
-      value={{ user, session, isAuthenticated: !!user, isLoading, login, register, logout, updateProfile, refreshProfile }}
+      value={{ user, session, isAuthenticated: !!user, isLoading, login, register, logout, updateProfile, refreshProfile, refreshSession }}
     >
       {children}
     </AuthContext.Provider>
