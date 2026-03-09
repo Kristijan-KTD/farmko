@@ -2,6 +2,7 @@ import { X, User, ShoppingBag, Camera, Store, Search, MessageCircle, Bell, MapPi
 import { useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { useAdmin } from "@/contexts/AdminContext";
+import farmkoLogo from "@/assets/farmko-logo-horizontal.png";
 
 interface SideMenuProps {
   isOpen: boolean;
