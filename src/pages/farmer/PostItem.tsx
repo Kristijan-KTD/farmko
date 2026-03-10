@@ -241,7 +241,7 @@ const PostItem = () => {
         {/* Price, Quantity, Unit */}
         {textFields.filter((f) => f.key !== "name" && f.key !== "description").map(({ key, label, placeholder }) =>
         <div key={key}>
-            <label className="text-xs font-medium text-muted-foreground mb-1 block">{label}</label>
+            <label className="text-xs text-muted-foreground mb-1 block font-semibold">{label}</label>
             <div className="border-b border-input pb-2">
               <input
               type={key === "price" ? "number" : "text"}
