@@ -214,7 +214,7 @@ const PostItem = () => {
 
         {/* Category Picker */}
         <div>
-          <label className="text-xs font-medium text-muted-foreground mb-2 block">Product Category</label>
+          <label className="text-xs text-muted-foreground mb-2 block font-semibold">Product Category</label>
           <div className="flex flex-wrap gap-2">
             {CATEGORIES.map((cat) => {
               const Icon = cat.icon;
