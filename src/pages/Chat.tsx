@@ -115,12 +115,14 @@ const Chat = () => {
               onClick={() => navigate(`/chat/${chat.id}`)}
               className="w-full flex items-center gap-3 p-3 rounded-xl hover:bg-secondary transition-colors text-left"
             >
-              <div className="w-12 h-12 rounded-full bg-muted flex items-center justify-center flex-shrink-0 relative overflow-hidden">
-                {chat.other_user?.avatar_url ? (
-                  <img src={chat.other_user.avatar_url} alt="" className="w-full h-full object-cover" />
-                ) : (
-                  <User className="w-6 h-6 text-muted-foreground" />
-                )}
+              <div className="relative flex-shrink-0">
+                <div className="w-12 h-12 rounded-full bg-muted flex items-center justify-center overflow-hidden">
+                  {chat.other_user?.avatar_url ? (
+                    <img src={chat.other_user.avatar_url} alt="" className="w-full h-full object-cover" />
+                  ) : (
+                    <User className="w-6 h-6 text-muted-foreground" />
+                  )}
+                </div>
                 {(chat.unread_count || 0) > 0 && (
                   <span className="absolute -top-1 -right-1 w-5 h-5 bg-primary rounded-full flex items-center justify-center text-[10px] font-bold text-primary-foreground">
                     {chat.unread_count}
