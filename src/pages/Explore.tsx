@@ -219,7 +219,7 @@ const ProductCard = ({
 }) => (
   <button
     onClick={onClick}
-    className="flex flex-col min-w-[160px] shrink-0 lg:min-w-0 lg:shrink rounded-xl border border-border bg-card overflow-hidden text-left hover:shadow-md transition-shadow"
+    className="flex flex-col flex-none min-w-[160px] snap-start lg:min-w-0 lg:flex-1 rounded-xl border border-border bg-card overflow-hidden text-left hover:shadow-md transition-shadow"
   >
     <div className="flex items-center gap-2 px-3 pt-2.5 pb-1">
       <div className="w-7 h-7 rounded-full bg-muted flex items-center justify-center text-[10px] font-bold text-muted-foreground uppercase shrink-0">
