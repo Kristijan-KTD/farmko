@@ -18,7 +18,7 @@ const HorizontalScroll = ({ children, className, snap = true }: HorizontalScroll
       style={{
         WebkitOverflowScrolling: "touch",
         overscrollBehaviorX: "contain",
-        touchAction: "pan-x",
+        touchAction: "pan-x pinch-zoom",
       }}
     >
       {children}
