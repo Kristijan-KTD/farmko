@@ -200,7 +200,7 @@ const PostItem = () => {
 
         {/* Description */}
         <div>
-          <label className="text-xs font-medium text-muted-foreground mb-1 block">Short Description</label>
+          <label className="text-xs text-muted-foreground mb-1 block font-semibold">Short Description</label>
           <div className="border-b border-input pb-2">
             <input
               type="text"
