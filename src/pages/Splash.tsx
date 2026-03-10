@@ -9,27 +9,18 @@ const Splash = () => {
   const { isAuthenticated, isLoading } = useAuth();
 
   useEffect(() => {
-    const timer = setTimeout(() => {
-      if (isLoading) return; // wait for auth to resolve
-      if (isAuthenticated) {
-        navigate("/home");
-      } else {
-        navigate("/onboarding");
-      }
-    }, 2500);
-    return () => clearTimeout(timer);
+    // Show splash for at least 2.5s, then navigate once auth is resolved
+    const minDelay = new Promise(resolve => setTimeout(resolve, 2500));
+    
+    const checkAuth = async () => {
+      await minDelay;
+      // If still loading, wait for it to resolve
+      if (isLoading) return;
+      navigate(isAuthenticated ? "/home" : "/onboarding", { replace: true });
+    };
+    
+    checkAuth();
   }, [navigate, isAuthenticated, isLoading]);
-
-  // If still loading after splash delay, redirect once resolved
-  useEffect(() => {
-    if (!isLoading) return;
-    const fallback = setTimeout(() => {
-      if (isAuthenticated) {
-        navigate("/home");
-      }
-    }, 4000);
-    return () => clearTimeout(fallback);
-  }, [isLoading, isAuthenticated, navigate]);
 
   return (
     <div className="min-h-screen bg-primary flex flex-col items-center justify-center relative overflow-hidden">
