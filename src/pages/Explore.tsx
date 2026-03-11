@@ -219,35 +219,32 @@ const ProductCard = ({
 }) => (
   <button
     onClick={onClick}
-    className="flex flex-col flex-none min-w-[160px] snap-start lg:min-w-0 lg:flex-1 rounded-xl border border-border bg-card overflow-hidden text-left hover:shadow-md transition-shadow"
+    className="flex flex-col flex-none w-[140px] snap-start lg:min-w-0 lg:w-auto lg:flex-1 rounded-xl border border-border bg-card overflow-hidden text-left hover:shadow-md transition-shadow"
   >
-    <div className="flex items-center gap-2 px-3 pt-2.5 pb-1">
-      <div className="w-7 h-7 rounded-full bg-muted flex items-center justify-center text-[10px] font-bold text-muted-foreground uppercase shrink-0">
+    <div className="flex items-center gap-1.5 px-2 pt-2 pb-0.5">
+      <div className="w-5 h-5 rounded-full bg-muted flex items-center justify-center text-[8px] font-bold text-muted-foreground uppercase shrink-0">
         {product.farmer?.name?.charAt(0) || "?"}
       </div>
-      <div className="min-w-0">
-        <p className="text-[10px] text-muted-foreground truncate">{formatDate(product.created_at)}</p>
-        <p className="text-[10px] text-muted-foreground truncate">by {product.farmer?.name || "Unknown"}</p>
-      </div>
+      <p className="text-[9px] text-muted-foreground truncate">by {product.farmer?.name || "Unknown"}</p>
     </div>
-    <div className="aspect-square bg-muted relative mx-2 rounded-lg overflow-hidden">
+    <div className="aspect-[4/3] bg-muted relative mx-1.5 rounded-lg overflow-hidden">
       {product.images && product.images[0] ? (
         <img src={product.images[0]} alt={product.title} className="absolute inset-0 w-full h-full object-cover" />
       ) : (
         <div className="absolute inset-0 flex items-center justify-center">
-          <Package className="w-10 h-10 text-muted-foreground/30" />
+          <Package className="w-8 h-8 text-muted-foreground/30" />
         </div>
       )}
       {product.farmerPlan === "pro" && (
-        <div className="absolute top-1.5 right-1.5 w-5 h-5 rounded-full bg-yellow-500 flex items-center justify-center">
-          <Crown className="w-3 h-3 text-white" />
+        <div className="absolute top-1 right-1 w-4 h-4 rounded-full bg-yellow-500 flex items-center justify-center">
+          <Crown className="w-2.5 h-2.5 text-white" />
         </div>
       )}
     </div>
-    <div className="p-3 space-y-0.5">
-      <h3 className="text-sm font-semibold text-foreground truncate">{product.title}</h3>
-      <p className="text-xs text-muted-foreground">{product.stock ?? 0} {product.unit}s total</p>
-      <span className="text-sm font-bold text-primary block pt-1">${product.price.toFixed(2)}</span>
+    <div className="p-2 space-y-0">
+      <h3 className="text-xs font-semibold text-foreground truncate">{product.title}</h3>
+      <p className="text-[10px] text-muted-foreground">{product.stock ?? 0} {product.unit}s</p>
+      <span className="text-xs font-bold text-primary block">${product.price.toFixed(2)}</span>
     </div>
   </button>
 );
