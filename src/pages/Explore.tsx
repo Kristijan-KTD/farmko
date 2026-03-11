@@ -252,7 +252,6 @@ const ProductCard = ({
 const RecommendedCard = ({
   product,
   onClick,
-  formatDate,
 }: {
   product: Product;
   onClick: () => void;
@@ -260,23 +259,20 @@ const RecommendedCard = ({
 }) => (
   <button
     onClick={onClick}
-    className="flex items-center gap-3 w-full rounded-xl border border-border bg-card p-3 text-left hover:shadow-md transition-shadow"
+    className="flex items-center gap-2.5 flex-none w-[260px] snap-start lg:w-auto lg:flex-1 rounded-xl border border-border bg-card p-2.5 text-left hover:shadow-md transition-shadow"
   >
-    <div className="w-16 h-16 rounded-xl bg-muted flex items-center justify-center overflow-hidden shrink-0">
+    <div className="w-14 h-14 rounded-lg bg-muted flex items-center justify-center overflow-hidden shrink-0">
       {product.images && product.images[0] ? (
         <img src={product.images[0]} alt={product.title} className="w-full h-full object-cover" />
       ) : (
-        <Package className="w-6 h-6 text-muted-foreground/30" />
+        <Package className="w-5 h-5 text-muted-foreground/30" />
       )}
     </div>
     <div className="flex-1 min-w-0">
-      <h3 className="text-sm font-semibold text-foreground truncate">{product.title}</h3>
-      <p className="text-xs text-muted-foreground">{product.stock ?? 0} {product.unit}s</p>
-      <span className="text-sm font-bold text-primary">${product.price.toFixed(2)}</span>
+      <h3 className="text-xs font-semibold text-foreground truncate">{product.title}</h3>
+      <p className="text-[10px] text-muted-foreground">{product.stock ?? 0} {product.unit}s</p>
+      <span className="text-xs font-bold text-primary">${product.price.toFixed(2)}</span>
     </div>
-    <span className="text-[10px] text-muted-foreground shrink-0 self-end">
-      {formatDate(product.created_at)}
-    </span>
   </button>
 );
 
