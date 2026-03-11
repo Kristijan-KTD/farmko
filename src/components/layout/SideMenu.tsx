@@ -122,19 +122,19 @@ const SideMenu = ({ isOpen, onClose, isDesktop = false }: SideMenuProps) => {
           isOpen ? "translate-x-0" : "-translate-x-full"
         }`}
       >
-        <div className="flex flex-col h-full p-6">
-          <button onClick={onClose} className="self-end text-primary-foreground mb-8">
+        <div className="flex flex-col h-full p-6 overflow-hidden">
+          <button onClick={onClose} className="self-end text-primary-foreground mb-4 flex-shrink-0">
             <X className="w-6 h-6" />
           </button>
 
-          <div className="flex flex-col gap-1">
+          <div className="flex-1 flex flex-col gap-1 overflow-y-auto min-h-0">
             {menuItems.map(({ icon: Icon, label, path }) => {
               const isActive = location.pathname === path;
               return (
                 <button
                   key={path}
                   onClick={() => handleNavigate(path)}
-                  className={`flex items-center gap-4 text-primary-foreground py-3 px-2 rounded-lg hover:bg-sidebar-accent transition-colors text-left ${
+                  className={`flex items-center gap-4 text-primary-foreground py-3 px-2 rounded-lg hover:bg-sidebar-accent transition-colors text-left flex-shrink-0 ${
                     isActive ? "bg-sidebar-accent font-semibold" : ""
                   }`}
                 >
@@ -145,7 +145,7 @@ const SideMenu = ({ isOpen, onClose, isDesktop = false }: SideMenuProps) => {
             })}
           </div>
 
-          <div className="mt-auto">
+          <div className="pt-3 flex-shrink-0">
             <button
               onClick={handleLogout}
               className="flex items-center gap-4 text-primary-foreground py-3 px-2 rounded-lg hover:bg-sidebar-accent transition-colors w-full text-left"
