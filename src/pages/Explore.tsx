@@ -106,7 +106,7 @@ const Explore = () => {
       <PageHeader title="Explore" />
 
       {/* Search */}
-      <div className="flex items-center gap-2 bg-secondary rounded-full px-4 py-2.5 mb-5">
+      <div className="flex items-center gap-2 bg-secondary rounded-full px-3 py-2 mb-3">
         <Search className="w-4 h-4 text-muted-foreground" />
         <input
           type="text"
@@ -117,11 +117,11 @@ const Explore = () => {
         />
       </div>
 
-      <div className="flex-1 pb-20 space-y-6">
+      <div className="flex-1 pb-20 space-y-4 overflow-y-auto">
         {/* ── Categories ── */}
         <section>
-          <h2 className="text-base font-bold text-foreground mb-3">Categories</h2>
-          <HorizontalScroll className="gap-3 pb-2">
+          <h2 className="text-sm font-bold text-foreground mb-2">Categories</h2>
+          <HorizontalScroll className="gap-2.5 pb-1">
             {CATEGORIES.map((cat) => {
               const Icon = cat.icon;
               const isActive = selectedCategory === cat.key;
@@ -129,20 +129,20 @@ const Explore = () => {
                 <button
                   key={cat.key}
                   onClick={() => setSelectedCategory(isActive || cat.key === "all" ? null : cat.key)}
-                  className={`flex flex-col items-center gap-1.5 flex-none min-w-[64px] snap-start transition-all ${
+                  className={`flex flex-col items-center gap-1 flex-none w-[56px] snap-start transition-all ${
                     isActive || (cat.key === "all" && !selectedCategory) ? "opacity-100" : "opacity-70 hover:opacity-100"
                   }`}
                 >
                   <div
-                    className={`w-14 h-14 rounded-2xl flex items-center justify-center border transition-colors ${
+                    className={`w-11 h-11 rounded-xl flex items-center justify-center border transition-colors ${
                       isActive || (cat.key === "all" && !selectedCategory)
                         ? "bg-primary/10 border-primary text-primary"
                         : "bg-card border-border text-muted-foreground"
                     }`}
                   >
-                    <Icon className="w-6 h-6" />
+                    <Icon className="w-5 h-5" />
                   </div>
-                  <span className={`text-[11px] leading-tight text-center truncate w-full ${
+                  <span className={`text-[10px] leading-tight text-center truncate w-full ${
                     isActive || (cat.key === "all" && !selectedCategory) ? "font-semibold text-primary" : "text-muted-foreground"
                   }`}>
                     {cat.label}
@@ -156,19 +156,19 @@ const Explore = () => {
         {loading ? (
           <LoadingSkeleton />
         ) : filtered.length === 0 ? (
-          <div className="flex flex-col items-center justify-center py-20">
-            <Package className="w-16 h-16 text-muted-foreground/30 mb-4" />
+          <div className="flex flex-col items-center justify-center py-12">
+            <Package className="w-12 h-12 text-muted-foreground/30 mb-3" />
             <p className="text-muted-foreground text-sm">No products found</p>
           </div>
         ) : (
           <>
             {/* ── New Products ── */}
             <section>
-              <div className="flex items-center gap-2 mb-3">
-                <Clock className="w-4 h-4 text-primary" />
-                <h2 className="text-base font-bold text-foreground">New products</h2>
+              <div className="flex items-center gap-1.5 mb-2">
+                <Clock className="w-3.5 h-3.5 text-primary" />
+                <h2 className="text-sm font-bold text-foreground">New products</h2>
               </div>
-              <HorizontalScroll className="gap-3 pb-2 lg:!grid lg:grid-cols-4 xl:grid-cols-5 lg:!overflow-visible">
+              <HorizontalScroll className="gap-2.5 pb-1 lg:!grid lg:grid-cols-4 xl:grid-cols-5 lg:!overflow-visible">
                 {newProducts.map((product) => (
                   <ProductCard
                     key={product.id}
@@ -182,11 +182,11 @@ const Explore = () => {
 
             {/* ── Recommended ── */}
             <section>
-              <div className="flex items-center gap-2 mb-3">
-                <Sparkles className="w-4 h-4 text-primary" />
-                <h2 className="text-base font-bold text-foreground">Recommended</h2>
+              <div className="flex items-center gap-1.5 mb-2">
+                <Sparkles className="w-3.5 h-3.5 text-primary" />
+                <h2 className="text-sm font-bold text-foreground">Recommended</h2>
               </div>
-              <div className="space-y-3 lg:grid lg:grid-cols-2 xl:grid-cols-3 lg:gap-3 lg:space-y-0">
+              <HorizontalScroll className="gap-2.5 pb-1 lg:!grid lg:grid-cols-2 xl:grid-cols-3 lg:!overflow-visible">
                 {recommended.map((product) => (
                   <RecommendedCard
                     key={product.id}
@@ -195,7 +195,7 @@ const Explore = () => {
                     formatDate={formatDate}
                   />
                 ))}
-              </div>
+              </HorizontalScroll>
             </section>
           </>
         )}
