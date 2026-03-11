@@ -122,19 +122,19 @@ const SideMenu = ({ isOpen, onClose, isDesktop = false }: SideMenuProps) => {
           isOpen ? "translate-x-0" : "-translate-x-full"
         }`}
       >
-        <div className="flex flex-col h-full p-6 overflow-hidden">
-          <button onClick={onClose} className="self-end text-primary-foreground mb-4 flex-shrink-0">
+        <div className="flex flex-col h-full py-4 px-4 overflow-hidden">
+          <button onClick={onClose} className="self-end text-primary-foreground mb-2 flex-shrink-0">
             <X className="w-6 h-6" />
           </button>
 
-          <div className="flex-1 flex flex-col gap-1 overflow-y-auto min-h-0">
+          <div className="flex-1 flex flex-col gap-1 overflow-y-auto min-h-0 pb-4">
             {menuItems.map(({ icon: Icon, label, path }) => {
               const isActive = location.pathname === path;
               return (
                 <button
                   key={path}
                   onClick={() => handleNavigate(path)}
-                  className={`flex items-center gap-4 text-primary-foreground py-3 px-2 rounded-lg hover:bg-sidebar-accent transition-colors text-left flex-shrink-0 ${
+                  className={`flex items-center gap-4 text-primary-foreground py-2.5 px-2 rounded-lg hover:bg-sidebar-accent transition-colors text-left flex-shrink-0 ${
                     isActive ? "bg-sidebar-accent font-semibold" : ""
                   }`}
                 >
@@ -143,16 +143,17 @@ const SideMenu = ({ isOpen, onClose, isDesktop = false }: SideMenuProps) => {
                 </button>
               );
             })}
-          </div>
 
-          <div className="pt-3 flex-shrink-0">
-            <button
-              onClick={handleLogout}
-              className="flex items-center gap-4 text-primary-foreground py-3 px-2 rounded-lg hover:bg-sidebar-accent transition-colors w-full text-left"
-            >
-              <LogOut className="w-5 h-5" />
-              <span className="text-sm font-medium">Log Out</span>
-            </button>
+            {/* Log Out inside scroll area so it's always reachable */}
+            <div className="border-t border-primary-foreground/20 mt-2 pt-2">
+              <button
+                onClick={handleLogout}
+                className="flex items-center gap-4 text-primary-foreground py-2.5 px-2 rounded-lg hover:bg-sidebar-accent transition-colors w-full text-left"
+              >
+                <LogOut className="w-5 h-5" />
+                <span className="text-sm font-medium">Log Out</span>
+              </button>
+            </div>
           </div>
         </div>
       </div>
