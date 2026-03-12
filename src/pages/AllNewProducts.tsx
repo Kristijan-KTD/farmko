@@ -67,7 +67,7 @@ const AllNewProducts = () => {
 
   return (
     <MobileLayout>
-      <PageHeader title="New Products" showBack />
+      <PageHeader title="New Products" />
       <div className="flex-1 pb-20 overflow-y-auto">
         {loading ? (
           <div className="grid grid-cols-2 gap-2.5">

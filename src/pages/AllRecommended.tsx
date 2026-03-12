@@ -75,7 +75,7 @@ const AllRecommended = () => {
 
   return (
     <MobileLayout>
-      <PageHeader title="Recommended" showBack />
+      <PageHeader title="Recommended" />
       <div className="flex-1 pb-20 overflow-y-auto space-y-2">
         {loading ? (
           Array.from({ length: 5 }).map((_, i) => (
