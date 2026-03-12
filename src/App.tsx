@@ -20,6 +20,8 @@ import Instafarm from "./pages/farmer/Instafarm";
 import MyStore from "./pages/farmer/MyStore";
 import Analytics from "./pages/farmer/Analytics";
 import Explore from "./pages/Explore";
+import AllNewProducts from "./pages/AllNewProducts";
+import AllRecommended from "./pages/AllRecommended";
 import FindFarmer from "./pages/FindFarmer";
 import ProductDetail from "./pages/ProductDetail";
 import FarmerDetail from "./pages/FarmerDetail";
