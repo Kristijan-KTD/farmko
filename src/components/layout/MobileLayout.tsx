@@ -1,4 +1,4 @@
-import React, { ReactNode } from "react";
+import React, { ReactNode, useState } from "react";
 import SideMenu from "./SideMenu";
 import { useAuth } from "@/contexts/AuthContext";
 
@@ -12,13 +12,14 @@ interface MobileLayoutProps {
 const MobileLayout = ({ children, className = "", noPadding = false, hideDesktopSidebar = false }: MobileLayoutProps) => {
   const { isAuthenticated } = useAuth();
   const showSidebar = isAuthenticated && !hideDesktopSidebar;
+  const [collapsed, setCollapsed] = useState(false);
 
   return (
     <div className="min-h-screen bg-background flex">
-      {/* Desktop sidebar - always visible on large screens when authenticated */}
+      {/* Desktop sidebar */}
       {showSidebar && (
-        <div className="hidden lg:block w-64 flex-shrink-0 h-screen sticky top-0">
-          <SideMenu isOpen={true} onClose={() => {}} isDesktop />
+        <div className={`hidden lg:block flex-shrink-0 h-screen sticky top-0 transition-all duration-300 ${collapsed ? "w-16" : "w-64"}`}>
+          <SideMenu isOpen={true} onClose={() => {}} isDesktop collapsed={collapsed} onToggleCollapse={() => setCollapsed(!collapsed)} />
         </div>
       )}
       

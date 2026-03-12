@@ -20,6 +20,8 @@ import Instafarm from "./pages/farmer/Instafarm";
 import MyStore from "./pages/farmer/MyStore";
 import Analytics from "./pages/farmer/Analytics";
 import Explore from "./pages/Explore";
+import AllNewProducts from "./pages/AllNewProducts";
+import AllRecommended from "./pages/AllRecommended";
 import FindFarmer from "./pages/FindFarmer";
 import ProductDetail from "./pages/ProductDetail";
 import FarmerDetail from "./pages/FarmerDetail";
@@ -60,6 +62,8 @@ const App = () => (
                 <Route path="/my-store" element={<MyStore />} />
                 <Route path="/analytics" element={<Analytics />} />
                 <Route path="/explore" element={<Explore />} />
+                <Route path="/explore/new" element={<AllNewProducts />} />
+                <Route path="/explore/recommended" element={<AllRecommended />} />
                 <Route path="/find-farmer" element={<FindFarmer />} />
                 <Route path="/product/:id" element={<ProductDetail />} />
                 <Route path="/farmer/:id" element={<FarmerDetail />} />

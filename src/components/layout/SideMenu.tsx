@@ -1,4 +1,5 @@
-import { X, User, ShoppingBag, Camera, Store, Search, MessageCircle, Bell, MapPin, LogOut, Users, Home, BarChart3, Crown, Shield } from "lucide-react";
+import { X, User, ShoppingBag, Camera, Store, Search, MessageCircle, Bell, MapPin, LogOut, Users, Home, BarChart3, Crown, Shield, ChevronsLeft, ChevronsRight } from "lucide-react";
+import { useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { useAdmin } from "@/contexts/AdminContext";
@@ -8,9 +9,11 @@ interface SideMenuProps {
   isOpen: boolean;
   onClose: () => void;
   isDesktop?: boolean;
+  collapsed?: boolean;
+  onToggleCollapse?: () => void;
 }
 
-const SideMenu = ({ isOpen, onClose, isDesktop = false }: SideMenuProps) => {
+const SideMenu = ({ isOpen, onClose, isDesktop = false, collapsed = false, onToggleCollapse }: SideMenuProps) => {
   const navigate = useNavigate();
   const location = useLocation();
   const { user, logout } = useAuth();
@@ -59,52 +62,70 @@ const SideMenu = ({ isOpen, onClose, isDesktop = false }: SideMenuProps) => {
   // Desktop persistent sidebar
   if (isDesktop) {
     return (
-      <div className="h-screen bg-primary fixed top-0 left-0 w-64 flex flex-col">
-        <div className="p-6">
-          <img src={farmkoLogo} alt="Farmko" className="h-8 w-auto" />
-          <p className="text-primary-foreground/70 text-xs capitalize mt-1">{user?.role} Account</p>
+      <div className={`h-screen bg-primary fixed top-0 left-0 flex flex-col transition-all duration-300 ${collapsed ? "w-16" : "w-64"}`}>
+        <div className={`p-4 ${collapsed ? "flex justify-center" : "px-6 pt-6"}`}>
+          {!collapsed && (
+            <>
+              <img src={farmkoLogo} alt="Farmko" className="h-8 w-auto" />
+              <p className="text-primary-foreground/70 text-xs capitalize mt-1">{user?.role} Account</p>
+            </>
+          )}
         </div>
 
         {/* User info */}
-        <div className="px-6 pb-4 flex items-center gap-3">
-          <div className="w-10 h-10 rounded-full bg-primary-foreground/20 flex items-center justify-center overflow-hidden">
-            {user?.avatar_url ? (
-              <img src={user.avatar_url} alt="" className="w-full h-full object-cover" />
-            ) : (
-              <User className="w-5 h-5 text-primary-foreground" />
-            )}
+        {!collapsed && (
+          <div className="px-6 pb-4 flex items-center gap-3">
+            <div className="w-10 h-10 rounded-full bg-primary-foreground/20 flex items-center justify-center overflow-hidden">
+              {user?.avatar_url ? (
+                <img src={user.avatar_url} alt="" className="w-full h-full object-cover" />
+              ) : (
+                <User className="w-5 h-5 text-primary-foreground" />
+              )}
+            </div>
+            <div>
+              <p className="text-sm font-medium text-primary-foreground">{user?.name}</p>
+              <p className="text-xs text-primary-foreground/70">{user?.email}</p>
+            </div>
           </div>
-          <div>
-            <p className="text-sm font-medium text-primary-foreground">{user?.name}</p>
-            <p className="text-xs text-primary-foreground/70">{user?.email}</p>
-          </div>
-        </div>
+        )}
 
-        <div className="flex-1 flex flex-col gap-0.5 px-3 overflow-y-auto">
+        <div className="flex-1 flex flex-col gap-0.5 px-2 overflow-y-auto">
           {menuItems.map(({ icon: Icon, label, path }) => {
             const isActive = location.pathname === path;
             return (
               <button
                 key={path}
                 onClick={() => handleNavigate(path)}
+                title={collapsed ? label : undefined}
                 className={`flex items-center gap-3 text-primary-foreground py-2.5 px-3 rounded-lg transition-colors text-left text-sm ${
-                  isActive ? "bg-sidebar-accent font-semibold" : "hover:bg-sidebar-accent/50"
-                }`}
+                  collapsed ? "justify-center" : ""
+                } ${isActive ? "bg-sidebar-accent font-semibold" : "hover:bg-sidebar-accent/50"}`}
               >
-                <Icon className="w-5 h-5" />
-                <span>{label}</span>
+                <Icon className="w-5 h-5 shrink-0" />
+                {!collapsed && <span>{label}</span>}
               </button>
             );
           })}
         </div>
 
-        <div className="p-3 mt-auto">
+        <div className="px-2 py-1">
           <button
             onClick={handleLogout}
-            className="flex items-center gap-3 text-primary-foreground py-2.5 px-3 rounded-lg hover:bg-sidebar-accent transition-colors w-full text-left text-sm"
+            title={collapsed ? "Log Out" : undefined}
+            className={`flex items-center gap-3 text-primary-foreground py-2.5 px-3 rounded-lg hover:bg-sidebar-accent transition-colors w-full text-left text-sm ${collapsed ? "justify-center" : ""}`}
           >
-            <LogOut className="w-5 h-5" />
-            <span>Log Out</span>
+            <LogOut className="w-5 h-5 shrink-0" />
+            {!collapsed && <span>Log Out</span>}
+          </button>
+        </div>
+
+        {/* Collapse toggle */}
+        <div className="px-2 pb-3">
+          <button
+            onClick={onToggleCollapse}
+            className="flex items-center justify-center w-full py-2 rounded-lg text-primary-foreground/70 hover:bg-sidebar-accent/50 transition-colors"
+          >
+            {collapsed ? <ChevronsRight className="w-5 h-5" /> : <ChevronsLeft className="w-5 h-5" />}
           </button>
         </div>
       </div>
@@ -144,7 +165,6 @@ const SideMenu = ({ isOpen, onClose, isDesktop = false }: SideMenuProps) => {
               );
             })}
 
-            {/* Log Out inside scroll area so it's always reachable */}
             <div className="border-t border-primary-foreground/20 mt-2 pt-2">
               <button
                 onClick={handleLogout}
