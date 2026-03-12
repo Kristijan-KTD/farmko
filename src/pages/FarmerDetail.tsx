@@ -135,9 +135,9 @@ const FarmerDetail = () => {
           </div>
           <h2 className="text-lg font-bold text-foreground">{farmer.name}</h2>
           {farmer.location &&
-          <div className="flex items-center gap-1 text-sm text-muted-foreground mt-1">
-              <MapPin className="w-4 h-4" />
-              <span className="text-center">{farmer.location}</span>
+          <div className="flex flex-col items-center mt-1">
+              <MapPin className="w-4 h-4 text-muted-foreground" />
+              <span className="text-sm text-muted-foreground text-center">{farmer.location}</span>
             </div>
           }
           {farmer.bio && <p className="text-sm text-muted-foreground mt-2 text-center">{farmer.bio}</p>}
