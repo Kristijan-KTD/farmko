@@ -92,7 +92,7 @@ const Explore = () => {
   };
 
   const scrollBy = (dir: number) => {
-    scrollRef.current?.scrollBy({ left: dir * 160, behavior: "smooth" });
+    scrollRef.current?.scrollBy({ left: dir * 200, behavior: "smooth" });
   };
 
   return (
@@ -101,20 +101,20 @@ const Explore = () => {
 
       {/* Search + Filter */}
       <div className="flex items-center gap-2 mb-3">
-        <div className="flex-1 flex items-center gap-2 bg-secondary rounded-full px-3 py-2">
-          <Search className="w-4 h-4 text-muted-foreground" />
+        <div className="flex-1 min-w-0 flex items-center gap-2 bg-secondary rounded-full px-3 py-2">
+          <Search className="w-4 h-4 text-muted-foreground shrink-0" />
           <input
             type="text"
             placeholder="Search products or farmers..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="flex-1 bg-transparent text-sm outline-none placeholder:text-muted-foreground"
+            className="flex-1 min-w-0 bg-transparent text-sm outline-none placeholder:text-muted-foreground"
           />
         </div>
         <ExploreFilter filters={filters} onApply={setFilters} />
       </div>
 
-      <div className="flex-1 pb-20 space-y-5 overflow-y-auto">
+      <div className="flex-1 pb-20 space-y-4 overflow-y-auto overflow-x-hidden">
         {loading ? (
           <LoadingSkeleton />
         ) : filtered.length === 0 ? (
@@ -142,8 +142,7 @@ const Explore = () => {
               </div>
               <div
                 ref={scrollRef}
-                className="flex overflow-x-auto gap-2.5 no-scrollbar snap-x snap-mandatory pb-1"
-                style={{ WebkitOverflowScrolling: "touch" }}
+                className="flex overflow-x-auto gap-3 no-scrollbar snap-x snap-mandatory pb-1 -mx-3 px-3"
               >
                 {newProducts.map((product) => (
                   <ProductCard key={product.id} product={product} onClick={() => handleProductClick(product)} />
@@ -151,7 +150,7 @@ const Explore = () => {
                 {filtered.length > 5 && (
                   <button
                     onClick={() => navigate("/explore/new")}
-                    className="flex flex-col items-center justify-center flex-none w-[140px] snap-start rounded-xl border border-dashed border-border bg-card hover:bg-accent transition-colors"
+                    className="flex flex-col items-center justify-center shrink-0 w-[160px] min-w-[160px] snap-start rounded-xl border border-dashed border-border bg-card hover:bg-accent transition-colors"
                   >
                     <span className="text-xs font-semibold text-primary">Show more…</span>
                   </button>
@@ -193,7 +192,7 @@ const Explore = () => {
 const ProductCard = ({ product, onClick }: { product: Product; onClick: () => void }) => (
   <button
     onClick={onClick}
-    className="flex flex-col flex-none w-[140px] snap-start rounded-xl border border-border bg-card overflow-hidden text-left hover:shadow-md transition-shadow"
+    className="flex flex-col shrink-0 w-[160px] min-w-[160px] snap-start rounded-xl border border-border bg-card overflow-hidden text-left hover:shadow-md transition-shadow"
   >
     <div className="aspect-[4/3] bg-muted relative overflow-hidden">
       {product.images?.[0] ? (
@@ -231,19 +230,19 @@ const RecommendedCard = ({ product, onClick }: { product: Product; onClick: () =
     </div>
     <div className="flex-1 min-w-0">
       <h3 className="text-xs font-semibold text-foreground truncate">{product.title}</h3>
-      <p className="text-[10px] text-muted-foreground">{product.stock ?? 0} {product.unit}s • by {product.farmer?.name || "Unknown"}</p>
+      <p className="text-[10px] text-muted-foreground truncate">{product.stock ?? 0} {product.unit}s • by {product.farmer?.name || "Unknown"}</p>
       <span className="text-xs font-bold text-primary">${product.price.toFixed(2)}</span>
     </div>
   </button>
 );
 
 const LoadingSkeleton = () => (
-  <div className="space-y-6">
-    <div className="space-y-3">
+  <div className="space-y-4">
+    <div className="space-y-2">
       <div className="h-5 bg-muted rounded w-32" />
-      <div className="flex gap-2.5">
+      <div className="flex gap-3 overflow-hidden">
         {Array.from({ length: 3 }).map((_, i) => (
-          <div key={i} className="min-w-[140px] rounded-xl border border-border bg-card overflow-hidden animate-pulse">
+          <div key={i} className="shrink-0 w-[160px] rounded-xl border border-border bg-card overflow-hidden animate-pulse">
             <div className="aspect-[4/3] bg-muted" />
             <div className="p-2 space-y-1.5">
               <div className="h-3 bg-muted rounded w-3/4" />
@@ -257,7 +256,7 @@ const LoadingSkeleton = () => (
       <div className="h-5 bg-muted rounded w-36" />
       {Array.from({ length: 3 }).map((_, i) => (
         <div key={i} className="flex items-center gap-2.5 rounded-xl border border-border bg-card p-2.5 animate-pulse">
-          <div className="w-14 h-14 rounded-lg bg-muted" />
+          <div className="w-14 h-14 rounded-lg bg-muted shrink-0" />
           <div className="flex-1 space-y-2">
             <div className="h-3 bg-muted rounded w-3/4" />
             <div className="h-3 bg-muted rounded w-1/2" />
