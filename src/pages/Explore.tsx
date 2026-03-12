@@ -193,26 +193,26 @@ const Explore = () => {
 const ProductCard = ({ product, onClick }: { product: Product; onClick: () => void }) => (
   <button
     onClick={onClick}
-    className="flex flex-col flex-none w-[140px] snap-start rounded-xl border border-border bg-card overflow-hidden text-left hover:shadow-md transition-shadow"
+    className="flex flex-col flex-none w-[120px] snap-start rounded-lg border border-border bg-card overflow-hidden text-left hover:shadow-md transition-shadow"
   >
     <div className="aspect-[4/3] bg-muted relative overflow-hidden">
       {product.images?.[0] ? (
         <img src={product.images[0]} alt={product.title} className="absolute inset-0 w-full h-full object-cover" />
       ) : (
         <div className="absolute inset-0 flex items-center justify-center">
-          <Package className="w-8 h-8 text-muted-foreground/30" />
+          <Package className="w-6 h-6 text-muted-foreground/30" />
         </div>
       )}
       {product.farmerPlan === "pro" && (
-        <div className="absolute top-1 right-1 w-4 h-4 rounded-full bg-yellow-500 flex items-center justify-center">
-          <Crown className="w-2.5 h-2.5 text-white" />
+        <div className="absolute top-0.5 right-0.5 w-3.5 h-3.5 rounded-full bg-amber-500 flex items-center justify-center">
+          <Crown className="w-2 h-2 text-white" />
         </div>
       )}
     </div>
-    <div className="p-2 space-y-0">
-      <h3 className="text-xs font-semibold text-foreground truncate">{product.title}</h3>
-      <p className="text-[10px] text-muted-foreground">{product.stock ?? 0} {product.unit}s</p>
-      <span className="text-xs font-bold text-primary block">${product.price.toFixed(2)}</span>
+    <div className="p-1.5">
+      <h3 className="text-[10px] font-semibold text-foreground truncate">{product.title}</h3>
+      <p className="text-[9px] text-muted-foreground leading-tight">{product.stock ?? 0} {product.unit}s</p>
+      <span className="text-[10px] font-bold text-primary block">${product.price.toFixed(2)}</span>
     </div>
   </button>
 );
@@ -220,47 +220,47 @@ const ProductCard = ({ product, onClick }: { product: Product; onClick: () => vo
 const RecommendedCard = ({ product, onClick }: { product: Product; onClick: () => void }) => (
   <button
     onClick={onClick}
-    className="flex items-center gap-2.5 w-full rounded-xl border border-border bg-card p-2.5 text-left hover:shadow-md transition-shadow"
+    className="flex items-center gap-2 w-full rounded-lg border border-border bg-card p-2 text-left hover:shadow-md transition-shadow"
   >
-    <div className="w-14 h-14 rounded-lg bg-muted flex items-center justify-center overflow-hidden shrink-0 relative">
+    <div className="w-10 h-10 rounded-md bg-muted flex items-center justify-center overflow-hidden shrink-0 relative">
       {product.images?.[0] ? (
         <img src={product.images[0]} alt={product.title} className="w-full h-full object-cover" />
       ) : (
-        <Package className="w-5 h-5 text-muted-foreground/30" />
+        <Package className="w-4 h-4 text-muted-foreground/30" />
       )}
     </div>
     <div className="flex-1 min-w-0">
-      <h3 className="text-xs font-semibold text-foreground truncate">{product.title}</h3>
-      <p className="text-[10px] text-muted-foreground">{product.stock ?? 0} {product.unit}s • by {product.farmer?.name || "Unknown"}</p>
-      <span className="text-xs font-bold text-primary">${product.price.toFixed(2)}</span>
+      <h3 className="text-[10px] font-semibold text-foreground truncate">{product.title}</h3>
+      <p className="text-[9px] text-muted-foreground leading-tight">{product.stock ?? 0} {product.unit}s • by {product.farmer?.name || "Unknown"}</p>
     </div>
+    <span className="text-[10px] font-bold text-primary shrink-0">${product.price.toFixed(2)}</span>
   </button>
 );
 
 const LoadingSkeleton = () => (
-  <div className="space-y-6">
-    <div className="space-y-3">
-      <div className="h-5 bg-muted rounded w-32" />
-      <div className="flex gap-2.5">
+  <div className="space-y-4">
+    <div className="space-y-2">
+      <div className="h-4 bg-muted rounded w-28" />
+      <div className="flex gap-2">
         {Array.from({ length: 3 }).map((_, i) => (
-          <div key={i} className="min-w-[140px] rounded-xl border border-border bg-card overflow-hidden animate-pulse">
+          <div key={i} className="min-w-[120px] rounded-lg border border-border bg-card overflow-hidden animate-pulse">
             <div className="aspect-[4/3] bg-muted" />
-            <div className="p-2 space-y-1.5">
-              <div className="h-3 bg-muted rounded w-3/4" />
-              <div className="h-3 bg-muted rounded w-1/2" />
+            <div className="p-1.5 space-y-1">
+              <div className="h-2.5 bg-muted rounded w-3/4" />
+              <div className="h-2.5 bg-muted rounded w-1/2" />
             </div>
           </div>
         ))}
       </div>
     </div>
-    <div className="space-y-2">
-      <div className="h-5 bg-muted rounded w-36" />
+    <div className="space-y-1.5">
+      <div className="h-4 bg-muted rounded w-32" />
       {Array.from({ length: 3 }).map((_, i) => (
-        <div key={i} className="flex items-center gap-2.5 rounded-xl border border-border bg-card p-2.5 animate-pulse">
-          <div className="w-14 h-14 rounded-lg bg-muted" />
-          <div className="flex-1 space-y-2">
-            <div className="h-3 bg-muted rounded w-3/4" />
-            <div className="h-3 bg-muted rounded w-1/2" />
+        <div key={i} className="flex items-center gap-2 rounded-lg border border-border bg-card p-2 animate-pulse">
+          <div className="w-10 h-10 rounded-md bg-muted" />
+          <div className="flex-1 space-y-1.5">
+            <div className="h-2.5 bg-muted rounded w-3/4" />
+            <div className="h-2.5 bg-muted rounded w-1/2" />
           </div>
         </div>
       ))}
