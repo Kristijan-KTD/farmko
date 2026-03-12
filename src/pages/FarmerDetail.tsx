@@ -137,10 +137,10 @@ const FarmerDetail = () => {
           {farmer.location &&
           <div className="flex flex-col items-center mt-1">
               <MapPin className="w-4 h-4 text-muted-foreground" />
-              <span className="text-sm text-muted-foreground text-center">{farmer.location}</span>
+              <span className="text-sm text-muted-foreground text-center px-[4px] py-[4px]">{farmer.location}</span>
             </div>
           }
-          {farmer.bio && <p className="text-sm text-muted-foreground mt-2 text-center">{farmer.bio}</p>}
+          {farmer.bio && <p className="text-sm text-muted-foreground mt-2 text-center px-0 mx-[10px]">{farmer.bio}</p>}
           <div className="flex gap-6 mt-4">
             <div className="text-center">
               <p className="font-bold text-foreground">{products.length}</p>
