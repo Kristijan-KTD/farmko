@@ -4,72 +4,39 @@ import MobileLayout from "@/components/layout/MobileLayout";
 import PageHeader from "@/components/layout/PageHeader";
 import BottomNav from "@/components/layout/BottomNav";
 import { useNavigate } from "react-router-dom";
-import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
-
-const PLAN_PRIORITY: Record<string, number> = { pro: 0, growth: 1, starter: 2 };
-
-interface Product {
-  id: string;
-  title: string;
-  price: number;
-  images: string[] | null;
-  farmer_id: string;
-  farmer: { name: string } | null;
-  farmerPlan?: string;
-  stock: number | null;
-  unit: string;
-}
+import { fetchEnrichedProducts, trackListingClick, PLAN_PRIORITY, type EnrichedProduct } from "@/services/productService";
+import { toast } from "@/hooks/use-toast";
 
 const AllRecommended = () => {
-  const [products, setProducts] = useState<Product[]>([]);
+  const [products, setProducts] = useState<EnrichedProduct[]>([]);
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
   const { user } = useAuth();
 
   useEffect(() => {
-    const fetch = async () => {
-      const { data } = await supabase
-        .from("products")
-        .select("id, title, price, images, farmer_id, stock, unit, farmer:profiles!products_farmer_id_fkey(name)")
-        .eq("status", "active")
-        .order("created_at", { ascending: false });
-
-      if (data) {
-        const farmerIds = [...new Set(data.map((p) => p.farmer_id))];
-        const { data: subs } = await supabase
-          .from("farmer_subscriptions")
-          .select("farmer_id, plan")
-          .in("farmer_id", farmerIds);
-        const planMap = new Map(subs?.map((s) => [s.farmer_id, s.plan]) || []);
-
-        const enriched = data.map((p) => ({
-          ...p,
-          farmer: Array.isArray(p.farmer) ? p.farmer[0] : p.farmer,
-          farmerPlan: planMap.get(p.farmer_id) || "starter",
-        }));
-
-        enriched.sort((a, b) => {
-          const pa = PLAN_PRIORITY[a.farmerPlan || "starter"] ?? 2;
-          const pb = PLAN_PRIORITY[b.farmerPlan || "starter"] ?? 2;
+    let mounted = true;
+    const load = async () => {
+      try {
+        const data = await fetchEnrichedProducts();
+        data.sort((a, b) => {
+          const pa = PLAN_PRIORITY[a.farmerPlan] ?? 2;
+          const pb = PLAN_PRIORITY[b.farmerPlan] ?? 2;
           return pa - pb;
         });
-
-        setProducts(enriched);
+        if (mounted) setProducts(data);
+      } catch {
+        if (mounted) toast({ title: "Failed to load products", variant: "destructive" });
+      } finally {
+        if (mounted) setLoading(false);
       }
-      setLoading(false);
     };
-    fetch();
+    load();
+    return () => { mounted = false; };
   }, []);
 
-  const handleClick = async (product: Product) => {
-    if (user) {
-      supabase.from("analytics_events").insert({
-        farmer_id: product.farmer_id,
-        event_type: "listing_click",
-        reference_id: product.id,
-      });
-    }
+  const handleClick = (product: EnrichedProduct) => {
+    if (user) trackListingClick(product.farmer_id, product.id);
     navigate(`/product/${product.id}`);
   };
 
