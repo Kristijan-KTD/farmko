@@ -1,5 +1,5 @@
-import { useState, useEffect, useRef } from "react";
-import { Plus, Heart, MessageCircle, Grid, Image as ImageIcon, Share2, Bookmark, MoreHorizontal, Loader2, Camera } from "lucide-react";
+import { useState, useEffect, useRef, useCallback } from "react";
+import { Plus, Heart, MessageCircle, Grid, Image as ImageIcon, MoreHorizontal, Loader2, Camera, AlertTriangle } from "lucide-react";
 import MobileLayout from "@/components/layout/MobileLayout";
 import PageHeader from "@/components/layout/PageHeader";
 import BottomNav from "@/components/layout/BottomNav";
@@ -37,8 +37,10 @@ const Instafarm = () => {
   const [view, setView] = useState<"grid" | "feed">("grid");
   const [posts, setPosts] = useState<Post[]>([]);
   const [loading, setLoading] = useState(true);
+  const [fetchError, setFetchError] = useState(false);
   const [selectedPost, setSelectedPost] = useState<Post | null>(null);
   const [comments, setComments] = useState<Comment[]>([]);
+  const [commentsLoading, setCommentsLoading] = useState(false);
   const [commentText, setCommentText] = useState("");
   const [showComments, setShowComments] = useState(false);
   const [showUpload, setShowUpload] = useState(false);
@@ -50,87 +52,130 @@ const Instafarm = () => {
   const { toast } = useToast();
   const { user } = useAuth();
 
-  const fetchPosts = async () => {
-    const { data: postsData } = await supabase
-      .from("instafarm_posts")
-      .select("id, image_url, caption, created_at, farmer_id, farmer:profiles!instafarm_posts_farmer_id_fkey(name, avatar_url)")
-      .order("created_at", { ascending: false });
+  const fetchPosts = useCallback(async () => {
+    try {
+      const { data: postsData, error } = await supabase
+        .from("instafarm_posts")
+        .select("id, image_url, caption, created_at, farmer_id, farmer:profiles!instafarm_posts_farmer_id_fkey(name, avatar_url)")
+        .order("created_at", { ascending: false });
 
-    if (!postsData) { setLoading(false); return; }
+      if (error) throw error;
+      if (!postsData || postsData.length === 0) {
+        setPosts([]);
+        setLoading(false);
+        setFetchError(false);
+        return;
+      }
 
-    // Get likes and comments counts
-    const postIds = postsData.map(p => p.id);
-    const { data: likes } = await supabase.from("post_likes").select("post_id, user_id").in("post_id", postIds);
-    const { data: commentCounts } = await supabase.from("post_comments").select("post_id").in("post_id", postIds);
+      const postIds = postsData.map(p => p.id);
+      const [likesRes, commentCountsRes] = await Promise.all([
+        supabase.from("post_likes").select("post_id, user_id").in("post_id", postIds),
+        supabase.from("post_comments").select("post_id").in("post_id", postIds),
+      ]);
 
-    const likesMap = new Map<string, { count: number; userLiked: boolean }>();
-    likes?.forEach(l => {
-      const entry = likesMap.get(l.post_id) || { count: 0, userLiked: false };
-      entry.count++;
-      if (l.user_id === user?.id) entry.userLiked = true;
-      likesMap.set(l.post_id, entry);
-    });
+      const likesMap = new Map<string, { count: number; userLiked: boolean }>();
+      (likesRes.data ?? []).forEach(l => {
+        const entry = likesMap.get(l.post_id) || { count: 0, userLiked: false };
+        entry.count++;
+        if (l.user_id === user?.id) entry.userLiked = true;
+        likesMap.set(l.post_id, entry);
+      });
 
-    const commentsMap = new Map<string, number>();
-    commentCounts?.forEach(c => commentsMap.set(c.post_id, (commentsMap.get(c.post_id) || 0) + 1));
+      const commentsMap = new Map<string, number>();
+      (commentCountsRes.data ?? []).forEach(c => commentsMap.set(c.post_id, (commentsMap.get(c.post_id) || 0) + 1));
 
-    setPosts(postsData.map(p => ({
-      ...p,
-      farmer: Array.isArray(p.farmer) ? p.farmer[0] : p.farmer,
-      likes_count: likesMap.get(p.id)?.count || 0,
-      comments_count: commentsMap.get(p.id) || 0,
-      user_liked: likesMap.get(p.id)?.userLiked || false,
-    })));
-    setLoading(false);
-  };
+      setPosts(postsData.map(p => ({
+        ...p,
+        farmer: Array.isArray(p.farmer) ? p.farmer[0] ?? null : p.farmer,
+        likes_count: likesMap.get(p.id)?.count || 0,
+        comments_count: commentsMap.get(p.id) || 0,
+        user_liked: likesMap.get(p.id)?.userLiked || false,
+      })));
+      setFetchError(false);
+    } catch (e: unknown) {
+      console.error("[Instafarm] Fetch error:", e instanceof Error ? e.message : e);
+      toast({ title: "Failed to load posts", variant: "destructive" });
+      setFetchError(true);
+    } finally {
+      setLoading(false);
+    }
+  }, [user?.id, toast]);
 
-  useEffect(() => { fetchPosts(); }, [user]);
+  useEffect(() => {
+    fetchPosts();
+  }, [fetchPosts]);
 
   const toggleLike = async (postId: string) => {
     if (!user) return;
     const post = posts.find(p => p.id === postId);
     if (!post) return;
 
-    if (post.user_liked) {
-      await supabase.from("post_likes").delete().eq("post_id", postId).eq("user_id", user.id);
-    } else {
-      await supabase.from("post_likes").insert({ post_id: postId, user_id: user.id });
-    }
-
+    // Optimistic update
+    const wasLiked = post.user_liked;
     setPosts(posts.map(p =>
       p.id === postId
-        ? { ...p, user_liked: !p.user_liked, likes_count: p.user_liked ? p.likes_count - 1 : p.likes_count + 1 }
+        ? { ...p, user_liked: !wasLiked, likes_count: wasLiked ? p.likes_count - 1 : p.likes_count + 1 }
         : p
     ));
+
+    try {
+      if (wasLiked) {
+        const { error } = await supabase.from("post_likes").delete().eq("post_id", postId).eq("user_id", user.id);
+        if (error) throw error;
+      } else {
+        const { error } = await supabase.from("post_likes").insert({ post_id: postId, user_id: user.id });
+        if (error) throw error;
+      }
+    } catch {
+      // Rollback
+      setPosts(prev => prev.map(p =>
+        p.id === postId
+          ? { ...p, user_liked: wasLiked, likes_count: wasLiked ? p.likes_count : p.likes_count - 1 }
+          : p
+      ));
+      toast({ title: "Failed to update like", variant: "destructive" });
+    }
   };
 
   const openComments = async (post: Post) => {
     setSelectedPost(post);
     setShowComments(true);
+    setCommentsLoading(true);
 
-    const { data } = await supabase
-      .from("post_comments")
-      .select("id, text, created_at, user:profiles!post_comments_user_id_fkey(name, avatar_url)")
-      .eq("post_id", post.id)
-      .order("created_at", { ascending: true });
+    try {
+      const { data, error } = await supabase
+        .from("post_comments")
+        .select("id, text, created_at, user:profiles!post_comments_user_id_fkey(name, avatar_url)")
+        .eq("post_id", post.id)
+        .order("created_at", { ascending: true });
 
-    if (data) {
-      setComments(data.map(c => ({ ...c, user: Array.isArray(c.user) ? c.user[0] : c.user })));
+      if (error) throw error;
+      setComments((data ?? []).map(c => ({ ...c, user: Array.isArray(c.user) ? c.user[0] ?? null : c.user })));
+    } catch {
+      toast({ title: "Failed to load comments", variant: "destructive" });
+      setComments([]);
+    } finally {
+      setCommentsLoading(false);
     }
   };
 
   const addComment = async () => {
     if (!commentText.trim() || !selectedPost || !user) return;
-    const { data } = await supabase
-      .from("post_comments")
-      .insert({ post_id: selectedPost.id, user_id: user.id, text: commentText })
-      .select("id, text, created_at")
-      .single();
+    try {
+      const { data, error } = await supabase
+        .from("post_comments")
+        .insert({ post_id: selectedPost.id, user_id: user.id, text: commentText })
+        .select("id, text, created_at")
+        .single();
 
-    if (data) {
-      setComments([...comments, { ...data, user: { name: user.name, avatar_url: user.avatar_url || null } }]);
-      setPosts(posts.map(p => p.id === selectedPost.id ? { ...p, comments_count: p.comments_count + 1 } : p));
-      setCommentText("");
+      if (error) throw error;
+      if (data) {
+        setComments([...comments, { ...data, user: { name: user.name, avatar_url: user.avatar_url || null } }]);
+        setPosts(posts.map(p => p.id === selectedPost.id ? { ...p, comments_count: p.comments_count + 1 } : p));
+        setCommentText("");
+      }
+    } catch {
+      toast({ title: "Failed to post comment", variant: "destructive" });
     }
   };
 
@@ -142,41 +187,49 @@ const Instafarm = () => {
       return;
     }
     setUploadFile(file);
-    const reader = new FileReader();
-    reader.onload = (ev) => setUploadPreview(ev.target?.result as string);
-    reader.readAsDataURL(file);
+    const previewUrl = URL.createObjectURL(file);
+    setUploadPreview(previewUrl);
     setShowUpload(true);
   };
 
-  const handleUploadPost = async () => {
-    if (!uploadFile || !user) return;
-    setUploading(true);
-
-    const ext = uploadFile.name.split(".").pop();
-    const filePath = `${user.id}/${Date.now()}.${ext}`;
-    const { error: uploadErr } = await supabase.storage.from("instafarm-photos").upload(filePath, uploadFile);
-
-    if (uploadErr) {
-      toast({ title: "Upload failed", description: uploadErr.message, variant: "destructive" });
-      setUploading(false);
-      return;
-    }
-
-    const { data: urlData } = supabase.storage.from("instafarm-photos").getPublicUrl(filePath);
-
-    await supabase.from("instafarm_posts").insert({
-      farmer_id: user.id,
-      image_url: urlData.publicUrl,
-      caption: caption || null,
-    });
-
+  const closeUploadDialog = () => {
+    if (uploadPreview) URL.revokeObjectURL(uploadPreview);
     setShowUpload(false);
     setUploadFile(null);
     setUploadPreview("");
     setCaption("");
-    setUploading(false);
-    toast({ title: "Post shared!" });
-    fetchPosts();
+  };
+
+  const handleUploadPost = async () => {
+    if (!uploadFile || !user || uploading) return;
+    setUploading(true);
+
+    try {
+      const ext = uploadFile.name.split(".").pop();
+      const filePath = `${user.id}/${Date.now()}.${ext}`;
+      const { error: uploadErr } = await supabase.storage.from("instafarm-photos").upload(filePath, uploadFile);
+
+      if (uploadErr) throw new Error(uploadErr.message);
+
+      const { data: urlData } = supabase.storage.from("instafarm-photos").getPublicUrl(filePath);
+
+      const { error: insertErr } = await supabase.from("instafarm_posts").insert({
+        farmer_id: user.id,
+        image_url: urlData.publicUrl,
+        caption: caption || null,
+      });
+
+      if (insertErr) throw new Error(insertErr.message);
+
+      closeUploadDialog();
+      toast({ title: "Post shared!" });
+      fetchPosts();
+    } catch (e: unknown) {
+      const msg = e instanceof Error ? e.message : "Upload failed";
+      toast({ title: "Upload failed", description: msg, variant: "destructive" });
+    } finally {
+      setUploading(false);
+    }
   };
 
   const timeAgo = (dateStr: string) => {
@@ -232,6 +285,12 @@ const Instafarm = () => {
           <div className="flex items-center justify-center py-20">
             <Loader2 className="w-8 h-8 animate-spin text-primary" />
           </div>
+        ) : fetchError ? (
+          <div className="flex flex-col items-center justify-center py-20">
+            <AlertTriangle className="w-12 h-12 text-destructive/50 mb-4" />
+            <p className="text-muted-foreground text-sm mb-4">Failed to load posts</p>
+            <Button variant="outline" onClick={() => { setLoading(true); fetchPosts(); }} className="rounded-full">Retry</Button>
+          </div>
         ) : posts.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-20">
             <Camera className="w-16 h-16 text-muted-foreground/30 mb-4" />
@@ -267,7 +326,7 @@ const Instafarm = () => {
                       )}
                     </div>
                     <div>
-                      <p className="text-sm font-semibold text-foreground">{post.farmer?.name}</p>
+                      <p className="text-sm font-semibold text-foreground">{post.farmer?.name ?? "Unknown"}</p>
                       <p className="text-[10px] text-muted-foreground">{timeAgo(post.created_at)}</p>
                     </div>
                   </div>
@@ -292,7 +351,7 @@ const Instafarm = () => {
                 <p className="text-sm font-semibold text-foreground">{post.likes_count} likes</p>
                 {post.caption && (
                   <p className="text-sm text-foreground">
-                    <span className="font-semibold">{post.farmer?.name} </span>
+                    <span className="font-semibold">{post.farmer?.name ?? "Unknown"} </span>
                     {post.caption}
                   </p>
                 )}
@@ -315,12 +374,14 @@ const Instafarm = () => {
             <>
               {selectedPost.caption && (
                 <p className="text-sm text-foreground mb-2">
-                  <span className="font-semibold">{selectedPost.farmer?.name} </span>
+                  <span className="font-semibold">{selectedPost.farmer?.name ?? "Unknown"} </span>
                   {selectedPost.caption}
                 </p>
               )}
               <div className="flex-1 overflow-y-auto space-y-3 max-h-60">
-                {comments.length === 0 ? (
+                {commentsLoading ? (
+                  <div className="flex justify-center py-8"><Loader2 className="w-5 h-5 animate-spin text-muted-foreground" /></div>
+                ) : comments.length === 0 ? (
                   <p className="text-sm text-muted-foreground text-center py-8">No comments yet</p>
                 ) : comments.map(c => (
                   <div key={c.id} className="flex gap-2">
@@ -328,7 +389,7 @@ const Instafarm = () => {
                       <span className="text-[10px] font-bold text-muted-foreground">{c.user?.name?.[0] || "?"}</span>
                     </div>
                     <div>
-                      <p className="text-sm"><span className="font-semibold text-foreground">{c.user?.name} </span>{c.text}</p>
+                      <p className="text-sm"><span className="font-semibold text-foreground">{c.user?.name ?? "Unknown"} </span>{c.text}</p>
                       <p className="text-[10px] text-muted-foreground">{timeAgo(c.created_at)}</p>
                     </div>
                   </div>
@@ -351,7 +412,7 @@ const Instafarm = () => {
       </Dialog>
 
       {/* Upload Dialog */}
-      <Dialog open={showUpload} onOpenChange={(open) => { if (!open) { setShowUpload(false); setUploadFile(null); setUploadPreview(""); setCaption(""); } }}>
+      <Dialog open={showUpload} onOpenChange={(open) => { if (!open) closeUploadDialog(); }}>
         <DialogContent>
           <DialogHeader><DialogTitle>New Post</DialogTitle></DialogHeader>
           <div className="space-y-4">
