@@ -27,7 +27,7 @@ export const PLANS = {
     price: 29,
     priceId: "price_1T8mjBCsFOwH9CIqdEB6GVzZ",
     productId: "prod_U70kEspnycdHnj",
-    listingLimit: Infinity,
+    listingLimit: null as number | null,
     features: ["Unlimited listings", "Featured farmer badge", "Top search ranking", "Full analytics dashboard", "Custom farm banner", "Featured in promotions", "Early access to new features"],
     limitations: [],
   },
@@ -38,7 +38,7 @@ interface SubscriptionState {
   subscribed: boolean;
   subscriptionEnd: string | null;
   isLoading: boolean;
-  listingLimit: number;
+  listingLimit: number | null;
   canCreateListing: (currentCount: number) => boolean;
   hasFeature: (feature: "analytics" | "featured_badge" | "farm_story" | "farm_banner" | "favorites") => boolean;
   refreshSubscription: () => Promise<void>;
@@ -62,7 +62,6 @@ export const SubscriptionProvider = ({ children }: { children: ReactNode }) => {
       setIsLoading(false);
       return;
     }
-    // If session exists but user profile hasn't loaded yet, keep loading
     if (!user) return;
     if (user.role !== "farmer") {
       setPlan("starter");
@@ -72,12 +71,10 @@ export const SubscriptionProvider = ({ children }: { children: ReactNode }) => {
     }
 
     try {
-      // Verify session is still valid by checking if it exists on the server
       const { data: { session: currentSession }, error: sessionError } = await supabase.auth.getSession();
       
-      // If session doesn't exist or user isn't authenticated, reset to starter
       if (sessionError || !currentSession) {
-        console.log("Session no longer valid, resetting to starter");
+        console.log("[Subscription] Session no longer valid, resetting to starter");
         setPlan("starter");
         setSubscribed(false);
         setSubscriptionEnd(null);
@@ -85,90 +82,72 @@ export const SubscriptionProvider = ({ children }: { children: ReactNode }) => {
         return;
       }
 
-      // Check if token is about to expire (within 5 minutes)
+      // Proactive token refresh if expiring soon
       const expiresAt = currentSession.expires_at;
       const now = Math.floor(Date.now() / 1000);
       const timeUntilExpiry = expiresAt ? expiresAt - now : 0;
       
-      // If token expires in less than 5 minutes, refresh it proactively
       if (timeUntilExpiry < 300) {
-        console.log("Token expiring soon, refreshing session...");
-        toast({
-          title: "Refreshing session...",
-          description: "Keeping you logged in",
-          duration: 2000,
-        });
-        const { data: refreshData, error: refreshError } = await supabase.auth.refreshSession();
+        console.log("[Subscription] Token expiring soon, refreshing...");
+        const { error: refreshError } = await supabase.auth.refreshSession();
         if (refreshError) {
-          console.error("Failed to refresh session:", refreshError);
-          toast({
-            title: "Session refresh failed",
-            description: "Please log in again if you experience issues",
-            variant: "destructive",
-            duration: 3000,
-          });
-        } else if (refreshData.session) {
-          console.log("Session refreshed successfully");
-          toast({
-            title: "Session refreshed",
-            description: "You're all set",
-            duration: 2000,
-          });
+          console.error("[Subscription] Failed to refresh session:", refreshError);
         }
       }
 
       const { data, error } = await supabase.functions.invoke("check-subscription");
       
-      // Handle auth errors (401) - session expired or invalid
       if (error && (error.message?.includes("Session expired") || error.message?.includes("Auth session missing"))) {
-        console.log("Subscription check: Auth error, attempting session refresh and retry");
-        
-        // Try to refresh the session
+        console.log("[Subscription] Auth error, attempting retry after refresh");
         const { data: refreshData, error: refreshError } = await supabase.auth.refreshSession();
         
         if (!refreshError && refreshData.session) {
-          // Retry the subscription check with fresh token
           const { data: retryData, error: retryError } = await supabase.functions.invoke("check-subscription");
-          
           if (!retryError && retryData) {
-            setPlan((retryData.plan as PlanTier) || "starter");
+            const resolvedPlan = (retryData.plan as PlanTier) || "starter";
+            setPlan(resolvedPlan);
             setSubscribed(retryData.subscribed || false);
             setSubscriptionEnd(retryData.subscription_end || null);
+            console.log("[Subscription] Resolved after retry:", { plan: resolvedPlan, userId: user.id });
             setIsLoading(false);
             return;
           }
         }
         
-        // If refresh failed or retry failed, fall back to local data
+        // Fallback to local data
         const { data: sub } = await supabase
           .from("farmer_subscriptions")
           .select("plan")
-          .eq("farmer_id", user!.id)
+          .eq("farmer_id", user.id)
           .maybeSingle();
-        setPlan((sub?.plan as PlanTier) || "starter");
+        const fallbackPlan = (sub?.plan as PlanTier) || "starter";
+        setPlan(fallbackPlan);
+        console.log("[Subscription] Fallback from local DB:", { plan: fallbackPlan, userId: user.id });
         setSubscribed(false);
         setIsLoading(false);
         return;
       }
       
-      // Handle successful response
       if (!error && data) {
-        setPlan((data.plan as PlanTier) || "starter");
+        const resolvedPlan = (data.plan as PlanTier) || "starter";
+        setPlan(resolvedPlan);
         setSubscribed(data.subscribed || false);
         setSubscriptionEnd(data.subscription_end || null);
+        console.log("[Subscription] Resolved:", { plan: resolvedPlan, subscribed: data.subscribed, userId: user.id });
       } else if (error) {
-        // Other errors - fallback to local table
-        console.error("Subscription check error:", error);
+        console.error("[Subscription] Check error:", error);
         const { data: sub } = await supabase
           .from("farmer_subscriptions")
           .select("plan")
-          .eq("farmer_id", user!.id)
+          .eq("farmer_id", user.id)
           .maybeSingle();
-        setPlan((sub?.plan as PlanTier) || "starter");
+        const fallbackPlan = (sub?.plan as PlanTier) || "starter";
+        setPlan(fallbackPlan);
+        console.log("[Subscription] Fallback from local DB:", { plan: fallbackPlan, userId: user.id });
       }
-    } catch (err) {
-      console.error("Subscription check exception:", err);
-      // Fallback: read from local table
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : String(err);
+      console.error("[Subscription] Exception:", msg);
       const { data: sub } = await supabase
         .from("farmer_subscriptions")
         .select("plan")
@@ -183,23 +162,27 @@ export const SubscriptionProvider = ({ children }: { children: ReactNode }) => {
     refreshSubscription();
   }, [refreshSubscription]);
 
-  // Refresh every 60 seconds
   useEffect(() => {
     if (!session || user?.role !== "farmer") return;
     const interval = setInterval(refreshSubscription, 60000);
     return () => clearInterval(interval);
   }, [session, user, refreshSubscription]);
 
-  const listingLimit = PLANS[plan].listingLimit;
+  // Single source of truth for listing limit
+  const listingLimit: number | null = plan === "pro" ? null : PLANS[plan].listingLimit;
 
-  const canCreateListing = (currentCount: number) => {
+  const canCreateListing = useCallback((currentCount: number) => {
+    // Pro plan: always unlimited
+    if (plan === "pro") return true;
+    // If limit is null or Infinity, allow
     const limit = PLANS[plan].listingLimit;
-    // If limit is null or Infinity (Pro plan), allow unlimited
-    if (limit === null || limit === Infinity || plan === "pro") return true;
-    return currentCount < limit;
-  };
+    if (limit === null || limit === Infinity) return true;
+    const result = currentCount < limit;
+    console.log("[Subscription] canCreateListing:", { userId: user?.id, plan, listingLimit: limit, activeCount: currentCount, canCreate: result });
+    return result;
+  }, [plan, user?.id]);
 
-  const hasFeature = (feature: "analytics" | "featured_badge" | "farm_story" | "farm_banner" | "favorites") => {
+  const hasFeature = useCallback((feature: "analytics" | "featured_badge" | "farm_story" | "farm_banner" | "favorites") => {
     switch (feature) {
       case "analytics":
         return plan === "growth" || plan === "pro";
@@ -212,7 +195,7 @@ export const SubscriptionProvider = ({ children }: { children: ReactNode }) => {
       default:
         return false;
     }
-  };
+  }, [plan]);
 
   return (
     <SubscriptionContext.Provider value={{ plan, subscribed, subscriptionEnd, isLoading, listingLimit, canCreateListing, hasFeature, refreshSubscription }}>
