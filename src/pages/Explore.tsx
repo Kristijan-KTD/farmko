@@ -1,64 +1,41 @@
-import { useState, useEffect, useRef } from "react";
-import { Search, Package, Crown, Clock, Sparkles, ChevronLeft, ChevronRight } from "lucide-react";
+import { useState, useEffect } from "react";
+import { Search, Package, Crown, Clock, Sparkles } from "lucide-react";
 import MobileLayout from "@/components/layout/MobileLayout";
 import PageHeader from "@/components/layout/PageHeader";
 import BottomNav from "@/components/layout/BottomNav";
+import HorizontalScroll from "@/components/HorizontalScroll";
 import ExploreFilter, { type FilterState } from "@/components/explore/ExploreFilter";
 import { useNavigate } from "react-router-dom";
-import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
-
-interface Product {
-  id: string;
-  title: string;
-  price: number;
-  images: string[] | null;
-  farmer_id: string;
-  farmer: { name: string } | null;
-  farmerPlan?: string;
-  category: string | null;
-  stock: number | null;
-  unit: string;
-  created_at: string;
-}
-
-const PLAN_PRIORITY: Record<string, number> = { pro: 0, growth: 1, starter: 2 };
+import { fetchEnrichedProducts, trackListingClick, PLAN_PRIORITY, type EnrichedProduct } from "@/services/productService";
+import { toast } from "@/hooks/use-toast";
 
 const Explore = () => {
   const [search, setSearch] = useState("");
-  const [products, setProducts] = useState<Product[]>([]);
+  const [products, setProducts] = useState<EnrichedProduct[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(false);
   const [filters, setFilters] = useState<FilterState>({ category: null, sortBy: "newest", distance: null });
   const navigate = useNavigate();
   const { user } = useAuth();
-  const scrollRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    const fetchProducts = async () => {
-      const { data } = await supabase
-        .from("products")
-        .select("id, title, price, images, farmer_id, category, stock, unit, created_at, farmer:profiles!products_farmer_id_fkey(name)")
-        .eq("status", "active")
-        .order("created_at", { ascending: false });
-
-      if (data) {
-        const farmerIds = [...new Set(data.map(p => p.farmer_id))];
-        const { data: subs } = await supabase
-          .from("farmer_subscriptions")
-          .select("farmer_id, plan")
-          .in("farmer_id", farmerIds);
-
-        const planMap = new Map(subs?.map(s => [s.farmer_id, s.plan]) || []);
-
-        setProducts(data.map(p => ({
-          ...p,
-          farmer: Array.isArray(p.farmer) ? p.farmer[0] : p.farmer,
-          farmerPlan: planMap.get(p.farmer_id) || "starter",
-        })));
+    let mounted = true;
+    const load = async () => {
+      try {
+        const data = await fetchEnrichedProducts();
+        if (mounted) setProducts(data);
+      } catch {
+        if (mounted) {
+          setError(true);
+          toast({ title: "Failed to load products", variant: "destructive" });
+        }
+      } finally {
+        if (mounted) setLoading(false);
       }
-      setLoading(false);
     };
-    fetchProducts();
+    load();
+    return () => { mounted = false; };
   }, []);
 
   const filtered = products.filter((p) => {
@@ -80,26 +57,15 @@ const Explore = () => {
     return pa - pb;
   }).slice(0, 5);
 
-  const handleProductClick = async (product: Product) => {
-    if (user) {
-      supabase.from("analytics_events").insert({
-        farmer_id: product.farmer_id,
-        event_type: "listing_click",
-        reference_id: product.id,
-      });
-    }
+  const handleProductClick = async (product: EnrichedProduct) => {
+    if (user) trackListingClick(product.farmer_id, product.id);
     navigate(`/product/${product.id}`);
-  };
-
-  const scrollBy = (dir: number) => {
-    scrollRef.current?.scrollBy({ left: dir * 200, behavior: "smooth" });
   };
 
   return (
     <MobileLayout>
       <PageHeader title="Explore" />
 
-      {/* Search + Filter */}
       <div className="flex items-center gap-2 mb-3">
         <div className="flex-1 min-w-0 flex items-center gap-2 bg-secondary rounded-full px-3 py-2">
           <Search className="w-4 h-4 text-muted-foreground shrink-0" />
@@ -117,6 +83,12 @@ const Explore = () => {
       <div className="flex-1 pb-20 space-y-4 overflow-y-auto overflow-x-hidden">
         {loading ? (
           <LoadingSkeleton />
+        ) : error ? (
+          <div className="flex flex-col items-center justify-center py-12">
+            <Package className="w-12 h-12 text-muted-foreground/30 mb-3" />
+            <p className="text-muted-foreground text-sm mb-3">Failed to load products</p>
+            <button onClick={() => window.location.reload()} className="text-xs font-semibold text-primary">Retry</button>
+          </div>
         ) : filtered.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-12">
             <Package className="w-12 h-12 text-muted-foreground/30 mb-3" />
@@ -124,26 +96,15 @@ const Explore = () => {
           </div>
         ) : (
           <>
-            {/* ── New Products ── */}
+            {/* New Products */}
             <section>
               <div className="flex items-center justify-between mb-2">
                 <div className="flex items-center gap-1.5">
                   <Clock className="w-3.5 h-3.5 text-primary" />
                   <h2 className="text-sm font-bold text-foreground">New Products</h2>
                 </div>
-                <div className="flex items-center gap-1">
-                  <button onClick={() => scrollBy(-1)} className="w-6 h-6 rounded-full bg-secondary flex items-center justify-center hover:bg-accent transition-colors">
-                    <ChevronLeft className="w-3.5 h-3.5 text-foreground" />
-                  </button>
-                  <button onClick={() => scrollBy(1)} className="w-6 h-6 rounded-full bg-secondary flex items-center justify-center hover:bg-accent transition-colors">
-                    <ChevronRight className="w-3.5 h-3.5 text-foreground" />
-                  </button>
-                </div>
               </div>
-              <div
-                ref={scrollRef}
-                className="flex overflow-x-auto gap-3 no-scrollbar snap-x snap-mandatory pb-1 -mx-3 px-3"
-              >
+              <HorizontalScroll className="gap-3 pb-1">
                 {newProducts.map((product) => (
                   <ProductCard key={product.id} product={product} onClick={() => handleProductClick(product)} />
                 ))}
@@ -155,10 +116,10 @@ const Explore = () => {
                     <span className="text-xs font-semibold text-primary">Show more…</span>
                   </button>
                 )}
-              </div>
+              </HorizontalScroll>
             </section>
 
-            {/* ── Recommended ── */}
+            {/* Recommended */}
             <section>
               <div className="flex items-center gap-1.5 mb-2">
                 <Sparkles className="w-3.5 h-3.5 text-primary" />
@@ -187,9 +148,7 @@ const Explore = () => {
   );
 };
 
-/* ── Sub-components ── */
-
-const ProductCard = ({ product, onClick }: { product: Product; onClick: () => void }) => (
+const ProductCard = ({ product, onClick }: { product: EnrichedProduct; onClick: () => void }) => (
   <button
     onClick={onClick}
     className="flex flex-col shrink-0 w-[160px] min-w-[160px] snap-start rounded-xl border border-border bg-card overflow-hidden text-left hover:shadow-md transition-shadow"
@@ -216,7 +175,7 @@ const ProductCard = ({ product, onClick }: { product: Product; onClick: () => vo
   </button>
 );
 
-const RecommendedCard = ({ product, onClick }: { product: Product; onClick: () => void }) => (
+const RecommendedCard = ({ product, onClick }: { product: EnrichedProduct; onClick: () => void }) => (
   <button
     onClick={onClick}
     className="flex items-center gap-2.5 w-full rounded-xl border border-border bg-card p-2.5 text-left hover:shadow-md transition-shadow"
