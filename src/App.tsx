@@ -29,6 +29,7 @@ import Chat from "./pages/Chat";
 import ChatConversation from "./pages/ChatConversation";
 import Notifications from "./pages/Notifications";
 import Radar from "./pages/Radar";
+import Favorites from "./pages/Favorites";
 import Plans from "./pages/Plans";
 import SubscriptionSuccess from "./pages/SubscriptionSuccess";
 import AdminDashboard from "./pages/admin/AdminDashboard";
