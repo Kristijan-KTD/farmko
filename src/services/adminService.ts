@@ -22,4 +22,7 @@ export const adminService = {
 
   updateSubscription: (farmerId: string, plan: Plan, status: SubscriptionStatus = "active") =>
     invoke<{ success: boolean }>("update_subscription", { farmerId, plan, status }),
+
+  verifyFarmer: (farmerId: string, verified: boolean) =>
+    invoke<{ success: boolean }>("verify_farmer", { farmerId, verified }),
 };
