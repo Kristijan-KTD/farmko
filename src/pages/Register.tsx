@@ -11,7 +11,9 @@ import { useToast } from "@/hooks/use-toast";
 const validateEmail = (email: string) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 
 const Register = () => {
-  const [role, setRole] = useState<UserRole>("farmer");
+  const location = useLocation();
+  const passedRole = (location.state as { role?: UserRole })?.role;
+  const [role, setRole] = useState<UserRole>(passedRole || "farmer");
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
