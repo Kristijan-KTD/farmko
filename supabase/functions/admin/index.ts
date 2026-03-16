@@ -144,6 +144,18 @@ serve(async (req) => {
         break;
       }
 
+      case "verify_farmer": {
+        const { farmerId, verified } = params;
+        const { error } = await supabaseClient
+          .from("profiles")
+          .update({ verified: !!verified })
+          .eq("id", farmerId);
+
+        if (error) throw error;
+        result = { success: true };
+        break;
+      }
+
       default:
         throw new Error(`Unknown action: ${action}`);
     }
