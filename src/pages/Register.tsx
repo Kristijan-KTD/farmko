@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { User, Mail, Lock, Eye, EyeOff, AlertCircle } from "lucide-react";
 import MobileLayout from "@/components/layout/MobileLayout";
 import PageHeader from "@/components/layout/PageHeader";
@@ -11,7 +11,9 @@ import { useToast } from "@/hooks/use-toast";
 const validateEmail = (email: string) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 
 const Register = () => {
-  const [role, setRole] = useState<UserRole>("farmer");
+  const location = useLocation();
+  const passedRole = (location.state as { role?: UserRole })?.role;
+  const [role, setRole] = useState<UserRole>(passedRole || "farmer");
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
