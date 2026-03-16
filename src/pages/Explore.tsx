@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Search, Package, Crown, Clock, Sparkles, Zap, AlertTriangle } from "lucide-react";
+import { Search, Package, Clock, Sparkles, AlertTriangle, MapPin, CheckCircle } from "lucide-react";
 import MobileLayout from "@/components/layout/MobileLayout";
 import PageHeader from "@/components/layout/PageHeader";
 import BottomNav from "@/components/layout/BottomNav";
@@ -10,8 +10,10 @@ import { useAuth } from "@/contexts/AuthContext";
 import { fetchEnrichedProducts, getNewestProducts, getRecommendedProducts, trackListingClick, type EnrichedProduct } from "@/services/productService";
 import { getPlanBadge } from "@/services/planService";
 import { CATEGORIES } from "@/lib/categories";
+import { haversineKm, formatDistance } from "@/lib/distance";
 import { toast } from "@/hooks/use-toast";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 
 const Explore = () => {
   const [search, setSearch] = useState("");
@@ -20,15 +22,36 @@ const Explore = () => {
   const [error, setError] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [filters, setFilters] = useState<FilterState>({ category: null, sortBy: "newest", distance: null });
+  const [userLocation, setUserLocation] = useState<{ lat: number; lng: number } | null>(null);
   const navigate = useNavigate();
   const { user } = useAuth();
+
+  // Get user location
+  useEffect(() => {
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        pos => setUserLocation({ lat: pos.coords.latitude, lng: pos.coords.longitude }),
+        () => {} // silent fail
+      );
+    }
+  }, []);
 
   useEffect(() => {
     let mounted = true;
     const load = async () => {
       try {
         const data = await fetchEnrichedProducts();
-        if (mounted) setProducts(data);
+        if (mounted) {
+          // Enrich with distance
+          if (userLocation) {
+            data.forEach(p => {
+              if (p.farmer?.latitude && p.farmer?.longitude) {
+                p.distance = haversineKm(userLocation.lat, userLocation.lng, p.farmer.latitude, p.farmer.longitude);
+              }
+            });
+          }
+          setProducts(data);
+        }
       } catch {
         if (mounted) {
           setError(true);
@@ -40,17 +63,23 @@ const Explore = () => {
     };
     load();
     return () => { mounted = false; };
-  }, []);
+  }, [userLocation]);
 
   const activeCategory = selectedCategory || filters.category;
 
-  const filtered = products.filter((p) => {
+  const filtered = products.filter(p => {
     const matchesSearch = !search || p.title.toLowerCase().includes(search.toLowerCase()) || p.farmer?.name?.toLowerCase().includes(search.toLowerCase());
     const matchesCategory = !activeCategory || p.category === activeCategory;
-    return matchesSearch && matchesCategory;
+    const matchesDistance = !filters.distance || !p.distance || p.distance <= filters.distance;
+    return matchesSearch && matchesCategory && matchesDistance;
   });
 
   const sorted = [...filtered].sort((a, b) => {
+    if (filters.sortBy === "closest") {
+      const da = a.distance ?? Infinity;
+      const db = b.distance ?? Infinity;
+      return da - db;
+    }
     if (filters.sortBy === "oldest") return new Date(a.created_at).getTime() - new Date(b.created_at).getTime();
     return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
   });
@@ -67,7 +96,6 @@ const Explore = () => {
     <MobileLayout>
       <PageHeader title="Explore" />
 
-      {/* Search */}
       <div className="flex items-center gap-2 mb-3">
         <div className="flex-1 min-w-0 flex items-center gap-2 bg-secondary rounded-full px-3 py-2">
           <Search className="w-4 h-4 text-muted-foreground shrink-0" />
@@ -75,30 +103,22 @@ const Explore = () => {
             type="text"
             placeholder="Search products or farmers..."
             value={search}
-            onChange={(e) => setSearch(e.target.value)}
+            onChange={e => setSearch(e.target.value)}
             className="flex-1 min-w-0 bg-transparent text-sm outline-none placeholder:text-muted-foreground"
           />
         </div>
-        <ExploreFilter filters={filters} onApply={(f) => { setFilters(f); if (f.category) setSelectedCategory(null); }} />
+        <ExploreFilter filters={filters} onApply={f => { setFilters(f); if (f.category) setSelectedCategory(null); }} hasLocation={!!userLocation} />
       </div>
 
-      {/* Category Chips */}
       <HorizontalScroll className="gap-2 mb-4 pb-1" snap={false}>
-        {CATEGORIES.slice(0, 8).map((cat) => {
+        {CATEGORIES.slice(0, 8).map(cat => {
           const isActive = activeCategory === (cat.key === "all" ? null : cat.key);
           const isAll = cat.key === "all" && !activeCategory;
           return (
             <button
               key={cat.key}
-              onClick={() => {
-                setSelectedCategory(cat.key === "all" ? null : cat.key);
-                setFilters(f => ({ ...f, category: null }));
-              }}
-              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium shrink-0 transition-colors ${
-                isActive || isAll
-                  ? "bg-primary text-primary-foreground"
-                  : "bg-secondary text-muted-foreground hover:bg-accent"
-              }`}
+              onClick={() => { setSelectedCategory(cat.key === "all" ? null : cat.key); setFilters(f => ({ ...f, category: null })); }}
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium shrink-0 transition-colors ${isActive || isAll ? "bg-primary text-primary-foreground" : "bg-secondary text-muted-foreground hover:bg-accent"}`}
             >
               <cat.icon className="w-3 h-3" />
               {cat.label}
@@ -123,7 +143,6 @@ const Explore = () => {
           </div>
         ) : (
           <>
-            {/* New Products */}
             <section>
               <div className="flex items-center justify-between mb-2">
                 <div className="flex items-center gap-1.5">
@@ -131,19 +150,16 @@ const Explore = () => {
                   <h2 className="text-sm font-bold text-foreground">New Products</h2>
                 </div>
                 {filtered.length > 5 && (
-                  <button onClick={() => navigate("/explore/new")} className="text-xs font-semibold text-primary">
-                    See all
-                  </button>
+                  <button onClick={() => navigate("/explore/new")} className="text-xs font-semibold text-primary">See all</button>
                 )}
               </div>
               <HorizontalScroll className="gap-3 pb-1">
-                {newProducts.map((product) => (
+                {newProducts.map(product => (
                   <ProductCard key={product.id} product={product} onClick={() => handleProductClick(product)} />
                 ))}
               </HorizontalScroll>
             </section>
 
-            {/* Recommended */}
             <section>
               <div className="flex items-center justify-between mb-2">
                 <div className="flex items-center gap-1.5">
@@ -151,13 +167,11 @@ const Explore = () => {
                   <h2 className="text-sm font-bold text-foreground">Recommended</h2>
                 </div>
                 {filtered.length > 5 && (
-                  <button onClick={() => navigate("/explore/recommended")} className="text-xs font-semibold text-primary">
-                    See all
-                  </button>
+                  <button onClick={() => navigate("/explore/recommended")} className="text-xs font-semibold text-primary">See all</button>
                 )}
               </div>
               <div className="space-y-2">
-                {recommended.map((product) => (
+                {recommended.map(product => (
                   <RecommendedCard key={product.id} product={product} onClick={() => handleProductClick(product)} />
                 ))}
               </div>
@@ -194,10 +208,23 @@ const ProductCard = ({ product, onClick }: { product: EnrichedProduct; onClick: 
       </div>
       <div className="p-2 space-y-0.5">
         <h3 className="text-xs font-semibold text-foreground truncate">{product.title}</h3>
-        <p className="text-[10px] text-muted-foreground truncate">
-          {product.farmer?.name || "Unknown"} · {product.stock ?? 0} {product.unit}s
-        </p>
-        <span className="text-xs font-bold text-primary block">${product.price.toFixed(2)}</span>
+        <div className="flex items-center gap-1">
+          <p className="text-[10px] text-muted-foreground truncate">
+            {product.farmer?.name || "Unknown"}
+          </p>
+          {product.farmer?.verified && (
+            <CheckCircle className="w-3 h-3 text-blue-500 shrink-0" />
+          )}
+        </div>
+        <div className="flex items-center justify-between">
+          <span className="text-xs font-bold text-primary">${product.price.toFixed(2)}</span>
+          {product.distance != null && (
+            <span className="text-[9px] text-muted-foreground flex items-center gap-0.5">
+              <MapPin className="w-2.5 h-2.5" />
+              {formatDistance(product.distance)}
+            </span>
+          )}
+        </div>
       </div>
     </button>
   );
@@ -210,7 +237,7 @@ const RecommendedCard = ({ product, onClick }: { product: EnrichedProduct; onCli
       onClick={onClick}
       className="flex items-center gap-2.5 w-full rounded-xl border border-border bg-card p-2.5 text-left hover:shadow-md transition-shadow"
     >
-      <div className="w-14 h-14 rounded-lg bg-muted flex items-center justify-center overflow-hidden shrink-0 relative">
+      <div className="w-14 h-14 rounded-lg bg-muted flex items-center justify-center overflow-hidden shrink-0">
         {product.images?.[0] ? (
           <img src={product.images[0]} alt={product.title} className="w-full h-full object-cover" />
         ) : (
@@ -221,13 +248,22 @@ const RecommendedCard = ({ product, onClick }: { product: EnrichedProduct; onCli
         <div className="flex items-center gap-1.5">
           <h3 className="text-xs font-semibold text-foreground truncate">{product.title}</h3>
           {badge && (
-            <span className={`text-[9px] font-bold px-1.5 py-0.5 rounded-full shrink-0 ${badge.color}`}>
-              {badge.label}
+            <span className={`text-[9px] font-bold px-1.5 py-0.5 rounded-full shrink-0 ${badge.color}`}>{badge.label}</span>
+          )}
+        </div>
+        <div className="flex items-center gap-1">
+          <p className="text-[10px] text-muted-foreground truncate">{product.stock ?? 0} {product.unit}s · by {product.farmer?.name || "Unknown"}</p>
+          {product.farmer?.verified && <CheckCircle className="w-3 h-3 text-blue-500 shrink-0" />}
+        </div>
+        <div className="flex items-center gap-2">
+          <span className="text-xs font-bold text-primary">${product.price.toFixed(2)}</span>
+          {product.distance != null && (
+            <span className="text-[9px] text-muted-foreground flex items-center gap-0.5">
+              <MapPin className="w-2.5 h-2.5" />
+              {formatDistance(product.distance)}
             </span>
           )}
         </div>
-        <p className="text-[10px] text-muted-foreground truncate">{product.stock ?? 0} {product.unit}s · by {product.farmer?.name || "Unknown"}</p>
-        <span className="text-xs font-bold text-primary">${product.price.toFixed(2)}</span>
       </div>
     </button>
   );

@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Filter, X } from "lucide-react";
+import { Filter } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
@@ -8,24 +8,25 @@ import { CATEGORIES } from "@/lib/categories";
 
 export interface FilterState {
   category: string | null;
-  sortBy: "newest" | "oldest";
+  sortBy: "newest" | "oldest" | "closest";
   distance: number | null;
 }
 
 interface ExploreFilterProps {
   filters: FilterState;
   onApply: (filters: FilterState) => void;
+  hasLocation?: boolean;
 }
 
 const DISTANCE_OPTIONS = [
   { value: "any", label: "Any distance" },
-  { value: "5", label: "5 miles" },
-  { value: "10", label: "10 miles" },
-  { value: "25", label: "25 miles" },
-  { value: "50", label: "50 miles" },
+  { value: "5", label: "5 km" },
+  { value: "10", label: "10 km" },
+  { value: "25", label: "25 km" },
+  { value: "50", label: "50 km" },
 ];
 
-const ExploreFilter = ({ filters, onApply }: ExploreFilterProps) => {
+const ExploreFilter = ({ filters, onApply, hasLocation }: ExploreFilterProps) => {
   const [open, setOpen] = useState(false);
   const [local, setLocal] = useState<FilterState>(filters);
 
@@ -94,12 +95,12 @@ const ExploreFilter = ({ filters, onApply }: ExploreFilterProps) => {
             </RadioGroup>
           </div>
 
-          {/* Sort by time */}
+          {/* Sort */}
           <div>
             <h3 className="text-sm font-semibold text-foreground mb-2">Sort by</h3>
             <RadioGroup
               value={local.sortBy}
-              onValueChange={(v) => setLocal({ ...local, sortBy: v as "newest" | "oldest" })}
+              onValueChange={(v) => setLocal({ ...local, sortBy: v as FilterState["sortBy"] })}
               className="space-y-1.5"
             >
               <div className="flex items-center gap-2">
@@ -110,6 +111,12 @@ const ExploreFilter = ({ filters, onApply }: ExploreFilterProps) => {
                 <RadioGroupItem value="oldest" id="sort-oldest" />
                 <Label htmlFor="sort-oldest" className="text-sm cursor-pointer">Oldest first</Label>
               </div>
+              {hasLocation && (
+                <div className="flex items-center gap-2">
+                  <RadioGroupItem value="closest" id="sort-closest" />
+                  <Label htmlFor="sort-closest" className="text-sm cursor-pointer">Closest first</Label>
+                </div>
+              )}
             </RadioGroup>
           </div>
 

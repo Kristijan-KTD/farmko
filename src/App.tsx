@@ -29,6 +29,7 @@ import Chat from "./pages/Chat";
 import ChatConversation from "./pages/ChatConversation";
 import Notifications from "./pages/Notifications";
 import Radar from "./pages/Radar";
+import Favorites from "./pages/Favorites";
 import Plans from "./pages/Plans";
 import SubscriptionSuccess from "./pages/SubscriptionSuccess";
 import AdminDashboard from "./pages/admin/AdminDashboard";
@@ -71,6 +72,7 @@ const App = () => (
                 <Route path="/chat/:id" element={<ChatConversation />} />
                 <Route path="/notifications" element={<Notifications />} />
                 <Route path="/radar" element={<Radar />} />
+                <Route path="/favorites" element={<Favorites />} />
                 <Route path="/plans" element={<Plans />} />
                 <Route path="/subscription-success" element={<SubscriptionSuccess />} />
                 <Route path="/admin" element={<AdminDashboard />} />

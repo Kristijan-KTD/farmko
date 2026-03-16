@@ -1,8 +1,9 @@
 import { useState, useEffect } from "react";
-import { User, MapPin, Package, MessageCircle, Loader2, Star, AlertTriangle, Calendar, ShoppingBag } from "lucide-react";
+import { User, MapPin, Package, MessageCircle, Loader2, Star, AlertTriangle, Calendar, ShoppingBag, CheckCircle } from "lucide-react";
 import MobileLayout from "@/components/layout/MobileLayout";
 import PageHeader from "@/components/layout/PageHeader";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import { useNavigate, useParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
@@ -17,6 +18,7 @@ interface FarmerProfile {
   avatar_url: string | null;
   bio: string | null;
   created_at: string;
+  verified: boolean;
 }
 
 interface Product {
@@ -53,7 +55,7 @@ const FarmerDetail = () => {
     const fetchData = async () => {
       try {
         const [profileRes, productsRes, photosRes, reviewsRes, subRes] = await Promise.all([
-          supabase.from("profiles").select("id, name, location, avatar_url, bio, created_at").eq("id", id).maybeSingle(),
+          supabase.from("profiles").select("id, name, location, avatar_url, bio, created_at, verified").eq("id", id).maybeSingle(),
           supabase.from("products").select("id, title, price, images").eq("farmer_id", id).eq("status", "active"),
           supabase.from("instafarm_posts").select("id, image_url").eq("farmer_id", id).order("created_at", { ascending: false }).limit(6),
           supabase.from("reviews").select("rating").eq("farmer_id", id),
@@ -165,6 +167,11 @@ const FarmerDetail = () => {
           </div>
           <div className="flex items-center gap-2">
             <h2 className="text-lg font-bold text-foreground">{farmer.name}</h2>
+            {farmer.verified && (
+              <Badge variant="secondary" className="text-[10px] px-1.5 py-0.5 bg-blue-50 text-blue-600 border-blue-200 gap-0.5">
+                <CheckCircle className="w-3 h-3" /> Verified
+              </Badge>
+            )}
             {planBadge && (
               <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${planBadge.color}`}>
                 {planBadge.label}

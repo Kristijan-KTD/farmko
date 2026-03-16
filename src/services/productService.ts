@@ -7,12 +7,13 @@ export interface EnrichedProduct {
   price: number;
   images: string[] | null;
   farmer_id: string;
-  farmer: { name: string } | null;
+  farmer: { name: string; latitude?: number | null; longitude?: number | null; verified?: boolean } | null;
   farmerPlan: string;
   category: string | null;
   stock: number | null;
   unit: string;
   created_at: string;
+  distance?: number | null;
 }
 
 export { PLAN_PRIORITY };
@@ -20,7 +21,7 @@ export { PLAN_PRIORITY };
 export async function fetchEnrichedProducts(): Promise<EnrichedProduct[]> {
   const { data, error } = await supabase
     .from("products")
-    .select("id, title, price, images, farmer_id, category, stock, unit, created_at, farmer:profiles!products_farmer_id_fkey(name)")
+    .select("id, title, price, images, farmer_id, category, stock, unit, created_at, farmer:profiles!products_farmer_id_fkey(name, latitude, longitude, verified)")
     .eq("status", "active")
     .order("created_at", { ascending: false });
 

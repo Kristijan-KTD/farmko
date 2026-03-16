@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback, useMemo } from "react";
-import { Loader2, User, Crown, Zap, Leaf, ShoppingBag, MapPin, Search, RefreshCw, ChevronLeft, ChevronRight } from "lucide-react";
+import { Loader2, User, Crown, Zap, Leaf, ShoppingBag, MapPin, Search, RefreshCw, ChevronLeft, ChevronRight, CheckCircle, XCircle } from "lucide-react";
 import AdminLayout from "@/components/admin/AdminLayout";
 import AdminGuard from "@/components/admin/AdminGuard";
 import { adminService } from "@/services/adminService";
@@ -171,21 +171,45 @@ const AdminFarmers = () => {
                             <BadgeIcon className="w-3 h-3" />
                             {badge.label}
                           </span>
+                          {farmer.verified && (
+                            <span className="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded-full text-[10px] font-semibold bg-blue-50 text-blue-600">
+                              <CheckCircle className="w-3 h-3" /> Verified
+                            </span>
+                          )}
                         </div>
                         <p className="text-xs text-muted-foreground truncate">{farmer.email ?? "No email"}</p>
                       </div>
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        onClick={() => {
-                          setPromoteTarget(farmer);
-                          setPromotePlan(currentPlan === "pro" ? "pro" : currentPlan === "growth" ? "pro" : "growth");
-                        }}
-                        className="rounded-full text-xs h-8"
-                      >
-                        <Crown className="w-3 h-3 mr-1" />
-                        Promote
-                      </Button>
+                      <div className="flex gap-1.5 shrink-0">
+                        <Button
+                          size="sm"
+                          variant={farmer.verified ? "destructive" : "secondary"}
+                          onClick={async () => {
+                            try {
+                              await adminService.verifyFarmer(farmer.id, !farmer.verified);
+                              toast({ title: farmer.verified ? "Farmer unverified" : "Farmer verified!" });
+                              fetchFarmers();
+                            } catch {
+                              toast({ title: "Failed to update verification", variant: "destructive" });
+                            }
+                          }}
+                          className="rounded-full text-xs h-8"
+                        >
+                          {farmer.verified ? <XCircle className="w-3 h-3 mr-1" /> : <CheckCircle className="w-3 h-3 mr-1" />}
+                          {farmer.verified ? "Unverify" : "Verify"}
+                        </Button>
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={() => {
+                            setPromoteTarget(farmer);
+                            setPromotePlan(currentPlan === "pro" ? "pro" : currentPlan === "growth" ? "pro" : "growth");
+                          }}
+                          className="rounded-full text-xs h-8"
+                        >
+                          <Crown className="w-3 h-3 mr-1" />
+                          Promote
+                        </Button>
+                      </div>
                     </div>
                     <div className="flex items-center gap-4 text-xs text-muted-foreground">
                       <span className="flex items-center gap-1">

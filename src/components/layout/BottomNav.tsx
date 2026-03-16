@@ -1,4 +1,4 @@
-import { Home, Search, MessageCircle, Bell, MapPin, Store, Camera, Users } from "lucide-react";
+import { Home, Search, MessageCircle, MapPin, Store, Camera, Heart } from "lucide-react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 
@@ -18,7 +18,7 @@ const BottomNav = () => {
   const customerItems = [
     { icon: Home, path: "/home", label: "Home" },
     { icon: Search, path: "/explore", label: "Explore" },
-    { icon: Users, path: "/find-farmer", label: "Farmers" },
+    { icon: Heart, path: "/favorites", label: "Saved" },
     { icon: MessageCircle, path: "/chat", label: "Chat" },
     { icon: MapPin, path: "/radar", label: "Radar" },
   ];

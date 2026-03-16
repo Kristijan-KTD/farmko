@@ -102,11 +102,10 @@ serve(async (req) => {
       case "get_farmers": {
         const { data } = await supabaseClient
           .from("profiles")
-          .select("id, name, email, avatar_url, location, created_at")
+          .select("id, name, email, avatar_url, location, created_at, verified")
           .eq("role", "farmer")
           .order("created_at", { ascending: false });
 
-        // Get subscriptions for each farmer
         const farmerIds = data?.map((f: any) => f.id) || [];
         const { data: subs } = await supabaseClient
           .from("farmer_subscriptions")
@@ -115,7 +114,6 @@ serve(async (req) => {
 
         const subMap = new Map(subs?.map((s: any) => [s.farmer_id, s]) || []);
 
-        // Get product counts
         const { data: products } = await supabaseClient
           .from("products")
           .select("farmer_id")
@@ -140,6 +138,18 @@ serve(async (req) => {
         const { error } = await supabaseClient
           .from("farmer_subscriptions")
           .upsert({ farmer_id: farmerId, plan, status: "active" }, { onConflict: "farmer_id" });
+
+        if (error) throw error;
+        result = { success: true };
+        break;
+      }
+
+      case "verify_farmer": {
+        const { farmerId, verified } = params;
+        const { error } = await supabaseClient
+          .from("profiles")
+          .update({ verified: !!verified })
+          .eq("id", farmerId);
 
         if (error) throw error;
         result = { success: true };
