@@ -1,8 +1,9 @@
 import { useState, useEffect } from "react";
-import { User, MapPin, Package, MessageCircle, Loader2, Star, AlertTriangle, Calendar, ShoppingBag } from "lucide-react";
+import { User, MapPin, Package, MessageCircle, Loader2, Star, AlertTriangle, Calendar, ShoppingBag, CheckCircle } from "lucide-react";
 import MobileLayout from "@/components/layout/MobileLayout";
 import PageHeader from "@/components/layout/PageHeader";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import { useNavigate, useParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
@@ -17,6 +18,7 @@ interface FarmerProfile {
   avatar_url: string | null;
   bio: string | null;
   created_at: string;
+  verified: boolean;
 }
 
 interface Product {
