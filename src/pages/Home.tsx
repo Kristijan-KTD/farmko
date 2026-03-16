@@ -31,47 +31,31 @@ const Home = () => {
 
     const fetchStats = async () => {
       try {
-        const promises: Promise<any>[] = [
-          // Unread chats
-          supabase
-            .from("messages")
-            .select("id", { count: "exact", head: true })
-            .eq("read", false)
-            .neq("sender_id", user.id),
-        ];
+        const chatRes = await supabase
+          .from("messages")
+          .select("id", { count: "exact", head: true })
+          .eq("read", false)
+          .neq("sender_id", user.id);
+
+        let activeListings = 0, profileViews = 0, favorites = 0;
 
         if (user.role === "farmer") {
-          promises.push(
-            // Active listings
-            supabase
-              .from("products")
-              .select("id", { count: "exact", head: true })
-              .eq("farmer_id", user.id)
-              .eq("status", "active"),
-            // Profile views (last 7 days)
-            supabase
-              .from("analytics_events")
-              .select("id", { count: "exact", head: true })
-              .eq("farmer_id", user.id)
-              .eq("event_type", "profile_view")
-              .gte("created_at", new Date(Date.now() - 7 * 86400000).toISOString()),
-            // Favorites
-            supabase
-              .from("analytics_events")
-              .select("id", { count: "exact", head: true })
-              .eq("farmer_id", user.id)
-              .eq("event_type", "favorite_listing"),
-          );
+          const [listRes, viewRes, favRes] = await Promise.all([
+            supabase.from("products").select("id", { count: "exact", head: true }).eq("farmer_id", user.id).eq("status", "active"),
+            supabase.from("analytics_events").select("id", { count: "exact", head: true }).eq("farmer_id", user.id).eq("event_type", "profile_view").gte("created_at", new Date(Date.now() - 7 * 86400000).toISOString()),
+            supabase.from("analytics_events").select("id", { count: "exact", head: true }).eq("farmer_id", user.id).eq("event_type", "favorite_listing"),
+          ]);
+          activeListings = listRes.count ?? 0;
+          profileViews = viewRes.count ?? 0;
+          favorites = favRes.count ?? 0;
         }
 
-        const results = await Promise.all(promises);
         if (!mounted) return;
-
         setStats({
-          unreadChats: results[0]?.count ?? 0,
-          activeListings: results[1]?.count ?? 0,
-          profileViews: results[2]?.count ?? 0,
-          favorites: results[3]?.count ?? 0,
+          unreadChats: chatRes.count ?? 0,
+          activeListings,
+          profileViews,
+          favorites,
         });
       } catch {
         // Non-critical, fail silently
