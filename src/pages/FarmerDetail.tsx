@@ -55,7 +55,7 @@ const FarmerDetail = () => {
     const fetchData = async () => {
       try {
         const [profileRes, productsRes, photosRes, reviewsRes, subRes] = await Promise.all([
-          supabase.from("profiles").select("id, name, location, avatar_url, bio, created_at").eq("id", id).maybeSingle(),
+          supabase.from("profiles").select("id, name, location, avatar_url, bio, created_at, verified").eq("id", id).maybeSingle(),
           supabase.from("products").select("id, title, price, images").eq("farmer_id", id).eq("status", "active"),
           supabase.from("instafarm_posts").select("id, image_url").eq("farmer_id", id).order("created_at", { ascending: false }).limit(6),
           supabase.from("reviews").select("rating").eq("farmer_id", id),
