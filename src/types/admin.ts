@@ -24,6 +24,7 @@ export interface Farmer {
   avatar_url: string | null;
   location: string | null;
   created_at: string;
+  verified: boolean;
   subscription: FarmerSubscription;
   productCount: number;
 }
