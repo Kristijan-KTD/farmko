@@ -72,6 +72,7 @@ const App = () => (
                 <Route path="/chat/:id" element={<ChatConversation />} />
                 <Route path="/notifications" element={<Notifications />} />
                 <Route path="/radar" element={<Radar />} />
+                <Route path="/favorites" element={<Favorites />} />
                 <Route path="/plans" element={<Plans />} />
                 <Route path="/subscription-success" element={<SubscriptionSuccess />} />
                 <Route path="/admin" element={<AdminDashboard />} />
