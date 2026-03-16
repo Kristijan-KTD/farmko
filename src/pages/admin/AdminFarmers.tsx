@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback, useMemo } from "react";
-import { Loader2, User, Crown, Zap, Leaf, ShoppingBag, MapPin, Search, RefreshCw, ChevronLeft, ChevronRight } from "lucide-react";
+import { Loader2, User, Crown, Zap, Leaf, ShoppingBag, MapPin, Search, RefreshCw, ChevronLeft, ChevronRight, CheckCircle, XCircle } from "lucide-react";
 import AdminLayout from "@/components/admin/AdminLayout";
 import AdminGuard from "@/components/admin/AdminGuard";
 import { adminService } from "@/services/adminService";
