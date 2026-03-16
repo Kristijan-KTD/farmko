@@ -167,6 +167,11 @@ const FarmerDetail = () => {
           </div>
           <div className="flex items-center gap-2">
             <h2 className="text-lg font-bold text-foreground">{farmer.name}</h2>
+            {farmer.verified && (
+              <Badge variant="secondary" className="text-[10px] px-1.5 py-0.5 bg-blue-50 text-blue-600 border-blue-200 gap-0.5">
+                <CheckCircle className="w-3 h-3" /> Verified
+              </Badge>
+            )}
             {planBadge && (
               <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${planBadge.color}`}>
                 {planBadge.label}
