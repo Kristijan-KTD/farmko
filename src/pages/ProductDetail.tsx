@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Star, MapPin, Package, User, MessageCircle, Loader2, Crown, Heart, ChevronLeft, ChevronRight } from "lucide-react";
+import { Star, MapPin, Package, User, MessageCircle, Loader2, Heart, ChevronLeft, ChevronRight, AlertTriangle, Crown, Zap } from "lucide-react";
 import MobileLayout from "@/components/layout/MobileLayout";
 import PageHeader from "@/components/layout/PageHeader";
 import { Button } from "@/components/ui/button";
@@ -8,6 +8,8 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { useAnalyticsTracking } from "@/hooks/useAnalyticsTracking";
+import HorizontalScroll from "@/components/HorizontalScroll";
+import { getPlanBadge } from "@/services/planService";
 
 interface Review {
   id: string;
@@ -25,7 +27,16 @@ interface ProductData {
   unit: string;
   images: string[] | null;
   farmer_id: string;
+  category: string | null;
   farmer: { id: string; name: string; location: string | null; avatar_url: string | null } | null;
+}
+
+interface RelatedProduct {
+  id: string;
+  title: string;
+  price: number;
+  images: string[] | null;
+  unit: string;
 }
 
 const ProductDetail = () => {
@@ -37,71 +48,80 @@ const ProductDetail = () => {
   const [product, setProduct] = useState<ProductData | null>(null);
   const [reviews, setReviews] = useState<Review[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(false);
   const [userRating, setUserRating] = useState(0);
   const [hoverRating, setHoverRating] = useState(0);
   const [reviewText, setReviewText] = useState("");
   const [submitting, setSubmitting] = useState(false);
-  const [farmerPlan, setFarmerPlan] = useState<string | null>(null);
+  const [farmerPlan, setFarmerPlan] = useState<string>("starter");
   const [isFavorited, setIsFavorited] = useState(false);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
+  const [moreFromFarmer, setMoreFromFarmer] = useState<RelatedProduct[]>([]);
+  const [farmerProductCount, setFarmerProductCount] = useState(0);
+  const [farmerReviewCount, setFarmerReviewCount] = useState(0);
 
   useEffect(() => {
     if (!id) return;
+    let mounted = true;
+
     const fetchData = async () => {
-      const { data: prod } = await supabase
-        .from("products")
-        .select("id, title, description, price, unit, images, farmer_id, farmer:profiles!products_farmer_id_fkey(id, name, location, avatar_url)")
-        .eq("id", id)
-        .maybeSingle();
-
-      if (prod) {
-        const productData = {
-          ...prod,
-          farmer: Array.isArray(prod.farmer) ? prod.farmer[0] : prod.farmer,
-        };
-        setProduct(productData);
-
-        // Track listing view & record in listing_views
-        if (user && user.id !== prod.farmer_id) {
-          trackListingView(prod.farmer_id, prod.id);
-          await supabase.from("listing_views").insert({ listing_id: prod.id, viewer_id: user.id });
-        }
-
-        // Check if user has favorited this product
-        if (user) {
-          const { data: fav } = await supabase
-            .from("favorites")
-            .select("id")
-            .eq("user_id", user.id)
-            .eq("listing_id", prod.id)
-            .maybeSingle();
-          setIsFavorited(!!fav);
-        }
-
-        // Check farmer's plan for badge
-        const { data: sub } = await supabase
-          .from("farmer_subscriptions")
-          .select("plan")
-          .eq("farmer_id", prod.farmer_id)
+      try {
+        const { data: prod, error: prodError } = await supabase
+          .from("products")
+          .select("id, title, description, price, unit, images, farmer_id, category, farmer:profiles!products_farmer_id_fkey(id, name, location, avatar_url)")
+          .eq("id", id)
           .maybeSingle();
-        if (sub) setFarmerPlan(sub.plan);
-      }
 
-      const { data: revs } = await supabase
-        .from("reviews")
-        .select("id, rating, comment, created_at, reviewer:profiles!reviews_reviewer_id_fkey(name, avatar_url)")
-        .eq("product_id", id)
-        .order("created_at", { ascending: false });
+        if (prodError) throw prodError;
+        if (!mounted) return;
 
-      if (revs) {
-        setReviews(revs.map(r => ({
-          ...r,
-          reviewer: Array.isArray(r.reviewer) ? r.reviewer[0] : r.reviewer,
-        })));
+        if (prod) {
+          const productData = {
+            ...prod,
+            farmer: Array.isArray(prod.farmer) ? prod.farmer[0] : prod.farmer,
+          };
+          setProduct(productData);
+
+          // Track listing view
+          if (user && user.id !== prod.farmer_id) {
+            trackListingView(prod.farmer_id, prod.id);
+            supabase.from("listing_views").insert({ listing_id: prod.id, viewer_id: user.id }).then();
+          }
+
+          // Parallel fetches: favorites, plan, reviews, more from farmer, farmer stats
+          const [favRes, subRes, revsRes, moreRes, farmerProdRes, farmerRevRes] = await Promise.all([
+            user ? supabase.from("favorites").select("id").eq("user_id", user.id).eq("listing_id", prod.id).maybeSingle() : Promise.resolve({ data: null }),
+            supabase.from("farmer_subscriptions").select("plan").eq("farmer_id", prod.farmer_id).maybeSingle(),
+            supabase.from("reviews").select("id, rating, comment, created_at, reviewer:profiles!reviews_reviewer_id_fkey(name, avatar_url)").eq("product_id", id).order("created_at", { ascending: false }),
+            supabase.from("products").select("id, title, price, images, unit").eq("farmer_id", prod.farmer_id).eq("status", "active").neq("id", id).limit(5),
+            supabase.from("products").select("id", { count: "exact", head: true }).eq("farmer_id", prod.farmer_id).eq("status", "active"),
+            supabase.from("reviews").select("id", { count: "exact", head: true }).eq("farmer_id", prod.farmer_id),
+          ]);
+
+          if (!mounted) return;
+          setIsFavorited(!!favRes.data);
+          if (subRes.data) setFarmerPlan(subRes.data.plan);
+          if (revsRes.data) {
+            setReviews(revsRes.data.map(r => ({
+              ...r,
+              reviewer: Array.isArray(r.reviewer) ? r.reviewer[0] : r.reviewer,
+            })));
+          }
+          setMoreFromFarmer(moreRes.data || []);
+          setFarmerProductCount(farmerProdRes.count ?? 0);
+          setFarmerReviewCount(farmerRevRes.count ?? 0);
+        }
+      } catch (e: unknown) {
+        if (!mounted) return;
+        console.error("[ProductDetail] Error:", e instanceof Error ? e.message : e);
+        setError(true);
+        toast({ title: "Failed to load product", variant: "destructive" });
+      } finally {
+        if (mounted) setLoading(false);
       }
-      setLoading(false);
     };
     fetchData();
+    return () => { mounted = false; };
   }, [id]);
 
   const avgRating = reviews.length > 0
@@ -110,17 +130,19 @@ const ProductDetail = () => {
 
   const handleToggleFavorite = async () => {
     if (!user || !product) return;
-
-    if (isFavorited) {
-      await supabase.from("favorites").delete().eq("user_id", user.id).eq("listing_id", product.id);
-      setIsFavorited(false);
-    } else {
-      await supabase.from("favorites").insert({ user_id: user.id, listing_id: product.id });
-      setIsFavorited(true);
-      // Track favorite event
-      if (user.id !== product.farmer_id) {
-        trackFavoriteListing(product.farmer_id, product.id);
+    try {
+      if (isFavorited) {
+        await supabase.from("favorites").delete().eq("user_id", user.id).eq("listing_id", product.id);
+        setIsFavorited(false);
+      } else {
+        await supabase.from("favorites").insert({ user_id: user.id, listing_id: product.id });
+        setIsFavorited(true);
+        if (user.id !== product.farmer_id) {
+          trackFavoriteListing(product.farmer_id, product.id);
+        }
       }
+    } catch {
+      toast({ title: "Failed to update favorite", variant: "destructive" });
     }
   };
 
@@ -132,21 +154,24 @@ const ProductDetail = () => {
     if (!user || !product) return;
 
     setSubmitting(true);
-    const { data, error } = await supabase.from("reviews").insert({
-      product_id: product.id,
-      farmer_id: product.farmer_id,
-      reviewer_id: user.id,
-      rating: userRating,
-      comment: reviewText || null,
-    }).select("id, rating, comment, created_at").single();
+    try {
+      const { data, error } = await supabase.from("reviews").insert({
+        product_id: product.id,
+        farmer_id: product.farmer_id,
+        reviewer_id: user.id,
+        rating: userRating,
+        comment: reviewText || null,
+      }).select("id, rating, comment, created_at").single();
 
-    if (!error && data) {
-      setReviews([{ ...data, reviewer: { name: user.name, avatar_url: user.avatar_url || null } }, ...reviews]);
-      setUserRating(0);
-      setReviewText("");
-      toast({ title: "Review submitted!", description: "Thank you for your feedback" });
-    } else {
-      toast({ title: "Error", description: error?.message || "Could not submit review", variant: "destructive" });
+      if (error) throw error;
+      if (data) {
+        setReviews([{ ...data, reviewer: { name: user.name, avatar_url: user.avatar_url || null } }, ...reviews]);
+        setUserRating(0);
+        setReviewText("");
+        toast({ title: "Review submitted!" });
+      }
+    } catch (e: unknown) {
+      toast({ title: "Error", description: e instanceof Error ? e.message : "Could not submit review", variant: "destructive" });
     }
     setSubmitting(false);
   };
@@ -155,26 +180,27 @@ const ProductDetail = () => {
     if (!user || !product?.farmer) return;
     const farmerId = product.farmer.id;
 
-    // Track contact event
-    if (user.id !== farmerId) {
-      trackContactFarmer(farmerId);
-    }
+    try {
+      if (user.id !== farmerId) trackContactFarmer(farmerId);
 
-    const { data: existing } = await supabase
-      .from("conversations")
-      .select("id")
-      .or(`and(participant_one.eq.${user.id},participant_two.eq.${farmerId}),and(participant_one.eq.${farmerId},participant_two.eq.${user.id})`)
-      .maybeSingle();
-
-    if (existing) {
-      navigate(`/chat/${existing.id}`);
-    } else {
-      const { data: conv } = await supabase
+      const { data: existing } = await supabase
         .from("conversations")
-        .insert({ participant_one: user.id, participant_two: farmerId })
         .select("id")
-        .single();
-      if (conv) navigate(`/chat/${conv.id}`);
+        .or(`and(participant_one.eq.${user.id},participant_two.eq.${farmerId}),and(participant_one.eq.${farmerId},participant_two.eq.${user.id})`)
+        .maybeSingle();
+
+      if (existing) {
+        navigate(`/chat/${existing.id}`);
+      } else {
+        const { data: conv } = await supabase
+          .from("conversations")
+          .insert({ participant_one: user.id, participant_two: farmerId })
+          .select("id")
+          .single();
+        if (conv) navigate(`/chat/${conv.id}`);
+      }
+    } catch {
+      toast({ title: "Failed to start conversation", variant: "destructive" });
     }
   };
 
@@ -189,17 +215,20 @@ const ProductDetail = () => {
     );
   }
 
-  if (!product) {
+  if (error || !product) {
     return (
       <MobileLayout>
         <PageHeader title="Product Details" />
         <div className="flex-1 flex flex-col items-center justify-center">
-          <Package className="w-16 h-16 text-muted-foreground/30 mb-4" />
-          <p className="text-muted-foreground">Product not found</p>
+          {error ? <AlertTriangle className="w-16 h-16 text-destructive/30 mb-4" /> : <Package className="w-16 h-16 text-muted-foreground/30 mb-4" />}
+          <p className="text-muted-foreground">{error ? "Failed to load product" : "Product not found"}</p>
+          {error && <Button variant="outline" size="sm" onClick={() => window.location.reload()} className="mt-3 rounded-full">Retry</Button>}
         </div>
       </MobileLayout>
     );
   }
+
+  const planBadge = getPlanBadge(farmerPlan);
 
   const timeAgo = (dateStr: string) => {
     const diff = Date.now() - new Date(dateStr).getTime();
@@ -207,8 +236,7 @@ const ProductDetail = () => {
     if (mins < 60) return `${mins}m ago`;
     const hrs = Math.floor(mins / 60);
     if (hrs < 24) return `${hrs}h ago`;
-    const days = Math.floor(hrs / 24);
-    return `${days}d ago`;
+    return `${Math.floor(hrs / 24)}d ago`;
   };
 
   return (
@@ -216,6 +244,7 @@ const ProductDetail = () => {
       <PageHeader title="Product Details" />
 
       <div className="flex-1 space-y-4 pb-4">
+        {/* Image Gallery */}
         <div className="relative aspect-square bg-muted rounded-xl flex items-center justify-center overflow-hidden">
           {product.images && product.images.length > 0 ? (
             <>
@@ -259,6 +288,7 @@ const ProductDetail = () => {
           )}
         </div>
 
+        {/* Price & Rating */}
         <div className="space-y-2">
           <div className="flex items-center justify-between">
             <span className="text-2xl font-bold text-primary">${product.price.toFixed(2)}/{product.unit}</span>
@@ -278,35 +308,83 @@ const ProductDetail = () => {
           )}
         </div>
 
+        {/* Action Buttons */}
+        <div className="flex gap-2">
+          <Button onClick={handleContactFarmer} className="flex-1 rounded-full h-11 font-semibold gap-2">
+            <MessageCircle className="w-5 h-5" />
+            Contact Farmer
+          </Button>
+          {user && (
+            <Button variant="outline" onClick={handleToggleFavorite} className="rounded-full h-11 px-4">
+              <Heart className={`w-5 h-5 ${isFavorited ? "fill-red-500 text-red-500" : ""}`} />
+            </Button>
+          )}
+        </div>
+
+        {/* Farmer Card with Trust Signals */}
         {product.farmer && (
           <button
             onClick={() => navigate(`/farmer/${product.farmer!.id}`)}
             className="w-full flex items-center gap-3 p-3 rounded-xl bg-secondary text-left"
           >
-            <div className="w-10 h-10 rounded-full bg-muted flex items-center justify-center overflow-hidden">
+            <div className="w-12 h-12 rounded-full bg-muted flex items-center justify-center overflow-hidden">
               {product.farmer.avatar_url ? (
                 <img src={product.farmer.avatar_url} alt="" className="w-full h-full object-cover" />
               ) : (
-                <User className="w-5 h-5 text-muted-foreground" />
+                <User className="w-6 h-6 text-muted-foreground" />
               )}
             </div>
-            <div className="flex-1">
+            <div className="flex-1 min-w-0">
               <div className="flex items-center gap-1.5">
-                <h3 className="text-sm font-semibold text-foreground">{product.farmer.name}</h3>
-                {farmerPlan === "pro" && (
-                  <Crown className="w-3.5 h-3.5 text-yellow-500" />
+                <h3 className="text-sm font-semibold text-foreground truncate">{product.farmer.name}</h3>
+                {planBadge && (
+                  <span className={`text-[9px] font-bold px-1.5 py-0.5 rounded-full shrink-0 ${planBadge.color}`}>
+                    {planBadge.label}
+                  </span>
                 )}
               </div>
-              {product.farmer.location && (
-                <div className="flex items-center gap-1 text-xs text-muted-foreground">
-                  <MapPin className="w-3 h-3" />
-                  <span>{product.farmer.location}</span>
-                </div>
-              )}
+              <div className="flex items-center gap-2 text-xs text-muted-foreground mt-0.5">
+                {product.farmer.location && (
+                  <span className="flex items-center gap-0.5"><MapPin className="w-3 h-3" />{product.farmer.location}</span>
+                )}
+                <span>{farmerProductCount} products</span>
+                <span>{farmerReviewCount} reviews</span>
+              </div>
             </div>
           </button>
         )}
 
+        {/* More From This Farmer */}
+        {moreFromFarmer.length > 0 && (
+          <section>
+            <h3 className="text-sm font-semibold text-foreground mb-2">More from this farmer</h3>
+            <HorizontalScroll className="gap-3 pb-1">
+              {moreFromFarmer.map((p) => (
+                <button
+                  key={p.id}
+                  onClick={() => navigate(`/product/${p.id}`)}
+                  className="flex flex-col shrink-0 w-[130px] min-w-[130px] snap-start rounded-xl border border-border bg-card overflow-hidden text-left hover:shadow-md transition-shadow"
+                >
+                  <div className="aspect-[4/3] bg-muted relative overflow-hidden">
+                    {p.images?.[0] ? (
+                      <img src={p.images[0]} alt={p.title} className="absolute inset-0 w-full h-full object-cover" />
+                    ) : (
+                      <div className="absolute inset-0 flex items-center justify-center">
+                        <Package className="w-6 h-6 text-muted-foreground/30" />
+                      </div>
+                    )}
+                  </div>
+                  <div className="p-2">
+                    <h4 className="text-xs font-semibold text-foreground truncate">{p.title}</h4>
+                    <span className="text-xs font-bold text-primary">${p.price.toFixed(2)}</span>
+                  </div>
+                </button>
+              ))}
+            </HorizontalScroll>
+          </section>
+        )}
+
+        {/* Write Review */}
         {user?.role === "customer" && (
           <div className="space-y-3 p-4 rounded-xl border border-border">
             <h3 className="text-sm font-semibold text-foreground">Write a Review</h3>
@@ -337,6 +415,7 @@ const ProductDetail = () => {
           </div>
         )}
 
+        {/* Reviews */}
         <div className="space-y-3">
           <h3 className="text-sm font-semibold text-foreground">Reviews ({reviews.length})</h3>
           {reviews.length === 0 ? (
@@ -369,13 +448,6 @@ const ProductDetail = () => {
             ))
           )}
         </div>
-      </div>
-
-      <div className="pb-8 pt-2">
-        <Button variant="outline" onClick={handleContactFarmer} className="w-full rounded-full h-12 text-base font-semibold gap-2">
-          <MessageCircle className="w-5 h-5" />
-          Contact Farmer
-        </Button>
       </div>
     </MobileLayout>
   );
