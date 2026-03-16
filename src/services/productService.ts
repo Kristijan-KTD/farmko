@@ -1,4 +1,5 @@
 import { supabase } from "@/integrations/supabase/client";
+import { PLAN_PRIORITY } from "@/services/planService";
 
 export interface EnrichedProduct {
   id: string;
@@ -14,7 +15,7 @@ export interface EnrichedProduct {
   created_at: string;
 }
 
-export const PLAN_PRIORITY: Record<string, number> = { pro: 0, growth: 1, starter: 2 };
+export { PLAN_PRIORITY };
 
 export async function fetchEnrichedProducts(): Promise<EnrichedProduct[]> {
   const { data, error } = await supabase
@@ -40,6 +41,18 @@ export async function fetchEnrichedProducts(): Promise<EnrichedProduct[]> {
     farmer: Array.isArray(p.farmer) ? p.farmer[0] : p.farmer,
     farmerPlan: planMap.get(p.farmer_id) || "starter",
   }));
+}
+
+export function getNewestProducts(products: EnrichedProduct[], limit = 5): EnrichedProduct[] {
+  return [...products].sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime()).slice(0, limit);
+}
+
+export function getRecommendedProducts(products: EnrichedProduct[], limit = 5): EnrichedProduct[] {
+  return [...products].sort((a, b) => {
+    const pa = PLAN_PRIORITY[a.farmerPlan as keyof typeof PLAN_PRIORITY] ?? 2;
+    const pb = PLAN_PRIORITY[b.farmerPlan as keyof typeof PLAN_PRIORITY] ?? 2;
+    return pa - pb;
+  }).slice(0, limit);
 }
 
 export async function trackListingClick(farmerId: string, productId: string) {

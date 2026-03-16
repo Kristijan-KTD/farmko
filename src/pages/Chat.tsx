@@ -1,11 +1,12 @@
 import { useState, useEffect } from "react";
-import { User, Loader2, MessageCircle } from "lucide-react";
+import { User, Loader2, MessageCircle, AlertTriangle } from "lucide-react";
 import MobileLayout from "@/components/layout/MobileLayout";
 import PageHeader from "@/components/layout/PageHeader";
 import BottomNav from "@/components/layout/BottomNav";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
+import { useToast } from "@/hooks/use-toast";
 
 interface Conversation {
   id: string;
@@ -20,58 +21,72 @@ interface Conversation {
 const Chat = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
+  const { toast } = useToast();
   const [conversations, setConversations] = useState<Conversation[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(false);
 
   useEffect(() => {
     if (!user) return;
+    let mounted = true;
 
     const fetchConversations = async () => {
-      const { data } = await supabase
-        .from("conversations")
-        .select("*")
-        .or(`participant_one.eq.${user.id},participant_two.eq.${user.id}`)
-        .order("last_message_at", { ascending: false });
+      try {
+        const { data, error: fetchErr } = await supabase
+          .from("conversations")
+          .select("*")
+          .or(`participant_one.eq.${user.id},participant_two.eq.${user.id}`)
+          .order("last_message_at", { ascending: false });
 
-      if (data) {
-        // Fetch other user profiles
-        const otherIds = data.map(c => c.participant_one === user.id ? c.participant_two : c.participant_one);
-        const uniqueIds = [...new Set(otherIds)];
+        if (fetchErr) throw fetchErr;
+        if (!mounted) return;
 
-        const { data: profiles } = await supabase
-          .from("profiles")
-          .select("id, name, avatar_url")
-          .in("id", uniqueIds);
+        if (data) {
+          const otherIds = data.map(c => c.participant_one === user.id ? c.participant_two : c.participant_one);
+          const uniqueIds = [...new Set(otherIds)];
 
-        const profileMap = new Map(profiles?.map(p => [p.id, p]) || []);
+          const { data: profiles } = await supabase
+            .from("profiles")
+            .select("id, name, avatar_url")
+            .in("id", uniqueIds);
 
-        // Count unread messages per conversation
-        const { data: unreadData } = await supabase
-          .from("messages")
-          .select("conversation_id")
-          .eq("read", false)
-          .neq("sender_id", user.id);
+          const profileMap = new Map(profiles?.map(p => [p.id, p]) || []);
 
-        const unreadMap = new Map<string, number>();
-        unreadData?.forEach(m => {
-          unreadMap.set(m.conversation_id, (unreadMap.get(m.conversation_id) || 0) + 1);
-        });
+          const { data: unreadData } = await supabase
+            .from("messages")
+            .select("conversation_id")
+            .eq("read", false)
+            .neq("sender_id", user.id);
 
-        setConversations(data.map(c => {
-          const otherId = c.participant_one === user.id ? c.participant_two : c.participant_one;
-          return {
-            ...c,
-            other_user: profileMap.get(otherId) || { name: "Unknown", avatar_url: null },
-            unread_count: unreadMap.get(c.id) || 0,
-          };
-        }));
+          const unreadMap = new Map<string, number>();
+          unreadData?.forEach(m => {
+            unreadMap.set(m.conversation_id, (unreadMap.get(m.conversation_id) || 0) + 1);
+          });
+
+          if (mounted) {
+            setConversations(data.map(c => {
+              const otherId = c.participant_one === user.id ? c.participant_two : c.participant_one;
+              return {
+                ...c,
+                other_user: profileMap.get(otherId) || { name: "Unknown", avatar_url: null },
+                unread_count: unreadMap.get(c.id) || 0,
+              };
+            }));
+          }
+        }
+      } catch (e: unknown) {
+        if (mounted) {
+          console.error("[Chat] Fetch error:", e instanceof Error ? e.message : e);
+          setError(true);
+          toast({ title: "Failed to load conversations", variant: "destructive" });
+        }
+      } finally {
+        if (mounted) setLoading(false);
       }
-      setLoading(false);
     };
 
     fetchConversations();
 
-    // Realtime subscription for new messages
     const channel = supabase
       .channel("chat-list")
       .on("postgres_changes", { event: "*", schema: "public", table: "conversations" }, () => {
@@ -79,7 +94,10 @@ const Chat = () => {
       })
       .subscribe();
 
-    return () => { supabase.removeChannel(channel); };
+    return () => {
+      mounted = false;
+      supabase.removeChannel(channel);
+    };
   }, [user]);
 
   const timeAgo = (dateStr: string | null) => {
@@ -101,6 +119,12 @@ const Chat = () => {
         {loading ? (
           <div className="flex items-center justify-center py-20">
             <Loader2 className="w-8 h-8 animate-spin text-primary" />
+          </div>
+        ) : error ? (
+          <div className="flex flex-col items-center justify-center py-20">
+            <AlertTriangle className="w-12 h-12 text-destructive/40 mb-3" />
+            <p className="text-muted-foreground text-sm mb-3">Failed to load conversations</p>
+            <button onClick={() => window.location.reload()} className="text-xs font-semibold text-primary">Retry</button>
           </div>
         ) : conversations.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-20">
