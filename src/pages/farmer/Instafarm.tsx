@@ -1,10 +1,11 @@
 import { useState, useEffect, useRef, useCallback } from "react";
-import { Plus, Heart, MessageCircle, Grid, Image as ImageIcon, MoreHorizontal, Loader2, Camera, AlertTriangle } from "lucide-react";
+import { Plus, Heart, MessageCircle, Grid, Image as ImageIcon, MoreHorizontal, Loader2, Camera, AlertTriangle, Package, ExternalLink } from "lucide-react";
 import MobileLayout from "@/components/layout/MobileLayout";
 import PageHeader from "@/components/layout/PageHeader";
 import BottomNav from "@/components/layout/BottomNav";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/contexts/AuthContext";
+import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import {
   Dialog,
@@ -13,6 +14,13 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 interface Comment {
   id: string;
@@ -21,16 +29,32 @@ interface Comment {
   user: { name: string; avatar_url: string | null } | null;
 }
 
+interface TaggedProduct {
+  id: string;
+  title: string;
+  price: number;
+  images: string[] | null;
+}
+
 interface Post {
   id: string;
   image_url: string;
   caption: string | null;
   created_at: string;
   farmer_id: string;
+  product_id: string | null;
   farmer: { name: string; avatar_url: string | null } | null;
+  tagged_product: TaggedProduct | null;
   likes_count: number;
   comments_count: number;
   user_liked: boolean;
+}
+
+interface FarmerProduct {
+  id: string;
+  title: string;
+  price: number;
+  images: string[] | null;
 }
 
 const Instafarm = () => {
@@ -45,18 +69,34 @@ const Instafarm = () => {
   const [showComments, setShowComments] = useState(false);
   const [showUpload, setShowUpload] = useState(false);
   const [caption, setCaption] = useState("");
+  const [selectedProductId, setSelectedProductId] = useState<string>("");
+  const [farmerProducts, setFarmerProducts] = useState<FarmerProduct[]>([]);
   const [uploadFile, setUploadFile] = useState<File | null>(null);
   const [uploadPreview, setUploadPreview] = useState("");
   const [uploading, setUploading] = useState(false);
   const fileRef = useRef<HTMLInputElement>(null);
   const { toast } = useToast();
   const { user } = useAuth();
+  const navigate = useNavigate();
+
+  // Fetch farmer's products for tagging
+  useEffect(() => {
+    if (!user || user.role !== "farmer") return;
+    supabase
+      .from("products")
+      .select("id, title, price, images")
+      .eq("farmer_id", user.id)
+      .eq("status", "active")
+      .then(({ data }) => {
+        if (data) setFarmerProducts(data);
+      });
+  }, [user]);
 
   const fetchPosts = useCallback(async () => {
     try {
       const { data: postsData, error } = await supabase
         .from("instafarm_posts")
-        .select("id, image_url, caption, created_at, farmer_id, farmer:profiles!instafarm_posts_farmer_id_fkey(name, avatar_url)")
+        .select("id, image_url, caption, created_at, farmer_id, product_id, farmer:profiles!instafarm_posts_farmer_id_fkey(name, avatar_url)")
         .order("created_at", { ascending: false });
 
       if (error) throw error;
@@ -68,9 +108,14 @@ const Instafarm = () => {
       }
 
       const postIds = postsData.map(p => p.id);
-      const [likesRes, commentCountsRes] = await Promise.all([
+      const productIds = postsData.map(p => p.product_id).filter(Boolean) as string[];
+
+      const [likesRes, commentCountsRes, productsRes] = await Promise.all([
         supabase.from("post_likes").select("post_id, user_id").in("post_id", postIds),
         supabase.from("post_comments").select("post_id").in("post_id", postIds),
+        productIds.length > 0
+          ? supabase.from("products").select("id, title, price, images").in("id", productIds)
+          : Promise.resolve({ data: [] }),
       ]);
 
       const likesMap = new Map<string, { count: number; userLiked: boolean }>();
@@ -84,9 +129,13 @@ const Instafarm = () => {
       const commentsMap = new Map<string, number>();
       (commentCountsRes.data ?? []).forEach(c => commentsMap.set(c.post_id, (commentsMap.get(c.post_id) || 0) + 1));
 
+      const productMap = new Map<string, TaggedProduct>();
+      (productsRes.data ?? []).forEach((p: any) => productMap.set(p.id, p));
+
       setPosts(postsData.map(p => ({
         ...p,
         farmer: Array.isArray(p.farmer) ? p.farmer[0] ?? null : p.farmer,
+        tagged_product: p.product_id ? productMap.get(p.product_id) || null : null,
         likes_count: likesMap.get(p.id)?.count || 0,
         comments_count: commentsMap.get(p.id) || 0,
         user_liked: likesMap.get(p.id)?.userLiked || false,
@@ -110,7 +159,6 @@ const Instafarm = () => {
     const post = posts.find(p => p.id === postId);
     if (!post) return;
 
-    // Optimistic update
     const wasLiked = post.user_liked;
     setPosts(posts.map(p =>
       p.id === postId
@@ -127,7 +175,6 @@ const Instafarm = () => {
         if (error) throw error;
       }
     } catch {
-      // Rollback
       setPosts(prev => prev.map(p =>
         p.id === postId
           ? { ...p, user_liked: wasLiked, likes_count: wasLiked ? p.likes_count : p.likes_count - 1 }
@@ -198,6 +245,7 @@ const Instafarm = () => {
     setUploadFile(null);
     setUploadPreview("");
     setCaption("");
+    setSelectedProductId("");
   };
 
   const handleUploadPost = async () => {
@@ -217,6 +265,7 @@ const Instafarm = () => {
         farmer_id: user.id,
         image_url: urlData.publicUrl,
         caption: caption || null,
+        product_id: selectedProductId || null,
       });
 
       if (insertErr) throw new Error(insertErr.message);
@@ -243,6 +292,26 @@ const Instafarm = () => {
 
   const totalLikes = posts.reduce((a, p) => a + p.likes_count, 0);
   const totalComments = posts.reduce((a, p) => a + p.comments_count, 0);
+
+  const ProductTag = ({ product }: { product: TaggedProduct }) => (
+    <button
+      onClick={(e) => { e.stopPropagation(); navigate(`/product/${product.id}`); }}
+      className="flex items-center gap-2 p-2 rounded-lg bg-card border border-border hover:shadow-sm transition-shadow w-full text-left"
+    >
+      <div className="w-10 h-10 rounded-md bg-muted overflow-hidden shrink-0 flex items-center justify-center">
+        {product.images?.[0] ? (
+          <img src={product.images[0]} alt="" className="w-full h-full object-cover" />
+        ) : (
+          <Package className="w-4 h-4 text-muted-foreground/30" />
+        )}
+      </div>
+      <div className="flex-1 min-w-0">
+        <p className="text-xs font-semibold text-foreground truncate">{product.title}</p>
+        <p className="text-xs font-bold text-primary">${product.price.toFixed(2)}</p>
+      </div>
+      <ExternalLink className="w-3.5 h-3.5 text-muted-foreground shrink-0" />
+    </button>
+  );
 
   return (
     <MobileLayout>
@@ -301,6 +370,11 @@ const Instafarm = () => {
             {posts.map((post) => (
               <button key={post.id} onClick={() => openComments(post)} className="aspect-square bg-muted rounded-sm flex items-center justify-center relative group overflow-hidden">
                 <img src={post.image_url} alt="" className="w-full h-full object-cover" />
+                {post.tagged_product && (
+                  <div className="absolute top-1.5 left-1.5 bg-primary/90 rounded-full p-1">
+                    <Package className="w-2.5 h-2.5 text-primary-foreground" />
+                  </div>
+                )}
                 <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-3 rounded-sm">
                   <span className="flex items-center gap-1 text-white text-xs font-medium">
                     <Heart className="w-4 h-4 fill-white" /> {post.likes_count}
@@ -355,6 +429,10 @@ const Instafarm = () => {
                     {post.caption}
                   </p>
                 )}
+
+                {/* Tagged Product */}
+                {post.tagged_product && <ProductTag product={post.tagged_product} />}
+
                 {post.comments_count > 0 && (
                   <button onClick={() => openComments(post)} className="text-xs text-muted-foreground">
                     View all {post.comments_count} comments
@@ -377,6 +455,11 @@ const Instafarm = () => {
                   <span className="font-semibold">{selectedPost.farmer?.name ?? "Unknown"} </span>
                   {selectedPost.caption}
                 </p>
+              )}
+              {selectedPost.tagged_product && (
+                <div className="mb-2">
+                  <ProductTag product={selectedPost.tagged_product} />
+                </div>
               )}
               <div className="flex-1 overflow-y-auto space-y-3 max-h-60">
                 {commentsLoading ? (
@@ -427,6 +510,25 @@ const Instafarm = () => {
               onChange={(e) => setCaption(e.target.value)}
               className="w-full bg-secondary rounded-lg p-3 text-sm outline-none resize-none h-20 placeholder:text-muted-foreground"
             />
+            {/* Product tagging */}
+            {farmerProducts.length > 0 && (
+              <div className="space-y-1.5">
+                <label className="text-xs font-medium text-muted-foreground">Tag a product (optional)</label>
+                <Select value={selectedProductId} onValueChange={setSelectedProductId}>
+                  <SelectTrigger className="w-full">
+                    <SelectValue placeholder="Select a product to tag" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="none">No product</SelectItem>
+                    {farmerProducts.map(p => (
+                      <SelectItem key={p.id} value={p.id}>
+                        {p.title} — ${p.price.toFixed(2)}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            )}
             <Button onClick={handleUploadPost} disabled={uploading} className="w-full rounded-full">
               {uploading ? "Posting..." : "Share Post"}
             </Button>

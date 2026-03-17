@@ -22,11 +22,22 @@ const ChatConversation = () => {
   const { toast } = useToast();
   const [message, setMessage] = useState("");
   const [messages, setMessages] = useState<Message[]>([]);
-  const [otherUser, setOtherUser] = useState<{ name: string; avatar_url: string | null } | null>(null);
+  const [otherUser, setOtherUser] = useState<{ name: string; avatar_url: string | null; last_seen_at: string | null } | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
   const [sending, setSending] = useState(false);
   const bottomRef = useRef<HTMLDivElement>(null);
+
+  const lastActiveLabel = (dateStr: string | null | undefined) => {
+    if (!dateStr) return null;
+    const diff = Date.now() - new Date(dateStr).getTime();
+    const mins = Math.floor(diff / 60000);
+    if (mins < 5) return "Online";
+    if (mins < 60) return `${mins}m ago`;
+    const hrs = Math.floor(mins / 60);
+    if (hrs < 24) return `${hrs}h ago`;
+    return `${Math.floor(hrs / 24)}d ago`;
+  };
 
   useEffect(() => {
     if (!conversationId || !user) return;
@@ -44,7 +55,7 @@ const ChatConversation = () => {
           const otherId = conv.participant_one === user.id ? conv.participant_two : conv.participant_one;
           const { data: profile } = await supabase
             .from("profiles")
-            .select("name, avatar_url")
+            .select("name, avatar_url, last_seen_at")
             .eq("id", otherId)
             .maybeSingle();
           if (mounted && profile) setOtherUser(profile);
@@ -59,7 +70,6 @@ const ChatConversation = () => {
         if (msgError) throw msgError;
         if (mounted) setMessages(msgs || []);
 
-        // Mark unread messages as read
         await supabase
           .from("messages")
           .update({ read: true })
@@ -79,6 +89,9 @@ const ChatConversation = () => {
 
     fetchData();
 
+    // Update own last_seen_at
+    supabase.from("profiles").update({ last_seen_at: new Date().toISOString() }).eq("id", user.id).then();
+
     const channel = supabase
       .channel(`chat-${conversationId}`)
       .on("postgres_changes", {
@@ -89,9 +102,7 @@ const ChatConversation = () => {
       }, (payload) => {
         const newMsg = payload.new as Message;
         setMessages(prev => {
-          // Prevent duplicates (from optimistic add)
           if (prev.some(m => m.id === newMsg.id)) return prev;
-          // Replace pending message
           const filtered = prev.filter(m => !m._pending || m.text !== newMsg.text);
           return [...filtered, newMsg];
         });
@@ -118,7 +129,6 @@ const ChatConversation = () => {
     setSending(true);
     setMessage("");
 
-    // Optimistic message
     const tempMsg: Message = {
       id: `temp-${Date.now()}`,
       text,
@@ -142,10 +152,9 @@ const ChatConversation = () => {
         last_message: text,
         last_message_at: new Date().toISOString(),
       }).eq("id", conversationId);
-    } catch (e: unknown) {
-      // Remove optimistic message on failure
+    } catch {
       setMessages(prev => prev.filter(m => m.id !== tempMsg.id));
-      setMessage(text); // Restore input
+      setMessage(text);
       toast({ title: "Failed to send message", description: "Tap send to retry", variant: "destructive" });
     } finally {
       setSending(false);
@@ -156,21 +165,36 @@ const ChatConversation = () => {
     return new Date(dateStr).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
   };
 
+  const statusLabel = lastActiveLabel(otherUser?.last_seen_at);
+  const isOnline = statusLabel === "Online";
+
   return (
     <MobileLayout noPadding>
       <div className="px-3 lg:px-6">
         <PageHeader title={
           <div className="flex items-center gap-2">
             {otherUser && (
-              <div className="w-7 h-7 rounded-full bg-muted flex items-center justify-center overflow-hidden">
-                {otherUser.avatar_url ? (
-                  <img src={otherUser.avatar_url} alt="" className="w-full h-full object-cover" />
-                ) : (
-                  <User className="w-3.5 h-3.5 text-muted-foreground" />
+              <div className="relative">
+                <div className="w-7 h-7 rounded-full bg-muted flex items-center justify-center overflow-hidden">
+                  {otherUser.avatar_url ? (
+                    <img src={otherUser.avatar_url} alt="" className="w-full h-full object-cover" />
+                  ) : (
+                    <User className="w-3.5 h-3.5 text-muted-foreground" />
+                  )}
+                </div>
+                {isOnline && (
+                  <span className="absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 bg-primary rounded-full border-2 border-background" />
                 )}
               </div>
             )}
-            <span>{otherUser?.name || "Chat"}</span>
+            <div className="flex flex-col">
+              <span className="text-sm font-semibold leading-tight">{otherUser?.name || "Chat"}</span>
+              {statusLabel && (
+                <span className={`text-[10px] leading-tight ${isOnline ? "text-primary" : "text-muted-foreground"}`}>
+                  {isOnline ? "Online" : `Last seen ${statusLabel}`}
+                </span>
+              )}
+            </div>
           </div>
         } />
       </div>

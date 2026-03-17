@@ -414,6 +414,45 @@ const Analytics = () => {
               </div>
             )}
 
+            {/* Actionable Insights */}
+            <div className="space-y-3">
+              <h3 className="text-sm font-semibold text-foreground">💡 Insights & Tips</h3>
+              <div className="space-y-2">
+                {(() => {
+                  const insights: { text: string; type: "success" | "tip" | "info" }[] = [];
+                  const best = topListings[0];
+                  if (best && best.views > 0) {
+                    insights.push({ text: `Your best performing product is "${best.title}" with ${best.views} views`, type: "success" });
+                  }
+                  if (stats.listingViews > 0 && stats.contactClicks === 0) {
+                    insights.push({ text: "People are viewing your products but not contacting you. Try adding more details or photos.", type: "tip" });
+                  }
+                  if (stats.favorites > stats.contactClicks && stats.contactClicks > 0) {
+                    insights.push({ text: "You have more saves than contacts — consider adding competitive pricing.", type: "tip" });
+                  }
+                  if (topListings.length > 0 && topListings.some(l => l.views === 0)) {
+                    insights.push({ text: "Some listings have zero views. Try sharing them on Instafarm to boost visibility.", type: "tip" });
+                  }
+                  if (stats.profileViews > 5) {
+                    insights.push({ text: `${stats.profileViews} people visited your profile this period — keep your bio updated!`, type: "info" });
+                  }
+                  if (insights.length === 0) {
+                    insights.push({ text: "Post more products and share on Instafarm to start getting insights.", type: "info" });
+                  }
+                  return insights.slice(0, 4).map((insight, i) => (
+                    <div key={i} className={`p-3 rounded-lg text-xs font-medium ${
+                      insight.type === "success" ? "bg-primary/10 text-primary" :
+                      insight.type === "tip" ? "bg-orange-50 text-orange-700" :
+                      "bg-secondary text-muted-foreground"
+                    }`}>
+                      {insight.type === "success" ? "🏆 " : insight.type === "tip" ? "💡 " : "ℹ️ "}
+                      {insight.text}
+                    </div>
+                  ));
+                })()}
+              </div>
+            </div>
+
             {/* Upsell for Growth */}
             {plan === "growth" && (
               <div className="p-4 rounded-xl bg-primary/5 border border-primary/20 text-center space-y-2">
