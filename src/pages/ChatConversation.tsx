@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import { Send, User, Loader2, AlertTriangle } from "lucide-react";
+import { Send, User, Loader2, AlertTriangle, MessageCircle } from "lucide-react";
 import MobileLayout from "@/components/layout/MobileLayout";
 import PageHeader from "@/components/layout/PageHeader";
 import { useParams } from "react-router-dom";
@@ -159,7 +159,20 @@ const ChatConversation = () => {
   return (
     <MobileLayout noPadding>
       <div className="px-3 lg:px-6">
-        <PageHeader title={otherUser?.name || "Chat"} />
+        <PageHeader title={
+          <div className="flex items-center gap-2">
+            {otherUser && (
+              <div className="w-7 h-7 rounded-full bg-muted flex items-center justify-center overflow-hidden">
+                {otherUser.avatar_url ? (
+                  <img src={otherUser.avatar_url} alt="" className="w-full h-full object-cover" />
+                ) : (
+                  <User className="w-3.5 h-3.5 text-muted-foreground" />
+                )}
+              </div>
+            )}
+            <span>{otherUser?.name || "Chat"}</span>
+          </div>
+        } />
       </div>
 
       <div className="flex-1 overflow-y-auto px-3 lg:px-6 space-y-3 no-scrollbar">
@@ -175,13 +188,24 @@ const ChatConversation = () => {
           </div>
         ) : messages.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-20">
-            <p className="text-sm text-muted-foreground">No messages yet. Say hello!</p>
+            <MessageCircle className="w-12 h-12 text-muted-foreground/20 mb-3" />
+            <p className="text-sm font-medium text-foreground mb-1">Start the conversation</p>
+            <p className="text-xs text-muted-foreground">Send a message to get started</p>
           </div>
         ) : (
           messages.map((msg) => {
             const isSent = msg.sender_id === user?.id;
             return (
-              <div key={msg.id} className={`flex ${isSent ? "justify-end" : "justify-start"}`}>
+              <div key={msg.id} className={`flex items-end gap-1.5 ${isSent ? "justify-end" : "justify-start"}`}>
+                {!isSent && (
+                  <div className="w-6 h-6 rounded-full bg-muted flex items-center justify-center overflow-hidden shrink-0 mb-1">
+                    {otherUser?.avatar_url ? (
+                      <img src={otherUser.avatar_url} alt="" className="w-full h-full object-cover" />
+                    ) : (
+                      <User className="w-3 h-3 text-muted-foreground" />
+                    )}
+                  </div>
+                )}
                 <div
                   className={`max-w-[75%] px-4 py-2.5 rounded-2xl text-sm ${
                     isSent

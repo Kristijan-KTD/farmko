@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from "react";
-import { Check, ImagePlus, X, Loader2 } from "lucide-react";
+import { Check, ImagePlus, X, Loader2, ChevronRight } from "lucide-react";
 import MobileLayout from "@/components/layout/MobileLayout";
 import PageHeader from "@/components/layout/PageHeader";
 import { Button } from "@/components/ui/button";
@@ -17,7 +17,7 @@ const PostItem = () => {
   const { canCreateListing, plan, listingLimit, isLoading: subLoading } = useSubscription();
   const { toast } = useToast();
   const fileRef = useRef<HTMLInputElement>(null);
-  const [step, setStep] = useState<"form" | "images" | "done">("form");
+  const [step, setStep] = useState<1 | 2 | "done">(1);
   const [isLoading, setIsLoading] = useState(false);
   const [showUpgrade, setShowUpgrade] = useState(false);
   const [activeCount, setActiveCount] = useState(0);
@@ -30,7 +30,8 @@ const PostItem = () => {
     quantity: "",
     unit: ""
   });
-  const [images, setImages] = useState<{file: File; preview: string;}[]>([]);
+  const [images, setImages] = useState<{ file: File; preview: string }[]>([]);
+  const [errors, setErrors] = useState<Record<string, string>>({});
 
   useEffect(() => {
     if (!user) return;
@@ -43,16 +44,10 @@ const PostItem = () => {
           .eq("farmer_id", user.id)
           .eq("status", "active");
         if (!mounted) return;
-        if (error) {
-          console.error("[PostItem] Failed to fetch active count:", error.message);
-          toast({ title: "Failed to load listing count", variant: "destructive" });
-        }
-        const c = count || 0;
-        setActiveCount(c);
-        console.log("[PostItem] Debug:", { userId: user.id, plan, listingLimit, activeCount: c, canCreate: canCreateListing(c) });
-      } catch (e: unknown) {
-        if (!mounted) return;
-        console.error("[PostItem] Exception:", e instanceof Error ? e.message : e);
+        if (error) toast({ title: "Failed to load listing count", variant: "destructive" });
+        setActiveCount(count || 0);
+      } catch {
+        // silent
       } finally {
         if (mounted) setCountLoading(false);
       }
@@ -61,11 +56,8 @@ const PostItem = () => {
     return () => { mounted = false; };
   }, [user, plan, canCreateListing, listingLimit, toast]);
 
-  // Cleanup image preview URLs on unmount
   useEffect(() => {
-    return () => {
-      images.forEach(img => URL.revokeObjectURL(img.preview));
-    };
+    return () => { images.forEach(img => URL.revokeObjectURL(img.preview)); };
   }, []);
 
   const handleImageSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -82,13 +74,22 @@ const PostItem = () => {
     setImages(images.filter((_, i) => i !== index));
   };
 
-  const handleContinue = () => {
+  const validateStep1 = () => {
+    const newErrors: Record<string, string> = {};
+    if (!form.name.trim()) newErrors.name = "Title is required";
+    if (!form.price || parseFloat(form.price) <= 0) newErrors.price = "Enter a valid price";
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
+  const handleContinueToStep2 = () => {
     if (subLoading || countLoading) return;
     if (!canCreateListing(activeCount)) {
       setShowUpgrade(true);
       return;
     }
-    setStep("images");
+    if (!validateStep1()) return;
+    setStep(2);
   };
 
   const handleSubmit = async () => {
@@ -103,20 +104,16 @@ const PostItem = () => {
     const uploadedPaths: string[] = [];
 
     try {
-      // Upload images
       for (const img of images) {
         const ext = img.file.name.split(".").pop();
         const path = `${user.id}/${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`;
         const { error } = await supabase.storage.from("product-images").upload(path, img.file);
-        if (error) {
-          throw new Error(`Image upload failed: ${error.message}`);
-        }
+        if (error) throw new Error(`Image upload failed: ${error.message}`);
         uploadedPaths.push(path);
         const { data } = supabase.storage.from("product-images").getPublicUrl(path);
         uploadedUrls.push(data.publicUrl);
       }
 
-      // Insert product
       const { error } = await supabase.from("products").insert({
         farmer_id: user.id,
         title: form.name,
@@ -129,7 +126,6 @@ const PostItem = () => {
       });
 
       if (error) {
-        // Cleanup uploaded images if product insert fails
         for (const path of uploadedPaths) {
           await supabase.storage.from("product-images").remove([path]).catch(() => {});
         }
@@ -155,43 +151,95 @@ const PostItem = () => {
           <div className="w-20 h-20 rounded-full bg-primary flex items-center justify-center">
             <Check className="w-10 h-10 text-primary-foreground" />
           </div>
-          <h2 className="text-xl font-bold text-foreground">Item Posted!</h2>
-          <p className="text-sm text-muted-foreground">Your product is now live</p>
+          <h2 className="text-xl font-bold text-foreground">Product Published!</h2>
+          <p className="text-sm text-muted-foreground text-center max-w-xs">Your product is now live and visible to customers nearby.</p>
         </div>
-        <div className="pb-8">
+        <div className="pb-8 space-y-3">
           <Button onClick={() => navigate("/my-store")} className="w-full rounded-full h-12 text-base font-semibold">
             Go to My Store
+          </Button>
+          <Button variant="outline" onClick={() => { setStep(1); setForm({ name: "", description: "", category: "", price: "", quantity: "", unit: "" }); setImages([]); }} className="w-full rounded-full h-12 text-base">
+            Post Another
           </Button>
         </div>
       </MobileLayout>
     );
   }
 
-  if (step === "images") {
+  if (step === 2) {
     return (
       <MobileLayout>
-        <PageHeader title="Add Photos" onBack={() => setStep("form")} />
-        <div className="flex-1">
-          <input ref={fileRef} type="file" accept="image/*" multiple className="hidden" onChange={handleImageSelect} />
-          <div className="grid grid-cols-3 gap-2">
-            {images.map((img, i) => (
-              <div key={i} className="aspect-square rounded-lg overflow-hidden relative">
-                <img src={img.preview} alt="" className="w-full h-full object-cover" />
-                <button onClick={() => removeImage(i)} className="absolute top-1 right-1 w-5 h-5 bg-black/60 rounded-full flex items-center justify-center">
-                  <X className="w-3 h-3 text-white" />
+        <PageHeader title="Details & Photos" onBack={() => setStep(1)} />
+        <div className="flex-1 space-y-5">
+          {/* Step indicator */}
+          <div className="flex items-center gap-2">
+            <div className="flex-1 h-1 rounded-full bg-primary" />
+            <div className="flex-1 h-1 rounded-full bg-primary" />
+          </div>
+
+          {/* Quantity */}
+          <div>
+            <label className="text-xs text-muted-foreground mb-1 block font-semibold">Available Quantity</label>
+            <div className="border-b border-input pb-2">
+              <input
+                type="number"
+                placeholder="e.g. 30"
+                value={form.quantity}
+                onChange={(e) => setForm({ ...form, quantity: e.target.value })}
+                className="w-full bg-transparent text-sm outline-none placeholder:text-muted-foreground"
+              />
+            </div>
+          </div>
+
+          {/* Unit */}
+          <div>
+            <label className="text-xs text-muted-foreground mb-1 block font-semibold">Unit of Measure</label>
+            <div className="border-b border-input pb-2">
+              <input
+                type="text"
+                placeholder="e.g. dozen, kg, lb"
+                value={form.unit}
+                onChange={(e) => setForm({ ...form, unit: e.target.value })}
+                className="w-full bg-transparent text-sm outline-none placeholder:text-muted-foreground"
+              />
+            </div>
+          </div>
+
+          {/* Description */}
+          <div>
+            <label className="text-xs text-muted-foreground mb-1 block font-semibold">Description</label>
+            <textarea
+              placeholder="Describe your product..."
+              value={form.description}
+              onChange={(e) => setForm({ ...form, description: e.target.value })}
+              className="w-full bg-secondary rounded-lg p-3 text-sm outline-none resize-none h-20 placeholder:text-muted-foreground"
+            />
+          </div>
+
+          {/* Images */}
+          <div>
+            <label className="text-xs text-muted-foreground mb-2 block font-semibold">Photos (up to 6)</label>
+            <input ref={fileRef} type="file" accept="image/*" multiple className="hidden" onChange={handleImageSelect} />
+            <div className="grid grid-cols-3 gap-2">
+              {images.map((img, i) => (
+                <div key={i} className="aspect-square rounded-lg overflow-hidden relative">
+                  <img src={img.preview} alt="" className="w-full h-full object-cover" />
+                  <button onClick={() => removeImage(i)} className="absolute top-1 right-1 w-5 h-5 bg-black/60 rounded-full flex items-center justify-center">
+                    <X className="w-3 h-3 text-white" />
+                  </button>
+                </div>
+              ))}
+              {images.length < 6 && (
+                <button onClick={() => fileRef.current?.click()} className="aspect-square bg-muted rounded-lg flex items-center justify-center border border-dashed border-border">
+                  <ImagePlus className="w-6 h-6 text-muted-foreground" />
                 </button>
-              </div>
-            ))}
-            {images.length < 6 && (
-              <button onClick={() => fileRef.current?.click()} className="aspect-square bg-muted rounded-lg flex items-center justify-center border border-border">
-                <ImagePlus className="w-6 h-6 text-muted-foreground" />
-              </button>
-            )}
+              )}
+            </div>
           </div>
         </div>
         <div className="pb-8 pt-4">
           <Button onClick={handleSubmit} disabled={isLoading} className="w-full rounded-full h-12 text-base font-semibold">
-            {isLoading ? "Creating..." : "Create product for sell"}
+            {isLoading ? <><Loader2 className="w-4 h-4 animate-spin mr-2" />Publishing...</> : "Publish Product"}
           </Button>
         </div>
         <UpgradeModal open={showUpgrade} onClose={() => setShowUpgrade(false)} />
@@ -199,70 +247,52 @@ const PostItem = () => {
     );
   }
 
-  const textFields = [
-    { key: "name", label: "Item Title", placeholder: "e.g. Fresh Organic Eggs" },
-    { key: "description", label: "Short Description", placeholder: "Describe your product" },
-    { key: "price", label: "Price", placeholder: "e.g. 5.00" },
-    { key: "quantity", label: "Available Quantity", placeholder: "e.g. 30" },
-    { key: "unit", label: "Unit of Measure", placeholder: "e.g. dozen, kg, lb" }
-  ];
-
+  // Step 1: Basic Info
   return (
     <MobileLayout>
       <PageHeader title="Post Item for Sell" />
       <div className="flex-1 space-y-5">
-        {/* Listing limit indicator */}
+        {/* Step indicator */}
+        <div className="flex items-center gap-2">
+          <div className="flex-1 h-1 rounded-full bg-primary" />
+          <div className="flex-1 h-1 rounded-full bg-muted" />
+        </div>
+
+        {/* Listing limit */}
         <div className="flex items-center justify-between p-3 rounded-xl bg-secondary">
           {!isDataReady ? (
             <div className="flex items-center gap-2">
               <Loader2 className="w-3 h-3 animate-spin text-muted-foreground" />
-              <span className="text-xs text-muted-foreground">Loading subscription...</span>
+              <span className="text-xs text-muted-foreground">Loading...</span>
             </div>
           ) : (
             <span className="text-xs text-muted-foreground">
-              Active listings: <span className="font-semibold text-foreground">{activeCount}</span>
-              {" / "}
-              <span className="font-semibold text-foreground">{limitDisplay}</span>
+              Listings: <span className="font-semibold text-foreground">{activeCount}</span> / <span className="font-semibold text-foreground">{limitDisplay}</span>
             </span>
           )}
           {isDataReady && !canCreateListing(activeCount) && (
-            <button onClick={() => setShowUpgrade(true)} className="text-xs font-semibold text-primary">
-              Upgrade
-            </button>
+            <button onClick={() => setShowUpgrade(true)} className="text-xs font-semibold text-primary">Upgrade</button>
           )}
         </div>
 
-        {/* Item Title */}
+        {/* Title */}
         <div>
-          <label className="text-xs text-muted-foreground mb-1 block font-semibold">Item Title</label>
-          <div className="border-b border-input pb-2">
+          <label className="text-xs text-muted-foreground mb-1 block font-semibold">Item Title *</label>
+          <div className={`border-b pb-2 ${errors.name ? "border-destructive" : "border-input"}`}>
             <input
               type="text"
               placeholder="e.g. Fresh Organic Eggs"
               value={form.name}
-              onChange={(e) => setForm({ ...form, name: e.target.value })}
+              onChange={(e) => { setForm({ ...form, name: e.target.value }); setErrors(prev => ({ ...prev, name: "" })); }}
               className="w-full bg-transparent text-sm outline-none placeholder:text-muted-foreground"
             />
           </div>
+          {errors.name && <p className="text-[11px] text-destructive mt-1">{errors.name}</p>}
         </div>
 
-        {/* Description */}
+        {/* Category */}
         <div>
-          <label className="text-xs text-muted-foreground mb-1 block font-semibold">Short Description</label>
-          <div className="border-b border-input pb-2">
-            <input
-              type="text"
-              placeholder="Describe your product"
-              value={form.description}
-              onChange={(e) => setForm({ ...form, description: e.target.value })}
-              className="w-full bg-transparent text-sm outline-none placeholder:text-muted-foreground"
-            />
-          </div>
-        </div>
-
-        {/* Category Picker */}
-        <div>
-          <label className="text-xs text-muted-foreground mb-2 block font-semibold">Product Category</label>
+          <label className="text-xs text-muted-foreground mb-2 block font-semibold">Category</label>
           <div className="flex flex-wrap gap-2">
             {CATEGORIES.map((cat) => {
               const Icon = cat.icon;
@@ -286,26 +316,25 @@ const PostItem = () => {
           </div>
         </div>
 
-        {/* Price, Quantity, Unit */}
-        {textFields.filter((f) => f.key !== "name" && f.key !== "description").map(({ key, label, placeholder }) => (
-          <div key={key}>
-            <label className="text-xs text-muted-foreground mb-1 block font-semibold">{label}</label>
-            <div className="border-b border-input pb-2">
-              <input
-                type={key === "price" ? "number" : "text"}
-                step={key === "price" ? "0.01" : undefined}
-                placeholder={placeholder}
-                value={form[key as keyof typeof form]}
-                onChange={(e) => setForm({ ...form, [key]: e.target.value })}
-                className="w-full bg-transparent text-sm outline-none placeholder:text-muted-foreground"
-              />
-            </div>
+        {/* Price */}
+        <div>
+          <label className="text-xs text-muted-foreground mb-1 block font-semibold">Price *</label>
+          <div className={`border-b pb-2 ${errors.price ? "border-destructive" : "border-input"}`}>
+            <input
+              type="number"
+              step="0.01"
+              placeholder="e.g. 5.00"
+              value={form.price}
+              onChange={(e) => { setForm({ ...form, price: e.target.value }); setErrors(prev => ({ ...prev, price: "" })); }}
+              className="w-full bg-transparent text-sm outline-none placeholder:text-muted-foreground"
+            />
           </div>
-        ))}
+          {errors.price && <p className="text-[11px] text-destructive mt-1">{errors.price}</p>}
+        </div>
       </div>
       <div className="pb-8 pt-4">
-        <Button onClick={handleContinue} disabled={!form.name.trim() || !isDataReady} className="w-full rounded-full h-12 text-base font-semibold">
-          {!isDataReady ? "Loading..." : "Continue"}
+        <Button onClick={handleContinueToStep2} disabled={!isDataReady} className="w-full rounded-full h-12 text-base font-semibold gap-2">
+          Continue <ChevronRight className="w-4 h-4" />
         </Button>
       </div>
       <UpgradeModal open={showUpgrade} onClose={() => setShowUpgrade(false)} />
