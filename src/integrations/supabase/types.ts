@@ -239,6 +239,7 @@ export type Database = {
           farmer_id: string
           id: string
           image_url: string
+          product_id: string | null
         }
         Insert: {
           caption?: string | null
@@ -246,6 +247,7 @@ export type Database = {
           farmer_id: string
           id?: string
           image_url: string
+          product_id?: string | null
         }
         Update: {
           caption?: string | null
@@ -253,6 +255,7 @@ export type Database = {
           farmer_id?: string
           id?: string
           image_url?: string
+          product_id?: string | null
         }
         Relationships: [
           {
@@ -260,6 +263,13 @@ export type Database = {
             columns: ["farmer_id"]
             isOneToOne: false
             referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "instafarm_posts_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
             referencedColumns: ["id"]
           },
         ]
@@ -579,6 +589,7 @@ export type Database = {
           created_at: string
           email: string | null
           id: string
+          last_seen_at: string | null
           latitude: number | null
           location: string | null
           longitude: number | null
@@ -594,6 +605,7 @@ export type Database = {
           created_at?: string
           email?: string | null
           id: string
+          last_seen_at?: string | null
           latitude?: number | null
           location?: string | null
           longitude?: number | null
@@ -609,6 +621,7 @@ export type Database = {
           created_at?: string
           email?: string | null
           id?: string
+          last_seen_at?: string | null
           latitude?: number | null
           location?: string | null
           longitude?: number | null

@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Star, MapPin, Package, User, MessageCircle, Loader2, Heart, ChevronLeft, ChevronRight, AlertTriangle, Crown, Zap, CheckCircle } from "lucide-react";
+import { Star, MapPin, Package, User, MessageCircle, Loader2, Heart, ChevronLeft, ChevronRight, AlertTriangle, CheckCircle, Truck, Clock } from "lucide-react";
 import MobileLayout from "@/components/layout/MobileLayout";
 import PageHeader from "@/components/layout/PageHeader";
 import { Button } from "@/components/ui/button";
@@ -29,7 +29,7 @@ interface ProductData {
   images: string[] | null;
   farmer_id: string;
   category: string | null;
-  farmer: { id: string; name: string; location: string | null; avatar_url: string | null; verified?: boolean } | null;
+  farmer: { id: string; name: string; location: string | null; avatar_url: string | null; verified?: boolean; last_seen_at?: string | null } | null;
 }
 
 interface RelatedProduct {
@@ -38,6 +38,7 @@ interface RelatedProduct {
   price: number;
   images: string[] | null;
   unit: string;
+  category?: string | null;
 }
 
 const ProductDetail = () => {
@@ -58,6 +59,7 @@ const ProductDetail = () => {
   const [isFavorited, setIsFavorited] = useState(false);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [moreFromFarmer, setMoreFromFarmer] = useState<RelatedProduct[]>([]);
+  const [similarProducts, setSimilarProducts] = useState<RelatedProduct[]>([]);
   const [farmerProductCount, setFarmerProductCount] = useState(0);
   const [farmerReviewCount, setFarmerReviewCount] = useState(0);
 
@@ -69,7 +71,7 @@ const ProductDetail = () => {
       try {
         const { data: prod, error: prodError } = await supabase
           .from("products")
-          .select("id, title, description, price, unit, stock, images, farmer_id, category, farmer:profiles!products_farmer_id_fkey(id, name, location, avatar_url, verified)")
+          .select("id, title, description, price, unit, stock, images, farmer_id, category, farmer:profiles!products_farmer_id_fkey(id, name, location, avatar_url, verified, last_seen_at)")
           .eq("id", id)
           .maybeSingle();
 
@@ -83,18 +85,19 @@ const ProductDetail = () => {
           };
           setProduct(productData);
 
-          // Track listing view
           if (user && user.id !== prod.farmer_id) {
             trackListingView(prod.farmer_id, prod.id);
             supabase.from("listing_views").insert({ listing_id: prod.id, viewer_id: user.id }).then();
           }
 
-          // Parallel fetches: favorites, plan, reviews, more from farmer, farmer stats
-          const [favRes, subRes, revsRes, moreRes, farmerProdRes, farmerRevRes] = await Promise.all([
+          const [favRes, subRes, revsRes, moreRes, similarRes, farmerProdRes, farmerRevRes] = await Promise.all([
             user ? supabase.from("favorites").select("id").eq("user_id", user.id).eq("listing_id", prod.id).maybeSingle() : Promise.resolve({ data: null }),
             supabase.from("farmer_subscriptions").select("plan").eq("farmer_id", prod.farmer_id).maybeSingle(),
             supabase.from("reviews").select("id, rating, comment, created_at, reviewer:profiles!reviews_reviewer_id_fkey(name, avatar_url)").eq("product_id", id).order("created_at", { ascending: false }),
             supabase.from("products").select("id, title, price, images, unit").eq("farmer_id", prod.farmer_id).eq("status", "active").neq("id", id).limit(5),
+            prod.category
+              ? supabase.from("products").select("id, title, price, images, unit").eq("category", prod.category).eq("status", "active").neq("id", id).neq("farmer_id", prod.farmer_id).limit(5)
+              : Promise.resolve({ data: [] }),
             supabase.from("products").select("id", { count: "exact", head: true }).eq("farmer_id", prod.farmer_id).eq("status", "active"),
             supabase.from("reviews").select("id", { count: "exact", head: true }).eq("farmer_id", prod.farmer_id),
           ]);
@@ -109,6 +112,7 @@ const ProductDetail = () => {
             })));
           }
           setMoreFromFarmer(moreRes.data || []);
+          setSimilarProducts((similarRes.data || []) as RelatedProduct[]);
           setFarmerProductCount(farmerProdRes.count ?? 0);
           setFarmerReviewCount(farmerRevRes.count ?? 0);
         }
@@ -205,6 +209,27 @@ const ProductDetail = () => {
     }
   };
 
+  const timeAgo = (dateStr: string) => {
+    const diff = Date.now() - new Date(dateStr).getTime();
+    const mins = Math.floor(diff / 60000);
+    if (mins < 60) return `${mins}m ago`;
+    const hrs = Math.floor(mins / 60);
+    if (hrs < 24) return `${hrs}h ago`;
+    return `${Math.floor(hrs / 24)}d ago`;
+  };
+
+  const lastActiveLabel = (dateStr: string | null | undefined) => {
+    if (!dateStr) return null;
+    const diff = Date.now() - new Date(dateStr).getTime();
+    const mins = Math.floor(diff / 60000);
+    if (mins < 5) return "Online now";
+    if (mins < 60) return `Active ${mins}m ago`;
+    const hrs = Math.floor(mins / 60);
+    if (hrs < 24) return `Active ${hrs}h ago`;
+    const days = Math.floor(hrs / 24);
+    return `Active ${days}d ago`;
+  };
+
   if (loading) {
     return (
       <MobileLayout>
@@ -230,15 +255,28 @@ const ProductDetail = () => {
   }
 
   const planBadge = getPlanBadge(farmerPlan);
+  const farmerLastActive = lastActiveLabel(product.farmer?.last_seen_at);
 
-  const timeAgo = (dateStr: string) => {
-    const diff = Date.now() - new Date(dateStr).getTime();
-    const mins = Math.floor(diff / 60000);
-    if (mins < 60) return `${mins}m ago`;
-    const hrs = Math.floor(mins / 60);
-    if (hrs < 24) return `${hrs}h ago`;
-    return `${Math.floor(hrs / 24)}d ago`;
-  };
+  const MiniProductCard = ({ p }: { p: RelatedProduct }) => (
+    <button
+      onClick={() => navigate(`/product/${p.id}`)}
+      className="flex flex-col shrink-0 w-[130px] min-w-[130px] snap-start rounded-xl border border-border bg-card overflow-hidden text-left hover:shadow-md transition-shadow"
+    >
+      <div className="aspect-[4/3] bg-muted relative overflow-hidden">
+        {p.images?.[0] ? (
+          <img src={p.images[0]} alt={p.title} className="absolute inset-0 w-full h-full object-cover" />
+        ) : (
+          <div className="absolute inset-0 flex items-center justify-center">
+            <Package className="w-6 h-6 text-muted-foreground/30" />
+          </div>
+        )}
+      </div>
+      <div className="p-2">
+        <h4 className="text-xs font-semibold text-foreground truncate">{p.title}</h4>
+        <span className="text-xs font-bold text-primary">${p.price.toFixed(2)}</span>
+      </div>
+    </button>
+  );
 
   return (
     <MobileLayout>
@@ -307,21 +345,48 @@ const ProductDetail = () => {
           {product.description && (
             <p className="text-sm text-muted-foreground leading-relaxed">{product.description}</p>
           )}
-          {/* Trust & Availability */}
+
+          {/* Trust & Availability Signals */}
           <div className="flex flex-wrap gap-2">
             {product.farmer?.verified && (
               <span className="inline-flex items-center gap-1 text-[11px] font-medium text-blue-600 bg-blue-50 px-2 py-1 rounded-full">
                 <CheckCircle className="w-3 h-3" /> Verified Farmer
               </span>
             )}
+            {farmerLastActive && (
+              <span className={`inline-flex items-center gap-1 text-[11px] font-medium px-2 py-1 rounded-full ${
+                farmerLastActive === "Online now" ? "text-primary bg-primary/10" : "text-muted-foreground bg-secondary"
+              }`}>
+                <span className={`w-1.5 h-1.5 rounded-full ${farmerLastActive === "Online now" ? "bg-primary" : "bg-muted-foreground"}`} />
+                {farmerLastActive}
+              </span>
+            )}
             <span className="inline-flex items-center gap-1 text-[11px] font-medium text-muted-foreground bg-secondary px-2 py-1 rounded-full">
               💬 Usually responds within 1 hour
             </span>
             <span className={`inline-flex items-center gap-1 text-[11px] font-medium px-2 py-1 rounded-full ${
-              (product as any).stock > 0 ? "text-primary bg-primary/10" : "text-destructive bg-destructive/10"
+              (product.stock ?? 0) > 0 ? "text-primary bg-primary/10" : "text-destructive bg-destructive/10"
             }`}>
-              {(product as any).stock > 0 ? "✓ In Stock" : "Sold Out"}
+              {(product.stock ?? 0) > 0 ? "✓ In Stock" : "Sold Out"}
             </span>
+          </div>
+
+          {/* Pickup / Delivery Info */}
+          <div className="flex gap-2">
+            <div className="flex-1 p-2.5 rounded-lg bg-secondary flex items-center gap-2">
+              <Truck className="w-4 h-4 text-primary shrink-0" />
+              <div>
+                <p className="text-[11px] font-semibold text-foreground">Pickup Available</p>
+                <p className="text-[10px] text-muted-foreground">Contact farmer for details</p>
+              </div>
+            </div>
+            <div className="flex-1 p-2.5 rounded-lg bg-secondary flex items-center gap-2">
+              <Clock className="w-4 h-4 text-primary shrink-0" />
+              <div>
+                <p className="text-[11px] font-semibold text-foreground">Fresh Daily</p>
+                <p className="text-[10px] text-muted-foreground">Check availability</p>
+              </div>
+            </div>
           </div>
         </div>
 
@@ -338,22 +403,26 @@ const ProductDetail = () => {
           )}
         </div>
 
-        {/* Farmer Card with Trust Signals */}
+        {/* Farmer Card */}
         {product.farmer && (
           <button
             onClick={() => navigate(`/farmer/${product.farmer!.id}`)}
             className="w-full flex items-center gap-3 p-3 rounded-xl bg-secondary text-left"
           >
-            <div className="w-12 h-12 rounded-full bg-muted flex items-center justify-center overflow-hidden">
+            <div className="w-12 h-12 rounded-full bg-muted flex items-center justify-center overflow-hidden relative">
               {product.farmer.avatar_url ? (
                 <img src={product.farmer.avatar_url} alt="" className="w-full h-full object-cover" />
               ) : (
                 <User className="w-6 h-6 text-muted-foreground" />
               )}
+              {farmerLastActive === "Online now" && (
+                <span className="absolute bottom-0 right-0 w-3 h-3 bg-primary rounded-full border-2 border-secondary" />
+              )}
             </div>
             <div className="flex-1 min-w-0">
               <div className="flex items-center gap-1.5">
                 <h3 className="text-sm font-semibold text-foreground truncate">{product.farmer.name}</h3>
+                {product.farmer.verified && <CheckCircle className="w-3.5 h-3.5 text-blue-500 shrink-0" />}
                 {planBadge && (
                   <span className={`text-[9px] font-bold px-1.5 py-0.5 rounded-full shrink-0 ${planBadge.color}`}>
                     {planBadge.label}
@@ -376,27 +445,17 @@ const ProductDetail = () => {
           <section>
             <h3 className="text-sm font-semibold text-foreground mb-2">More from this farmer</h3>
             <HorizontalScroll className="gap-3 pb-1">
-              {moreFromFarmer.map((p) => (
-                <button
-                  key={p.id}
-                  onClick={() => navigate(`/product/${p.id}`)}
-                  className="flex flex-col shrink-0 w-[130px] min-w-[130px] snap-start rounded-xl border border-border bg-card overflow-hidden text-left hover:shadow-md transition-shadow"
-                >
-                  <div className="aspect-[4/3] bg-muted relative overflow-hidden">
-                    {p.images?.[0] ? (
-                      <img src={p.images[0]} alt={p.title} className="absolute inset-0 w-full h-full object-cover" />
-                    ) : (
-                      <div className="absolute inset-0 flex items-center justify-center">
-                        <Package className="w-6 h-6 text-muted-foreground/30" />
-                      </div>
-                    )}
-                  </div>
-                  <div className="p-2">
-                    <h4 className="text-xs font-semibold text-foreground truncate">{p.title}</h4>
-                    <span className="text-xs font-bold text-primary">${p.price.toFixed(2)}</span>
-                  </div>
-                </button>
-              ))}
+              {moreFromFarmer.map((p) => <MiniProductCard key={p.id} p={p} />)}
+            </HorizontalScroll>
+          </section>
+        )}
+
+        {/* Similar Products */}
+        {similarProducts.length > 0 && (
+          <section>
+            <h3 className="text-sm font-semibold text-foreground mb-2">Similar products</h3>
+            <HorizontalScroll className="gap-3 pb-1">
+              {similarProducts.map((p) => <MiniProductCard key={p.id} p={p} />)}
             </HorizontalScroll>
           </section>
         )}
