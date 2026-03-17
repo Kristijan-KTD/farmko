@@ -25,10 +25,11 @@ interface ProductData {
   description: string | null;
   price: number;
   unit: string;
+  stock: number | null;
   images: string[] | null;
   farmer_id: string;
   category: string | null;
-  farmer: { id: string; name: string; location: string | null; avatar_url: string | null } | null;
+  farmer: { id: string; name: string; location: string | null; avatar_url: string | null; verified?: boolean } | null;
 }
 
 interface RelatedProduct {
