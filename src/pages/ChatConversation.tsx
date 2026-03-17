@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import { Send, User, Loader2, AlertTriangle } from "lucide-react";
+import { Send, User, Loader2, AlertTriangle, MessageCircle } from "lucide-react";
 import MobileLayout from "@/components/layout/MobileLayout";
 import PageHeader from "@/components/layout/PageHeader";
 import { useParams } from "react-router-dom";
