@@ -2,7 +2,7 @@ import { ArrowLeft } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
 interface PageHeaderProps {
-  title: string;
+  title: React.ReactNode;
   onBack?: () => void;
   rightAction?: React.ReactNode;
 }
