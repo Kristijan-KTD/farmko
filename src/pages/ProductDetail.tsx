@@ -306,6 +306,22 @@ const ProductDetail = () => {
           {product.description && (
             <p className="text-sm text-muted-foreground leading-relaxed">{product.description}</p>
           )}
+          {/* Trust & Availability */}
+          <div className="flex flex-wrap gap-2">
+            {product.farmer?.verified && (
+              <span className="inline-flex items-center gap-1 text-[11px] font-medium text-blue-600 bg-blue-50 px-2 py-1 rounded-full">
+                <CheckCircle className="w-3 h-3" /> Verified Farmer
+              </span>
+            )}
+            <span className="inline-flex items-center gap-1 text-[11px] font-medium text-muted-foreground bg-secondary px-2 py-1 rounded-full">
+              💬 Usually responds within 1 hour
+            </span>
+            <span className={`inline-flex items-center gap-1 text-[11px] font-medium px-2 py-1 rounded-full ${
+              (product as any).stock > 0 ? "text-primary bg-primary/10" : "text-destructive bg-destructive/10"
+            }`}>
+              {(product as any).stock > 0 ? "✓ In Stock" : "Sold Out"}
+            </span>
+          </div>
         </div>
 
         {/* Action Buttons */}
