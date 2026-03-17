@@ -69,7 +69,7 @@ const ProductDetail = () => {
       try {
         const { data: prod, error: prodError } = await supabase
           .from("products")
-          .select("id, title, description, price, unit, images, farmer_id, category, farmer:profiles!products_farmer_id_fkey(id, name, location, avatar_url)")
+          .select("id, title, description, price, unit, stock, images, farmer_id, category, farmer:profiles!products_farmer_id_fkey(id, name, location, avatar_url, verified)")
           .eq("id", id)
           .maybeSingle();
 
