@@ -114,7 +114,7 @@ const Notifications = () => {
               <button
                 key={notif.id}
                 onClick={() => handleClick(notif)}
-                className={`w-full flex items-start gap-3.5 p-3.5 rounded-2xl transition-all text-left ${
+                className={`w-full flex items-start gap-3.5 p-3.5 rounded-lg transition-all text-left ${
                   notif.read ? "hover:bg-secondary/60" : "bg-primary/5 hover:bg-primary/8"
                 }`}
               >
