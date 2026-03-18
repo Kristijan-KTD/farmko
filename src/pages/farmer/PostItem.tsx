@@ -147,18 +147,20 @@ const PostItem = () => {
   if (step === "done") {
     return (
       <MobileLayout>
-        <div className="flex-1 flex flex-col items-center justify-center gap-4">
-          <div className="w-20 h-20 rounded-full bg-primary flex items-center justify-center">
+        <div className="flex-1 flex flex-col items-center justify-center gap-5 px-6">
+          <div className="w-20 h-20 rounded-full bg-primary flex items-center justify-center shadow-elevated">
             <Check className="w-10 h-10 text-primary-foreground" />
           </div>
-          <h2 className="text-xl font-bold text-foreground">Product Published!</h2>
-          <p className="text-sm text-muted-foreground text-center max-w-xs">Your product is now live and visible to customers nearby.</p>
+          <div className="text-center">
+            <h2 className="text-xl font-bold text-foreground">Product Published!</h2>
+            <p className="text-sm text-muted-foreground mt-1.5 max-w-xs">Your product is now live and visible to customers nearby.</p>
+          </div>
         </div>
-        <div className="pb-8 space-y-3">
-          <Button onClick={() => navigate("/my-store")} className="w-full rounded-full h-12 text-base font-semibold">
+        <div className="pb-8 space-y-3 px-3">
+          <Button onClick={() => navigate("/my-store")} className="w-full rounded-xl h-12 text-base font-semibold shadow-card">
             Go to My Store
           </Button>
-          <Button variant="outline" onClick={() => { setStep(1); setForm({ name: "", description: "", category: "", price: "", quantity: "", unit: "" }); setImages([]); }} className="w-full rounded-full h-12 text-base">
+          <Button variant="outline" onClick={() => { setStep(1); setForm({ name: "", description: "", category: "", price: "", quantity: "", unit: "" }); setImages([]); }} className="w-full rounded-xl h-12 text-base">
             Post Another
           </Button>
         </div>
