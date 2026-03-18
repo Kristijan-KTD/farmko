@@ -83,9 +83,9 @@
     --sidebar-border: 152 60% 22%;
     --sidebar-ring: 0 0% 100%;
 
-    --shadow-card: 0 1px 2px 0 hsl(0 0% 0% / 0.15);
-    --shadow-card-hover: 0 2px 8px -2px hsl(0 0% 0% / 0.2);
-    --shadow-elevated: 0 4px 16px -4px hsl(0 0% 0% / 0.3);
+    --shadow-card: 0 1px 2px 0 hsl(0 0% 0% / 0.08);
+    --shadow-card-hover: 0 1px 4px 0 hsl(0 0% 0% / 0.12);
+    --shadow-elevated: 0 2px 8px -2px hsl(0 0% 0% / 0.15);
   }
 }
 
