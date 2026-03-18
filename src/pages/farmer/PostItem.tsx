@@ -232,7 +232,7 @@ const PostItem = () => {
                 </div>
               ))}
               {images.length < 6 && (
-                <button onClick={() => fileRef.current?.click()} className="aspect-square bg-muted rounded-lg flex items-center justify-center border border-dashed border-border">
+                <button onClick={() => fileRef.current?.click()} className="aspect-square bg-muted rounded-xl flex items-center justify-center border-2 border-dashed border-border hover:border-primary/30 transition-colors">
                   <ImagePlus className="w-6 h-6 text-muted-foreground" />
                 </button>
               )}
