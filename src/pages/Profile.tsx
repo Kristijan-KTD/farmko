@@ -49,7 +49,7 @@ const Profile = () => {
     <MobileLayout>
       <PageHeader title="Profile" />
 
-      <div className="flex-1 flex flex-col items-center">
+      <div className="flex-1 flex flex-col items-center section-gap">
         <div className="relative mb-4">
           <div className="w-24 h-24 rounded-full bg-muted flex items-center justify-center overflow-hidden">
             {user?.avatar_url ? (
