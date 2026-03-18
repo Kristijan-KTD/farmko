@@ -407,7 +407,7 @@ const ProductDetail = () => {
         {product.farmer && (
           <button
             onClick={() => navigate(`/farmer/${product.farmer!.id}`)}
-            className="w-full flex items-center gap-3 p-3 rounded-xl bg-secondary text-left"
+            className="card-interactive w-full flex items-center gap-3.5 p-4 text-left"
           >
             <div className="w-12 h-12 rounded-full bg-muted flex items-center justify-center overflow-hidden relative">
               {product.farmer.avatar_url ? (
