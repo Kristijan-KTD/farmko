@@ -392,7 +392,7 @@ const ProductDetail = () => {
 
         {/* Action Buttons */}
         <div className="flex gap-2.5">
-          <Button onClick={handleContactFarmer} className="flex-1 rounded-xl h-12 font-semibold gap-2 shadow-card">
+          <Button onClick={handleContactFarmer} className="flex-1 rounded-md h-12 font-semibold gap-2 shadow-card">
             <MessageCircle className="w-5 h-5" />
             Contact Farmer
           </Button>
