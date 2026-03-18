@@ -224,7 +224,7 @@ const PostItem = () => {
             <input ref={fileRef} type="file" accept="image/*" multiple className="hidden" onChange={handleImageSelect} />
             <div className="grid grid-cols-3 gap-2">
               {images.map((img, i) => (
-                <div key={i} className="aspect-square rounded-lg overflow-hidden relative">
+                <div key={i} className="aspect-square rounded-xl overflow-hidden relative shadow-card">
                   <img src={img.preview} alt="" className="w-full h-full object-cover" />
                   <button onClick={() => removeImage(i)} className="absolute top-1 right-1 w-5 h-5 bg-black/60 rounded-full flex items-center justify-center">
                     <X className="w-3 h-3 text-white" />
