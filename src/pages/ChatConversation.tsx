@@ -236,8 +236,8 @@ const ChatConversation = () => {
                 <div
                   className={`max-w-[75%] px-4 py-2.5 text-sm ${
                     isSent
-                      ? "bg-primary text-primary-foreground rounded-2xl rounded-br-lg"
-                      : "bg-card border border-border text-foreground rounded-2xl rounded-bl-lg"
+                      ? "bg-primary text-primary-foreground rounded-lg rounded-br-sm"
+                      : "bg-card border border-border text-foreground rounded-lg rounded-bl-sm"
                   } ${msg._pending ? "opacity-60" : ""}`}
                   style={{ boxShadow: isSent ? 'none' : 'var(--shadow-card)' }}
                 >
