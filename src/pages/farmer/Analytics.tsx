@@ -440,7 +440,7 @@ const Analytics = () => {
                     insights.push({ text: "Post more products and share on Instafarm to start getting insights.", type: "info" });
                   }
                   return insights.slice(0, 4).map((insight, i) => (
-                    <div key={i} className={`p-3.5 rounded-xl text-xs font-medium leading-relaxed ${
+                    <div key={i} className={`p-3.5 rounded-md text-xs font-medium leading-relaxed ${
                       insight.type === "success" ? "bg-primary/10 text-primary" :
                       insight.type === "tip" ? "bg-orange-50 text-orange-700" :
                       "bg-secondary text-muted-foreground"
