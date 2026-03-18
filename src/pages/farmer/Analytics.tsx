@@ -457,7 +457,7 @@ const Analytics = () => {
             {plan === "growth" && (
               <div className="card-interactive p-5 text-center space-y-3">
                 <p className="text-sm text-foreground font-medium">Want detailed product analytics & insights?</p>
-                <Button onClick={() => navigate("/plans")} size="sm" className="rounded-full">Upgrade to Pro</Button>
+                <Button onClick={() => navigate("/plans")} size="sm" className="rounded-xl">Upgrade to Pro</Button>
               </div>
             )}
           </>
