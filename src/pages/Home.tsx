@@ -205,7 +205,7 @@ const Home = () => {
           <>
             <div className="flex gap-3">
               <button onClick={() => navigate("/chat")} className="card-interactive flex-1 p-4 text-left">
-                <div className="w-9 h-9 rounded-xl bg-pink-500/8 flex items-center justify-center mb-2.5">
+                <div className="w-9 h-9 rounded-md bg-pink-500/8 flex items-center justify-center mb-2.5">
                   <MessageCircle className="w-[18px] h-[18px] text-pink-500" />
                 </div>
                 <p className="text-2xl font-bold text-foreground leading-none">{stats.unreadChats}</p>
