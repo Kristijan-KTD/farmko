@@ -84,7 +84,7 @@ const Notifications = () => {
     <MobileLayout>
       <PageHeader title="Notifications" rightAction={
         unreadCount > 0 ? (
-          <button onClick={markAllRead} className="w-9 h-9 rounded-xl bg-primary/10 flex items-center justify-center">
+          <button onClick={markAllRead} className="w-9 h-9 rounded-md bg-primary/10 flex items-center justify-center">
             <CheckCheck className="w-[18px] h-[18px] text-primary" />
           </button>
         ) : undefined
