@@ -220,7 +220,7 @@ const Home = () => {
               </button>
             </div>
 
-            <Button onClick={() => navigate("/explore")} className="w-full rounded-md h-12 font-semibold gap-2 shadow-card">
+            <Button onClick={() => navigate("/explore")} className="w-full rounded-md h-12 font-semibold gap-2">
               <Search className="w-4 h-4" />
               Explore Local Products
             </Button>
