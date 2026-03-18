@@ -498,7 +498,7 @@ const ProductDetail = () => {
             <p className="text-sm text-muted-foreground text-center py-4">No reviews yet</p>
           ) : (
             reviews.map((review) => (
-              <div key={review.id} className="p-3.5 rounded-2xl bg-card border border-border shadow-card space-y-1.5">
+              <div key={review.id} className="p-3.5 rounded-lg bg-card border border-border shadow-card space-y-1.5">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
                     <div className="w-7 h-7 rounded-full bg-muted flex items-center justify-center overflow-hidden">
