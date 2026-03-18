@@ -222,7 +222,7 @@ const ProductCard = ({ product, onClick }: { product: EnrichedProduct; onClick: 
       onClick={onClick}
       className="card-interactive flex flex-col shrink-0 w-[160px] min-w-[160px] snap-start overflow-hidden text-left"
     >
-      <div className="aspect-[4/3] bg-muted relative overflow-hidden">
+      <div className="aspect-[4/3] bg-muted relative overflow-hidden rounded-t-lg">
         {product.images?.[0] ? (
           <img src={product.images[0]} alt={product.title} className="absolute inset-0 w-full h-full object-cover" />
         ) : (
