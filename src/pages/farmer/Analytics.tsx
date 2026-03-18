@@ -302,7 +302,7 @@ const Analytics = () => {
             {/* Overview Metrics */}
             <div className="grid grid-cols-2 gap-3">
               {statCards.map(({ icon: Icon, label, value, color }) => (
-                <div key={label} className="p-4 rounded-xl border border-border bg-card space-y-2">
+                <div key={label} className="card-interactive p-4 space-y-2.5">
                   <div className={`w-10 h-10 rounded-full flex items-center justify-center ${color}`}>
                     <Icon className="w-5 h-5" />
                   </div>
