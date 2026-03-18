@@ -155,7 +155,7 @@ const FarmerDetail = () => {
     <MobileLayout>
       <PageHeader title="Farmer Profile" />
 
-      <div className="flex-1 space-y-6 pb-20">
+      <div className="flex-1 section-gap pb-20">
         {/* Profile Header */}
         <div className="flex flex-col items-center">
           <div className="w-20 h-20 rounded-full bg-muted flex items-center justify-center mb-3 overflow-hidden border border-border">
@@ -234,8 +234,8 @@ const FarmerDetail = () => {
             <h3 className="text-sm font-semibold text-foreground mb-3">Products</h3>
             <div className="space-y-2">
               {products.map((p) => (
-                <button key={p.id} onClick={() => handleProductClick(p)} className="w-full flex items-center gap-3 p-3 rounded-lg border border-border bg-card text-left hover:shadow-card-hover transition-all active:scale-[0.98]">
-                  <div className="w-12 h-12 bg-muted rounded-md flex items-center justify-center overflow-hidden">
+                <button key={p.id} onClick={() => handleProductClick(p)} className="list-item-subtle active:scale-[0.98]">
+                  <div className="w-12 h-12 bg-muted rounded-md flex items-center justify-center overflow-hidden shrink-0">
                     {p.images?.[0] ? (
                       <img src={p.images[0]} alt="" className="w-full h-full object-cover" />
                     ) : (

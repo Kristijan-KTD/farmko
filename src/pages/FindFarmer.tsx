@@ -67,7 +67,7 @@ const FindFarmer = () => {
         />
       </div>
 
-      <div className="flex-1 pb-20 space-y-3">
+      <div className="flex-1 pb-20 space-y-2">
         {loading ? (
           <div className="flex items-center justify-center py-20">
             <Loader2 className="w-8 h-8 animate-spin text-primary" />
@@ -82,7 +82,7 @@ const FindFarmer = () => {
             <button
               key={farmer.id}
               onClick={() => navigate(`/farmer/${farmer.id}`)}
-              className="w-full flex items-center gap-3 p-3 rounded-md border border-border bg-card text-left hover:shadow-sm transition-shadow"
+              className="list-item-subtle"
             >
               <div className="w-14 h-14 rounded-full bg-muted flex items-center justify-center flex-shrink-0 overflow-hidden">
                 {farmer.avatar_url ? (
