@@ -271,9 +271,9 @@ const ProductDetail = () => {
           </div>
         )}
       </div>
-      <div className="p-2">
+      <div className="p-2.5">
         <h4 className="text-xs font-semibold text-foreground truncate">{p.title}</h4>
-        <span className="text-xs font-bold text-primary">${p.price.toFixed(2)}</span>
+        <span className="text-xs font-bold text-primary mt-0.5 block">${p.price.toFixed(2)}</span>
       </div>
     </button>
   );
