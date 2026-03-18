@@ -260,7 +260,7 @@ const ProductDetail = () => {
   const MiniProductCard = ({ p }: { p: RelatedProduct }) => (
     <button
       onClick={() => navigate(`/product/${p.id}`)}
-      className="flex flex-col shrink-0 w-[130px] min-w-[130px] snap-start rounded-xl border border-border bg-card overflow-hidden text-left hover:shadow-md transition-shadow"
+      className="card-interactive flex flex-col shrink-0 w-[130px] min-w-[130px] snap-start overflow-hidden text-left"
     >
       <div className="aspect-[4/3] bg-muted relative overflow-hidden">
         {p.images?.[0] ? (
@@ -271,9 +271,9 @@ const ProductDetail = () => {
           </div>
         )}
       </div>
-      <div className="p-2">
+      <div className="p-2.5">
         <h4 className="text-xs font-semibold text-foreground truncate">{p.title}</h4>
-        <span className="text-xs font-bold text-primary">${p.price.toFixed(2)}</span>
+        <span className="text-xs font-bold text-primary mt-0.5 block">${p.price.toFixed(2)}</span>
       </div>
     </button>
   );
@@ -282,9 +282,9 @@ const ProductDetail = () => {
     <MobileLayout>
       <PageHeader title="Product Details" />
 
-      <div className="flex-1 space-y-4 pb-4">
+      <div className="flex-1 section-gap pb-6">
         {/* Image Gallery */}
-        <div className="relative aspect-square bg-muted rounded-xl flex items-center justify-center overflow-hidden">
+        <div className="relative aspect-square bg-muted rounded-2xl flex items-center justify-center overflow-hidden shadow-card">
           {product.images && product.images.length > 0 ? (
             <>
               <img src={product.images[currentImageIndex]} alt={product.title} className="w-full h-full object-cover" />
@@ -292,13 +292,13 @@ const ProductDetail = () => {
                 <>
                   <button
                     onClick={() => setCurrentImageIndex((prev) => (prev - 1 + product.images!.length) % product.images!.length)}
-                    className="absolute left-3 top-1/2 -translate-y-1/2 w-9 h-9 rounded-full bg-background/80 backdrop-blur-sm flex items-center justify-center"
+                    className="absolute left-3 top-1/2 -translate-y-1/2 w-10 h-10 rounded-xl bg-background/80 backdrop-blur-sm flex items-center justify-center shadow-card"
                   >
                     <ChevronLeft className="w-5 h-5 text-foreground" />
                   </button>
                   <button
                     onClick={() => setCurrentImageIndex((prev) => (prev + 1) % product.images!.length)}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 w-9 h-9 rounded-full bg-background/80 backdrop-blur-sm flex items-center justify-center"
+                    className="absolute right-3 top-1/2 -translate-y-1/2 w-10 h-10 rounded-xl bg-background/80 backdrop-blur-sm flex items-center justify-center shadow-card"
                   >
                     <ChevronRight className="w-5 h-5 text-foreground" />
                   </button>
@@ -320,7 +320,7 @@ const ProductDetail = () => {
           {user && (
             <button
               onClick={handleToggleFavorite}
-              className="absolute top-3 right-3 w-10 h-10 rounded-full bg-background/80 backdrop-blur-sm flex items-center justify-center"
+              className="absolute top-3 right-3 w-10 h-10 rounded-xl bg-background/80 backdrop-blur-sm flex items-center justify-center shadow-card"
             >
               <Heart className={`w-5 h-5 ${isFavorited ? "fill-red-500 text-red-500" : "text-muted-foreground"}`} />
             </button>
@@ -328,9 +328,9 @@ const ProductDetail = () => {
         </div>
 
         {/* Price & Rating */}
-        <div className="space-y-2">
+        <div className="space-y-3">
           <div className="flex items-center justify-between">
-            <span className="text-2xl font-bold text-primary">${product.price.toFixed(2)}/{product.unit}</span>
+            <span className="text-2xl font-bold text-foreground">${product.price.toFixed(2)}<span className="text-sm font-normal text-muted-foreground">/{product.unit}</span></span>
             <div className="flex items-center gap-1.5">
               <span className="text-sm font-semibold text-foreground">{avgRating}</span>
               <div className="flex items-center gap-0.5">
@@ -347,7 +347,7 @@ const ProductDetail = () => {
           )}
 
           {/* Trust & Availability Signals */}
-          <div className="flex flex-wrap gap-2">
+          <div className="flex flex-wrap gap-2 mt-1">
             {product.farmer?.verified && (
               <span className="inline-flex items-center gap-1 text-[11px] font-medium text-blue-600 bg-blue-50 px-2 py-1 rounded-full">
                 <CheckCircle className="w-3 h-3" /> Verified Farmer
@@ -372,15 +372,15 @@ const ProductDetail = () => {
           </div>
 
           {/* Pickup / Delivery Info */}
-          <div className="flex gap-2">
-            <div className="flex-1 p-2.5 rounded-lg bg-secondary flex items-center gap-2">
+          <div className="flex gap-2.5 mt-1">
+            <div className="flex-1 p-3 rounded-xl bg-secondary/80 flex items-center gap-2.5 border border-border">
               <Truck className="w-4 h-4 text-primary shrink-0" />
               <div>
                 <p className="text-[11px] font-semibold text-foreground">Pickup Available</p>
                 <p className="text-[10px] text-muted-foreground">Contact farmer for details</p>
               </div>
             </div>
-            <div className="flex-1 p-2.5 rounded-lg bg-secondary flex items-center gap-2">
+            <div className="flex-1 p-3 rounded-xl bg-secondary/80 flex items-center gap-2.5 border border-border">
               <Clock className="w-4 h-4 text-primary shrink-0" />
               <div>
                 <p className="text-[11px] font-semibold text-foreground">Fresh Daily</p>
@@ -391,13 +391,13 @@ const ProductDetail = () => {
         </div>
 
         {/* Action Buttons */}
-        <div className="flex gap-2">
-          <Button onClick={handleContactFarmer} className="flex-1 rounded-full h-11 font-semibold gap-2">
+        <div className="flex gap-2.5">
+          <Button onClick={handleContactFarmer} className="flex-1 rounded-xl h-12 font-semibold gap-2 shadow-card">
             <MessageCircle className="w-5 h-5" />
             Contact Farmer
           </Button>
           {user && (
-            <Button variant="outline" onClick={handleToggleFavorite} className="rounded-full h-11 px-4">
+            <Button variant="outline" onClick={handleToggleFavorite} className="rounded-xl h-12 px-4 border-border">
               <Heart className={`w-5 h-5 ${isFavorited ? "fill-red-500 text-red-500" : ""}`} />
             </Button>
           )}
@@ -407,7 +407,7 @@ const ProductDetail = () => {
         {product.farmer && (
           <button
             onClick={() => navigate(`/farmer/${product.farmer!.id}`)}
-            className="w-full flex items-center gap-3 p-3 rounded-xl bg-secondary text-left"
+            className="card-interactive w-full flex items-center gap-3.5 p-4 text-left"
           >
             <div className="w-12 h-12 rounded-full bg-muted flex items-center justify-center overflow-hidden relative">
               {product.farmer.avatar_url ? (
@@ -462,7 +462,7 @@ const ProductDetail = () => {
 
         {/* Write Review */}
         {user?.role === "customer" && (
-          <div className="space-y-3 p-4 rounded-xl border border-border">
+          <div className="space-y-3 p-4 rounded-2xl border border-border bg-card shadow-card">
             <h3 className="text-sm font-semibold text-foreground">Write a Review</h3>
             <div className="flex items-center gap-1">
               {[1, 2, 3, 4, 5].map((s) => (
@@ -485,7 +485,7 @@ const ProductDetail = () => {
               onChange={(e) => setReviewText(e.target.value)}
               className="w-full bg-secondary rounded-lg p-3 text-sm outline-none resize-none h-20 placeholder:text-muted-foreground"
             />
-            <Button onClick={handleSubmitReview} disabled={submitting} size="sm" className="rounded-full">
+            <Button onClick={handleSubmitReview} disabled={submitting} size="sm" className="rounded-xl">
               {submitting ? "Submitting..." : "Submit Review"}
             </Button>
           </div>
@@ -498,7 +498,7 @@ const ProductDetail = () => {
             <p className="text-sm text-muted-foreground text-center py-4">No reviews yet</p>
           ) : (
             reviews.map((review) => (
-              <div key={review.id} className="p-3 rounded-xl bg-secondary space-y-1">
+              <div key={review.id} className="p-3.5 rounded-2xl bg-card border border-border shadow-card space-y-1.5">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
                     <div className="w-7 h-7 rounded-full bg-muted flex items-center justify-center overflow-hidden">

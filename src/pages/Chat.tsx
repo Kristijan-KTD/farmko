@@ -7,6 +7,7 @@ import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/hooks/use-toast";
+import { Button } from "@/components/ui/button";
 
 interface Conversation {
   id: string;
@@ -115,50 +116,57 @@ const Chat = () => {
     <MobileLayout>
       <PageHeader title="Chat" />
 
-      <div className="flex-1 pb-20 space-y-2">
+      <div className="flex-1 pb-20 space-y-1">
         {loading ? (
           <div className="flex items-center justify-center py-20">
             <Loader2 className="w-8 h-8 animate-spin text-primary" />
           </div>
         ) : error ? (
-          <div className="flex flex-col items-center justify-center py-20">
-            <AlertTriangle className="w-12 h-12 text-destructive/40 mb-3" />
-            <p className="text-muted-foreground text-sm mb-3">Failed to load conversations</p>
-            <button onClick={() => window.location.reload()} className="text-xs font-semibold text-primary">Retry</button>
+          <div className="flex flex-col items-center justify-center py-16">
+            <div className="w-16 h-16 rounded-full bg-destructive/8 flex items-center justify-center mb-4">
+              <AlertTriangle className="w-7 h-7 text-destructive/60" />
+            </div>
+            <p className="text-foreground font-medium mb-1">Something went wrong</p>
+            <p className="text-muted-foreground text-sm mb-4">Failed to load conversations</p>
+            <Button variant="outline" size="sm" onClick={() => window.location.reload()} className="rounded-xl">Retry</Button>
           </div>
         ) : conversations.length === 0 ? (
-          <div className="flex flex-col items-center justify-center py-20">
-            <MessageCircle className="w-16 h-16 text-muted-foreground/30 mb-4" />
-            <p className="text-muted-foreground text-sm">No conversations yet</p>
-            <p className="text-xs text-muted-foreground mt-1">Start by contacting a farmer or customer</p>
+          <div className="flex flex-col items-center justify-center py-16">
+            <div className="w-20 h-20 rounded-full bg-muted flex items-center justify-center mb-4">
+              <MessageCircle className="w-9 h-9 text-muted-foreground/30" />
+            </div>
+            <p className="text-foreground font-medium mb-1">No conversations yet</p>
+            <p className="text-sm text-muted-foreground text-center max-w-[240px]">Start a conversation with a farmer or customer to get going.</p>
           </div>
         ) : (
           conversations.map((chat) => (
             <button
               key={chat.id}
               onClick={() => navigate(`/chat/${chat.id}`)}
-              className="w-full flex items-center gap-3 p-3 rounded-xl hover:bg-secondary transition-colors text-left"
+              className="w-full flex items-center gap-3.5 p-3.5 rounded-2xl hover:bg-secondary/60 transition-colors text-left"
             >
               <div className="relative flex-shrink-0">
-                <div className="w-12 h-12 rounded-full bg-muted flex items-center justify-center overflow-hidden">
+                <div className="w-12 h-12 rounded-full bg-muted flex items-center justify-center overflow-hidden ring-2 ring-border">
                   {chat.other_user?.avatar_url ? (
                     <img src={chat.other_user.avatar_url} alt="" className="w-full h-full object-cover" />
                   ) : (
-                    <User className="w-6 h-6 text-muted-foreground" />
+                    <User className="w-5 h-5 text-muted-foreground" />
                   )}
                 </div>
                 {(chat.unread_count || 0) > 0 && (
-                  <span className="absolute -top-1 -right-1 w-5 h-5 bg-primary rounded-full flex items-center justify-center text-[10px] font-bold text-primary-foreground">
+                  <span className="absolute -top-0.5 -right-0.5 w-5 h-5 bg-primary rounded-full flex items-center justify-center text-[10px] font-bold text-primary-foreground ring-2 ring-background">
                     {chat.unread_count}
                   </span>
                 )}
               </div>
               <div className="flex-1 min-w-0">
                 <div className="flex items-center justify-between">
-                  <h3 className="text-sm font-semibold text-foreground">{chat.other_user?.name}</h3>
+                  <h3 className={`text-sm ${(chat.unread_count || 0) > 0 ? "font-bold" : "font-medium"} text-foreground`}>{chat.other_user?.name}</h3>
                   <span className="text-[10px] text-muted-foreground">{timeAgo(chat.last_message_at)}</span>
                 </div>
-                <p className="text-xs text-muted-foreground truncate mt-0.5">{chat.last_message || "Start a conversation"}</p>
+                <p className={`text-xs truncate mt-0.5 ${(chat.unread_count || 0) > 0 ? "text-foreground font-medium" : "text-muted-foreground"}`}>
+                  {chat.last_message || "Start a conversation"}
+                </p>
               </div>
             </button>
           ))

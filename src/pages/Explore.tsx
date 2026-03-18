@@ -92,8 +92,8 @@ const Explore = () => {
       <PageHeader title="Explore" />
 
       {/* Search */}
-      <div className="flex items-center gap-2 mb-3">
-        <div className="flex-1 min-w-0 flex items-center gap-2 bg-secondary rounded-full px-3 py-2">
+      <div className="flex items-center gap-2.5 mb-4">
+        <div className="flex-1 min-w-0 flex items-center gap-2.5 bg-secondary rounded-2xl px-4 py-2.5 border border-border">
           <Search className="w-4 h-4 text-muted-foreground shrink-0" />
           <input
             type="text"
@@ -107,7 +107,7 @@ const Explore = () => {
       </div>
 
       {/* Category Chips */}
-      <HorizontalScroll className="gap-2 mb-4 pb-1" snap={false}>
+      <HorizontalScroll className="gap-2 mb-5 pb-1" snap={false}>
         {CATEGORIES.slice(0, 8).map(cat => {
           const isActive = activeCategory === (cat.key === "all" ? null : cat.key);
           const isAll = cat.key === "all" && !activeCategory;
@@ -115,37 +115,49 @@ const Explore = () => {
             <button
               key={cat.key}
               onClick={() => { setSelectedCategory(cat.key === "all" ? null : cat.key); setFilters(f => ({ ...f, category: null })); }}
-              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium shrink-0 transition-colors ${isActive || isAll ? "bg-primary text-primary-foreground" : "bg-secondary text-muted-foreground hover:bg-accent"}`}
+              className={`flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-medium shrink-0 transition-all duration-200 ${
+                isActive || isAll
+                  ? "bg-primary text-primary-foreground shadow-sm"
+                  : "bg-card text-muted-foreground border border-border hover:border-primary/30"
+              }`}
             >
-              <cat.icon className="w-3 h-3" />
+              <cat.icon className="w-3.5 h-3.5" />
               {cat.label}
             </button>
           );
         })}
       </HorizontalScroll>
 
-      <div className="flex-1 pb-20 space-y-5 overflow-y-auto overflow-x-hidden">
+      <div className="flex-1 pb-20 section-gap overflow-y-auto overflow-x-hidden">
         {loading ? (
           <LoadingSkeleton />
         ) : error ? (
-          <div className="flex flex-col items-center justify-center py-12">
-            <AlertTriangle className="w-12 h-12 text-destructive/40 mb-3" />
-            <p className="text-muted-foreground text-sm mb-3">Failed to load products</p>
-            <Button variant="outline" size="sm" onClick={() => window.location.reload()} className="rounded-full">Retry</Button>
+          <div className="flex flex-col items-center justify-center py-16">
+            <div className="w-16 h-16 rounded-full bg-destructive/8 flex items-center justify-center mb-4">
+              <AlertTriangle className="w-7 h-7 text-destructive/60" />
+            </div>
+            <p className="text-foreground font-medium mb-1">Something went wrong</p>
+            <p className="text-muted-foreground text-sm mb-4">Failed to load products</p>
+            <Button variant="outline" size="sm" onClick={() => window.location.reload()} className="rounded-xl">Retry</Button>
           </div>
         ) : filtered.length === 0 ? (
-          <div className="flex flex-col items-center justify-center py-12">
-            <Package className="w-12 h-12 text-muted-foreground/30 mb-3" />
-            <p className="text-muted-foreground text-sm">No products found</p>
+          <div className="flex flex-col items-center justify-center py-16">
+            <div className="w-16 h-16 rounded-full bg-muted flex items-center justify-center mb-4">
+              <Package className="w-7 h-7 text-muted-foreground/40" />
+            </div>
+            <p className="text-foreground font-medium mb-1">No products found</p>
+            <p className="text-muted-foreground text-sm">Try adjusting your search or filters</p>
           </div>
         ) : (
           <>
             {/* Nearby Products */}
             {nearbyProducts.length > 0 && (
               <section>
-                <div className="flex items-center gap-1.5 mb-2">
-                  <MapPin className="w-3.5 h-3.5 text-primary" />
-                  <h2 className="text-sm font-bold text-foreground">Nearby Products</h2>
+                <div className="flex items-center gap-2 mb-3">
+                  <div className="w-6 h-6 rounded-lg bg-primary/10 flex items-center justify-center">
+                    <MapPin className="w-3.5 h-3.5 text-primary" />
+                  </div>
+                  <h2 className="text-sm font-semibold text-foreground">Nearby Products</h2>
                 </div>
                 <HorizontalScroll className="gap-3 pb-1">
                   {nearbyProducts.map(product => (
@@ -157,10 +169,12 @@ const Explore = () => {
 
             {/* New Products */}
             <section>
-              <div className="flex items-center justify-between mb-2">
-                <div className="flex items-center gap-1.5">
-                  <Clock className="w-3.5 h-3.5 text-primary" />
-                  <h2 className="text-sm font-bold text-foreground">New Products</h2>
+              <div className="flex items-center justify-between mb-3">
+                <div className="flex items-center gap-2">
+                  <div className="w-6 h-6 rounded-lg bg-primary/10 flex items-center justify-center">
+                    <Clock className="w-3.5 h-3.5 text-primary" />
+                  </div>
+                  <h2 className="text-sm font-semibold text-foreground">New Products</h2>
                 </div>
                 {filtered.length > 5 && (
                   <button onClick={() => navigate("/explore/new")} className="text-xs font-semibold text-primary">See all</button>
@@ -175,16 +189,18 @@ const Explore = () => {
 
             {/* Recommended */}
             <section>
-              <div className="flex items-center justify-between mb-2">
-                <div className="flex items-center gap-1.5">
-                  <Sparkles className="w-3.5 h-3.5 text-primary" />
-                  <h2 className="text-sm font-bold text-foreground">Recommended</h2>
+              <div className="flex items-center justify-between mb-3">
+                <div className="flex items-center gap-2">
+                  <div className="w-6 h-6 rounded-lg bg-primary/10 flex items-center justify-center">
+                    <Sparkles className="w-3.5 h-3.5 text-primary" />
+                  </div>
+                  <h2 className="text-sm font-semibold text-foreground">Recommended</h2>
                 </div>
                 {filtered.length > 5 && (
                   <button onClick={() => navigate("/explore/recommended")} className="text-xs font-semibold text-primary">See all</button>
                 )}
               </div>
-              <div className="space-y-2">
+              <div className="space-y-2.5">
                 {recommended.map(product => (
                   <RecommendedCard key={product.id} product={product} onClick={() => handleProductClick(product)} />
                 ))}
@@ -204,29 +220,29 @@ const ProductCard = ({ product, onClick }: { product: EnrichedProduct; onClick: 
   return (
     <button
       onClick={onClick}
-      className="flex flex-col shrink-0 w-[160px] min-w-[160px] snap-start rounded-xl border border-border bg-card overflow-hidden text-left hover:shadow-md transition-shadow"
+      className="card-interactive flex flex-col shrink-0 w-[160px] min-w-[160px] snap-start overflow-hidden text-left"
     >
       <div className="aspect-[4/3] bg-muted relative overflow-hidden">
         {product.images?.[0] ? (
           <img src={product.images[0]} alt={product.title} className="absolute inset-0 w-full h-full object-cover" />
         ) : (
           <div className="absolute inset-0 flex items-center justify-center">
-            <Package className="w-8 h-8 text-muted-foreground/30" />
+            <Package className="w-8 h-8 text-muted-foreground/20" />
           </div>
         )}
         {badge && (
-          <div className={`absolute top-1.5 right-1.5 px-1.5 py-0.5 rounded-full text-[9px] font-bold ${badge.color}`}>
+          <div className={`absolute top-2 right-2 px-2 py-0.5 rounded-lg text-[9px] font-bold ${badge.color}`}>
             {badge.label}
           </div>
         )}
       </div>
-      <div className="p-2 space-y-0.5">
+      <div className="p-3 space-y-1">
         <h3 className="text-xs font-semibold text-foreground truncate">{product.title}</h3>
         <div className="flex items-center gap-1">
           <p className="text-[10px] text-muted-foreground truncate">{product.farmer?.name || "Unknown"}</p>
           {product.farmer?.verified && <CheckCircle className="w-3 h-3 text-blue-500 shrink-0" />}
         </div>
-        <div className="flex items-center justify-between">
+        <div className="flex items-center justify-between pt-0.5">
           <span className="text-xs font-bold text-primary">${product.price.toFixed(2)}</span>
           {product.distance != null && (
             <span className="text-[9px] text-muted-foreground flex items-center gap-0.5">
@@ -245,27 +261,27 @@ const RecommendedCard = ({ product, onClick }: { product: EnrichedProduct; onCli
   return (
     <button
       onClick={onClick}
-      className="flex items-center gap-2.5 w-full rounded-xl border border-border bg-card p-2.5 text-left hover:shadow-md transition-shadow"
+      className="card-interactive flex items-center gap-3 w-full p-3 text-left"
     >
-      <div className="w-14 h-14 rounded-lg bg-muted flex items-center justify-center overflow-hidden shrink-0">
+      <div className="w-16 h-16 rounded-xl bg-muted flex items-center justify-center overflow-hidden shrink-0">
         {product.images?.[0] ? (
           <img src={product.images[0]} alt={product.title} className="w-full h-full object-cover" />
         ) : (
-          <Package className="w-5 h-5 text-muted-foreground/30" />
+          <Package className="w-5 h-5 text-muted-foreground/20" />
         )}
       </div>
       <div className="flex-1 min-w-0">
         <div className="flex items-center gap-1.5">
-          <h3 className="text-xs font-semibold text-foreground truncate">{product.title}</h3>
+          <h3 className="text-sm font-semibold text-foreground truncate">{product.title}</h3>
           {badge && (
-            <span className={`text-[9px] font-bold px-1.5 py-0.5 rounded-full shrink-0 ${badge.color}`}>{badge.label}</span>
+            <span className={`text-[9px] font-bold px-1.5 py-0.5 rounded-lg shrink-0 ${badge.color}`}>{badge.label}</span>
           )}
         </div>
-        <div className="flex items-center gap-1">
-          <p className="text-[10px] text-muted-foreground truncate">{product.stock ?? 0} {product.unit}s · by {product.farmer?.name || "Unknown"}</p>
+        <div className="flex items-center gap-1 mt-0.5">
+          <p className="text-[11px] text-muted-foreground truncate">{product.stock ?? 0} {product.unit}s · by {product.farmer?.name || "Unknown"}</p>
           {product.farmer?.verified && <CheckCircle className="w-3 h-3 text-blue-500 shrink-0" />}
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 mt-1">
           <span className="text-xs font-bold text-primary">${product.price.toFixed(2)}</span>
           {product.distance != null && (
             <span className="text-[9px] text-muted-foreground flex items-center gap-0.5">
@@ -280,20 +296,33 @@ const RecommendedCard = ({ product, onClick }: { product: EnrichedProduct; onCli
 };
 
 const LoadingSkeleton = () => (
-  <div className="space-y-4">
-    <div className="space-y-2">
-      <div className="h-5 bg-muted rounded w-32" />
+  <div className="space-y-6">
+    <div className="space-y-3">
+      <div className="h-5 bg-muted rounded-lg w-36 animate-pulse" />
       <div className="flex gap-3 overflow-hidden">
         {Array.from({ length: 3 }).map((_, i) => (
-          <div key={i} className="shrink-0 w-[160px] rounded-xl border border-border bg-card overflow-hidden animate-pulse">
+          <div key={i} className="shrink-0 w-[160px] rounded-2xl border border-border bg-card overflow-hidden animate-pulse">
             <div className="aspect-[4/3] bg-muted" />
-            <div className="p-2 space-y-1.5">
+            <div className="p-3 space-y-2">
               <div className="h-3 bg-muted rounded w-3/4" />
               <div className="h-3 bg-muted rounded w-1/2" />
             </div>
           </div>
         ))}
       </div>
+    </div>
+    <div className="space-y-3">
+      <div className="h-5 bg-muted rounded-lg w-32 animate-pulse" />
+      {Array.from({ length: 3 }).map((_, i) => (
+        <div key={i} className="rounded-2xl border border-border bg-card p-3 flex gap-3 animate-pulse">
+          <div className="w-16 h-16 rounded-xl bg-muted" />
+          <div className="flex-1 space-y-2">
+            <div className="h-3.5 bg-muted rounded w-2/3" />
+            <div className="h-3 bg-muted rounded w-1/2" />
+            <div className="h-3 bg-muted rounded w-1/4" />
+          </div>
+        </div>
+      ))}
     </div>
   </div>
 );

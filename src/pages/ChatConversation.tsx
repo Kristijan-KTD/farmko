@@ -89,7 +89,6 @@ const ChatConversation = () => {
 
     fetchData();
 
-    // Update own last_seen_at
     supabase.from("profiles").update({ last_seen_at: new Date().toISOString() }).eq("id", user.id).then();
 
     const channel = supabase
@@ -172,14 +171,14 @@ const ChatConversation = () => {
     <MobileLayout noPadding>
       <div className="px-3 lg:px-6">
         <PageHeader title={
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2.5">
             {otherUser && (
               <div className="relative">
-                <div className="w-7 h-7 rounded-full bg-muted flex items-center justify-center overflow-hidden">
+                <div className="w-8 h-8 rounded-full bg-muted flex items-center justify-center overflow-hidden ring-2 ring-border">
                   {otherUser.avatar_url ? (
                     <img src={otherUser.avatar_url} alt="" className="w-full h-full object-cover" />
                   ) : (
-                    <User className="w-3.5 h-3.5 text-muted-foreground" />
+                    <User className="w-4 h-4 text-muted-foreground" />
                   )}
                 </div>
                 {isOnline && (
@@ -190,7 +189,7 @@ const ChatConversation = () => {
             <div className="flex flex-col">
               <span className="text-sm font-semibold leading-tight">{otherUser?.name || "Chat"}</span>
               {statusLabel && (
-                <span className={`text-[10px] leading-tight ${isOnline ? "text-primary" : "text-muted-foreground"}`}>
+                <span className={`text-[10px] leading-tight ${isOnline ? "text-primary font-medium" : "text-muted-foreground"}`}>
                   {isOnline ? "Online" : `Last seen ${statusLabel}`}
                 </span>
               )}
@@ -199,20 +198,24 @@ const ChatConversation = () => {
         } />
       </div>
 
-      <div className="flex-1 overflow-y-auto px-3 lg:px-6 space-y-3 no-scrollbar">
+      <div className="flex-1 overflow-y-auto px-3 lg:px-6 space-y-2.5 no-scrollbar py-2">
         {loading ? (
           <div className="flex items-center justify-center py-20">
             <Loader2 className="w-8 h-8 animate-spin text-primary" />
           </div>
         ) : error ? (
-          <div className="flex flex-col items-center justify-center py-20">
-            <AlertTriangle className="w-12 h-12 text-destructive/40 mb-3" />
+          <div className="flex flex-col items-center justify-center py-16">
+            <div className="w-14 h-14 rounded-full bg-destructive/8 flex items-center justify-center mb-3">
+              <AlertTriangle className="w-6 h-6 text-destructive/60" />
+            </div>
             <p className="text-sm text-muted-foreground mb-3">Failed to load messages</p>
             <button onClick={() => window.location.reload()} className="text-xs font-semibold text-primary">Retry</button>
           </div>
         ) : messages.length === 0 ? (
-          <div className="flex flex-col items-center justify-center py-20">
-            <MessageCircle className="w-12 h-12 text-muted-foreground/20 mb-3" />
+          <div className="flex flex-col items-center justify-center py-16">
+            <div className="w-16 h-16 rounded-full bg-muted flex items-center justify-center mb-3">
+              <MessageCircle className="w-7 h-7 text-muted-foreground/30" />
+            </div>
             <p className="text-sm font-medium text-foreground mb-1">Start the conversation</p>
             <p className="text-xs text-muted-foreground">Send a message to get started</p>
           </div>
@@ -231,13 +234,14 @@ const ChatConversation = () => {
                   </div>
                 )}
                 <div
-                  className={`max-w-[75%] px-4 py-2.5 rounded-2xl text-sm ${
+                  className={`max-w-[75%] px-4 py-2.5 text-sm ${
                     isSent
-                      ? "bg-primary text-primary-foreground rounded-br-md"
-                      : "bg-secondary text-foreground rounded-bl-md"
+                      ? "bg-primary text-primary-foreground rounded-2xl rounded-br-lg"
+                      : "bg-card border border-border text-foreground rounded-2xl rounded-bl-lg"
                   } ${msg._pending ? "opacity-60" : ""}`}
+                  style={{ boxShadow: isSent ? 'none' : 'var(--shadow-card)' }}
                 >
-                  <p>{msg.text}</p>
+                  <p className="leading-relaxed">{msg.text}</p>
                   <p className={`text-[10px] mt-1 ${isSent ? "text-primary-foreground/70" : "text-muted-foreground"}`}>
                     {msg._pending ? "Sending..." : formatTime(msg.created_at)}
                   </p>
@@ -249,8 +253,8 @@ const ChatConversation = () => {
         <div ref={bottomRef} />
       </div>
 
-      <div className="p-4 border-t border-border">
-        <div className="flex items-center gap-2 bg-secondary rounded-full px-4 py-2">
+      <div className="p-3 border-t border-border bg-background">
+        <div className="flex items-center gap-2.5 bg-secondary rounded-2xl px-4 py-2.5 border border-border">
           <input
             type="text"
             placeholder="Type a message..."
@@ -262,7 +266,7 @@ const ChatConversation = () => {
           <button
             onClick={handleSend}
             disabled={!message.trim() || sending}
-            className="p-2 bg-primary rounded-full disabled:opacity-50 transition-opacity"
+            className="w-9 h-9 bg-primary rounded-xl disabled:opacity-40 transition-all flex items-center justify-center hover:shadow-card-hover active:scale-95"
           >
             <Send className="w-4 h-4 text-primary-foreground" />
           </button>

@@ -93,10 +93,10 @@ const Home = () => {
         <h1 className="text-xl font-bold text-foreground">Dashboard</h1>
       </div>
 
-      <div className="flex-1 pb-20 lg:pb-4 space-y-5">
+      <div className="flex-1 pb-20 lg:pb-4 section-gap">
         {/* Profile Header */}
-        <div className="flex items-center gap-3">
-          <div className="w-12 h-12 rounded-full bg-muted overflow-hidden flex items-center justify-center">
+        <div className="flex items-center gap-3.5">
+          <div className="w-13 h-13 rounded-full bg-muted overflow-hidden flex items-center justify-center ring-2 ring-border" style={{ width: 52, height: 52 }}>
             {user?.avatar_url ? (
               <img src={user.avatar_url} alt="" className="w-full h-full object-cover" />
             ) : (
@@ -105,14 +105,14 @@ const Home = () => {
           </div>
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-2">
-              <h2 className="text-base font-bold text-foreground truncate">{user?.name || "User"}</h2>
+              <h2 className="text-lg font-bold text-foreground truncate leading-tight">{user?.name || "User"}</h2>
               {planBadge && (
                 <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${planBadge.color}`}>
                   {planBadge.label}
                 </span>
               )}
             </div>
-            <p className="text-xs text-muted-foreground capitalize">{user?.role}</p>
+            <p className="text-xs text-muted-foreground capitalize mt-0.5">{user?.role}</p>
           </div>
         </div>
 
@@ -120,57 +120,59 @@ const Home = () => {
         {user?.role === "farmer" && (
           <>
             {/* Section 1: Primary CTA */}
-            <Button onClick={() => navigate("/post-item")} className="w-full rounded-xl h-12 font-semibold gap-2 text-base">
+            <Button onClick={() => navigate("/post-item")} className="w-full rounded-2xl h-13 font-semibold gap-2.5 text-base shadow-card hover:shadow-card-hover transition-shadow" style={{ height: 52 }}>
               <Plus className="w-5 h-5" />
               Post New Product
             </Button>
 
             {/* Section 2: Performance Summary */}
-            <div className="space-y-2">
+            <div className="space-y-3">
               <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Performance</h3>
               {loading ? (
-                <div className="flex justify-center py-6"><Loader2 className="w-5 h-5 animate-spin text-primary" /></div>
+                <div className="flex justify-center py-8"><Loader2 className="w-5 h-5 animate-spin text-primary" /></div>
               ) : (
                 <>
-                  <div className="grid grid-cols-2 gap-2.5">
+                  <div className="grid grid-cols-2 gap-3">
                     {[
-                      { icon: Package, label: "Listings", value: stats.activeListings, path: "/my-store", color: "text-primary" },
-                      { icon: Eye, label: "Views (7d)", value: stats.profileViews, path: "/analytics", color: "text-blue-500" },
-                      { icon: MessageCircle, label: "Unread Chats", value: stats.unreadChats, path: "/chat", color: "text-pink-500" },
-                      { icon: Heart, label: "Favorites", value: stats.favorites, path: "/analytics", color: "text-red-500" },
-                    ].map(({ icon: Icon, label, value, path, color }) => (
-                      <button key={label} onClick={() => navigate(path)} className="p-3 rounded-xl border border-border bg-card text-left hover:shadow-sm transition-shadow">
-                        <div className="flex items-center gap-2 mb-1">
-                          <Icon className={`w-4 h-4 ${color}`} />
-                          <span className="text-[11px] text-muted-foreground">{label}</span>
+                      { icon: Package, label: "Listings", value: stats.activeListings, path: "/my-store", color: "text-primary", bg: "bg-primary/8" },
+                      { icon: Eye, label: "Views (7d)", value: stats.profileViews, path: "/analytics", color: "text-blue-500", bg: "bg-blue-500/8" },
+                      { icon: MessageCircle, label: "Unread Chats", value: stats.unreadChats, path: "/chat", color: "text-pink-500", bg: "bg-pink-500/8" },
+                      { icon: Heart, label: "Favorites", value: stats.favorites, path: "/analytics", color: "text-red-500", bg: "bg-red-500/8" },
+                    ].map(({ icon: Icon, label, value, path, color, bg }) => (
+                      <button key={label} onClick={() => navigate(path)} className="card-interactive p-4 text-left">
+                        <div className={`w-9 h-9 rounded-xl ${bg} flex items-center justify-center mb-2.5`}>
+                          <Icon className={`w-4.5 h-4.5 ${color}`} style={{ width: 18, height: 18 }} />
                         </div>
-                        <p className="text-xl font-bold text-foreground">{value}</p>
+                        <p className="text-2xl font-bold text-foreground leading-none">{value}</p>
+                        <p className="text-[11px] text-muted-foreground mt-1">{label}</p>
                       </button>
                     ))}
                   </div>
-                  <p className="text-xs text-muted-foreground bg-secondary rounded-lg px-3 py-2">
-                    💡 {viewsInsight}
-                  </p>
+                  <div className="rounded-xl bg-secondary/80 px-4 py-3">
+                    <p className="text-xs text-muted-foreground leading-relaxed">
+                      💡 {viewsInsight}
+                    </p>
+                  </div>
                 </>
               )}
             </div>
 
             {/* Section 3: Quick Management */}
             {storePreview.length > 0 && (
-              <div className="space-y-2">
+              <div className="space-y-3">
                 <div className="flex items-center justify-between">
                   <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">My Store</h3>
                   <button onClick={() => navigate("/my-store")} className="text-xs font-semibold text-primary">View all</button>
                 </div>
-                <div className="space-y-1.5">
+                <div className="space-y-2">
                   {storePreview.map((p) => (
-                    <button key={p.id} onClick={() => navigate(`/product/${p.id}`)} className="flex items-center gap-2.5 w-full p-2 rounded-lg border border-border bg-card text-left hover:shadow-sm transition-shadow">
-                      <div className="w-10 h-10 rounded-lg bg-muted flex items-center justify-center overflow-hidden shrink-0">
-                        {p.images?.[0] ? <img src={p.images[0]} alt="" className="w-full h-full object-cover" /> : <Package className="w-4 h-4 text-muted-foreground/40" />}
+                    <button key={p.id} onClick={() => navigate(`/product/${p.id}`)} className="card-interactive flex items-center gap-3 w-full p-3 text-left">
+                      <div className="w-12 h-12 rounded-xl bg-muted flex items-center justify-center overflow-hidden shrink-0">
+                        {p.images?.[0] ? <img src={p.images[0]} alt="" className="w-full h-full object-cover" /> : <Package className="w-5 h-5 text-muted-foreground/30" />}
                       </div>
                       <div className="flex-1 min-w-0">
                         <p className="text-sm font-medium text-foreground truncate">{p.title}</p>
-                        <p className="text-xs font-semibold text-primary">${p.price.toFixed(2)}</p>
+                        <p className="text-xs font-semibold text-primary mt-0.5">${p.price.toFixed(2)}</p>
                       </div>
                     </button>
                   ))}
@@ -178,17 +180,17 @@ const Home = () => {
               </div>
             )}
 
-            {/* Section 4: Quick Links (reduced dominance) */}
-            <div className="space-y-2">
+            {/* Section 4: Quick Links */}
+            <div className="space-y-3">
               <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Quick Access</h3>
-              <HorizontalScroll className="gap-2 pb-1" snap={false}>
+              <HorizontalScroll className="gap-2.5 pb-1" snap={false}>
                 {[
                   { icon: Store, label: "My Store", path: "/my-store" },
                   { icon: Crown, label: "Plans", path: "/plans" },
                   { icon: Bell, label: "Notifications", path: "/notifications" },
                   { icon: Search, label: "Explore", path: "/explore" },
                 ].map(({ icon: Icon, label, path }) => (
-                  <button key={path} onClick={() => navigate(path)} className="flex items-center gap-2 px-3 py-2 rounded-full border border-border bg-card shrink-0 hover:shadow-sm transition-shadow">
+                  <button key={path} onClick={() => navigate(path)} className="card-interactive flex items-center gap-2 px-4 py-2.5 shrink-0">
                     <Icon className="w-4 h-4 text-muted-foreground" />
                     <span className="text-xs font-medium text-foreground whitespace-nowrap">{label}</span>
                   </button>
@@ -201,37 +203,37 @@ const Home = () => {
         {/* CUSTOMER DASHBOARD */}
         {user?.role === "customer" && (
           <>
-            <div className="flex gap-2.5">
-              <button onClick={() => navigate("/chat")} className="flex-1 p-3 rounded-xl border border-border bg-card text-left hover:shadow-sm transition-shadow">
-                <div className="flex items-center gap-2 mb-1">
-                  <MessageCircle className="w-4 h-4 text-pink-500" />
-                  <span className="text-[11px] text-muted-foreground">Unread Chats</span>
+            <div className="flex gap-3">
+              <button onClick={() => navigate("/chat")} className="card-interactive flex-1 p-4 text-left">
+                <div className="w-9 h-9 rounded-xl bg-pink-500/8 flex items-center justify-center mb-2.5">
+                  <MessageCircle className="w-[18px] h-[18px] text-pink-500" />
                 </div>
-                <p className="text-xl font-bold text-foreground">{stats.unreadChats}</p>
+                <p className="text-2xl font-bold text-foreground leading-none">{stats.unreadChats}</p>
+                <p className="text-[11px] text-muted-foreground mt-1">Unread Chats</p>
               </button>
-              <button onClick={() => navigate("/explore")} className="flex-1 p-3 rounded-xl border border-border bg-card text-left hover:shadow-sm transition-shadow">
-                <div className="flex items-center gap-2 mb-1">
-                  <Search className="w-4 h-4 text-primary" />
-                  <span className="text-[11px] text-muted-foreground">Discover</span>
+              <button onClick={() => navigate("/explore")} className="card-interactive flex-1 p-4 text-left">
+                <div className="w-9 h-9 rounded-xl bg-primary/8 flex items-center justify-center mb-2.5">
+                  <Search className="w-[18px] h-[18px] text-primary" />
                 </div>
-                <p className="text-sm font-semibold text-primary mt-1">Browse Products</p>
+                <p className="text-sm font-semibold text-primary mt-2">Browse Products</p>
+                <p className="text-[11px] text-muted-foreground mt-0.5">Discover</p>
               </button>
             </div>
 
-            <Button onClick={() => navigate("/explore")} className="w-full rounded-xl h-11 font-semibold gap-2">
+            <Button onClick={() => navigate("/explore")} className="w-full rounded-2xl h-12 font-semibold gap-2 shadow-card">
               <Search className="w-4 h-4" />
               Explore Local Products
             </Button>
 
-            <div className="space-y-2">
+            <div className="space-y-3">
               <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Quick Access</h3>
-              <HorizontalScroll className="gap-2 pb-1" snap={false}>
+              <HorizontalScroll className="gap-2.5 pb-1" snap={false}>
                 {[
                   { icon: Heart, label: "Saved", path: "/favorites" },
                   { icon: Search, label: "Explore", path: "/explore" },
                   { icon: Bell, label: "Notifications", path: "/notifications" },
                 ].map(({ icon: Icon, label, path }) => (
-                  <button key={path} onClick={() => navigate(path)} className="flex items-center gap-2 px-3 py-2 rounded-full border border-border bg-card shrink-0 hover:shadow-sm transition-shadow">
+                  <button key={path} onClick={() => navigate(path)} className="card-interactive flex items-center gap-2 px-4 py-2.5 shrink-0">
                     <Icon className="w-4 h-4 text-muted-foreground" />
                     <span className="text-xs font-medium text-foreground whitespace-nowrap">{label}</span>
                   </button>

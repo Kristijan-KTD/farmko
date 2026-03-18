@@ -147,18 +147,20 @@ const PostItem = () => {
   if (step === "done") {
     return (
       <MobileLayout>
-        <div className="flex-1 flex flex-col items-center justify-center gap-4">
-          <div className="w-20 h-20 rounded-full bg-primary flex items-center justify-center">
+        <div className="flex-1 flex flex-col items-center justify-center gap-5 px-6">
+          <div className="w-20 h-20 rounded-full bg-primary flex items-center justify-center shadow-elevated">
             <Check className="w-10 h-10 text-primary-foreground" />
           </div>
-          <h2 className="text-xl font-bold text-foreground">Product Published!</h2>
-          <p className="text-sm text-muted-foreground text-center max-w-xs">Your product is now live and visible to customers nearby.</p>
+          <div className="text-center">
+            <h2 className="text-xl font-bold text-foreground">Product Published!</h2>
+            <p className="text-sm text-muted-foreground mt-1.5 max-w-xs">Your product is now live and visible to customers nearby.</p>
+          </div>
         </div>
-        <div className="pb-8 space-y-3">
-          <Button onClick={() => navigate("/my-store")} className="w-full rounded-full h-12 text-base font-semibold">
+        <div className="pb-8 space-y-3 px-3">
+          <Button onClick={() => navigate("/my-store")} className="w-full rounded-xl h-12 text-base font-semibold shadow-card">
             Go to My Store
           </Button>
-          <Button variant="outline" onClick={() => { setStep(1); setForm({ name: "", description: "", category: "", price: "", quantity: "", unit: "" }); setImages([]); }} className="w-full rounded-full h-12 text-base">
+          <Button variant="outline" onClick={() => { setStep(1); setForm({ name: "", description: "", category: "", price: "", quantity: "", unit: "" }); setImages([]); }} className="w-full rounded-xl h-12 text-base">
             Post Another
           </Button>
         </div>
@@ -170,11 +172,11 @@ const PostItem = () => {
     return (
       <MobileLayout>
         <PageHeader title="Details & Photos" onBack={() => setStep(1)} />
-        <div className="flex-1 space-y-5">
+        <div className="flex-1 section-gap">
           {/* Step indicator */}
           <div className="flex items-center gap-2">
-            <div className="flex-1 h-1 rounded-full bg-primary" />
-            <div className="flex-1 h-1 rounded-full bg-primary" />
+            <div className="flex-1 h-1.5 rounded-full bg-primary" />
+            <div className="flex-1 h-1.5 rounded-full bg-primary" />
           </div>
 
           {/* Quantity */}
@@ -222,7 +224,7 @@ const PostItem = () => {
             <input ref={fileRef} type="file" accept="image/*" multiple className="hidden" onChange={handleImageSelect} />
             <div className="grid grid-cols-3 gap-2">
               {images.map((img, i) => (
-                <div key={i} className="aspect-square rounded-lg overflow-hidden relative">
+                <div key={i} className="aspect-square rounded-xl overflow-hidden relative shadow-card">
                   <img src={img.preview} alt="" className="w-full h-full object-cover" />
                   <button onClick={() => removeImage(i)} className="absolute top-1 right-1 w-5 h-5 bg-black/60 rounded-full flex items-center justify-center">
                     <X className="w-3 h-3 text-white" />
@@ -230,7 +232,7 @@ const PostItem = () => {
                 </div>
               ))}
               {images.length < 6 && (
-                <button onClick={() => fileRef.current?.click()} className="aspect-square bg-muted rounded-lg flex items-center justify-center border border-dashed border-border">
+                <button onClick={() => fileRef.current?.click()} className="aspect-square bg-muted rounded-xl flex items-center justify-center border-2 border-dashed border-border hover:border-primary/30 transition-colors">
                   <ImagePlus className="w-6 h-6 text-muted-foreground" />
                 </button>
               )}
@@ -238,7 +240,7 @@ const PostItem = () => {
           </div>
         </div>
         <div className="pb-8 pt-4">
-          <Button onClick={handleSubmit} disabled={isLoading} className="w-full rounded-full h-12 text-base font-semibold">
+          <Button onClick={handleSubmit} disabled={isLoading} className="w-full rounded-xl h-12 text-base font-semibold shadow-card">
             {isLoading ? <><Loader2 className="w-4 h-4 animate-spin mr-2" />Publishing...</> : "Publish Product"}
           </Button>
         </div>
@@ -251,15 +253,15 @@ const PostItem = () => {
   return (
     <MobileLayout>
       <PageHeader title="Post Item for Sell" />
-      <div className="flex-1 space-y-5">
+      <div className="flex-1 section-gap">
         {/* Step indicator */}
         <div className="flex items-center gap-2">
-          <div className="flex-1 h-1 rounded-full bg-primary" />
-          <div className="flex-1 h-1 rounded-full bg-muted" />
+          <div className="flex-1 h-1.5 rounded-full bg-primary" />
+          <div className="flex-1 h-1.5 rounded-full bg-muted" />
         </div>
 
         {/* Listing limit */}
-        <div className="flex items-center justify-between p-3 rounded-xl bg-secondary">
+        <div className="flex items-center justify-between p-3.5 rounded-xl bg-secondary/80 border border-border">
           {!isDataReady ? (
             <div className="flex items-center gap-2">
               <Loader2 className="w-3 h-3 animate-spin text-muted-foreground" />
@@ -302,7 +304,7 @@ const PostItem = () => {
                   key={cat.key}
                   type="button"
                   onClick={() => setForm({ ...form, category: isActive ? "" : cat.key })}
-                  className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full border text-xs transition-colors ${
+                  className={`flex items-center gap-1.5 px-3.5 py-2 rounded-xl border text-xs transition-all ${
                     isActive
                       ? "bg-primary text-primary-foreground border-primary"
                       : "bg-card border-border text-muted-foreground hover:border-primary/50"
@@ -333,7 +335,7 @@ const PostItem = () => {
         </div>
       </div>
       <div className="pb-8 pt-4">
-        <Button onClick={handleContinueToStep2} disabled={!isDataReady} className="w-full rounded-full h-12 text-base font-semibold gap-2">
+        <Button onClick={handleContinueToStep2} disabled={!isDataReady} className="w-full rounded-xl h-12 text-base font-semibold gap-2 shadow-card">
           Continue <ChevronRight className="w-4 h-4" />
         </Button>
       </div>

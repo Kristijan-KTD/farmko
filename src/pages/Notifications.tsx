@@ -44,7 +44,6 @@ const Notifications = () => {
     };
     fetchNotifications();
 
-    // Realtime
     const channel = supabase
       .channel("notifications")
       .on("postgres_changes", { event: "INSERT", schema: "public", table: "notifications", filter: `user_id=eq.${user.id}` }, (payload) => {
@@ -85,23 +84,28 @@ const Notifications = () => {
     <MobileLayout>
       <PageHeader title="Notifications" rightAction={
         unreadCount > 0 ? (
-          <button onClick={markAllRead} className="text-primary"><CheckCheck className="w-5 h-5" /></button>
+          <button onClick={markAllRead} className="w-9 h-9 rounded-xl bg-primary/10 flex items-center justify-center">
+            <CheckCheck className="w-[18px] h-[18px] text-primary" />
+          </button>
         ) : undefined
       } />
 
       {unreadCount > 0 && (
-        <p className="text-xs text-muted-foreground mb-3">{unreadCount} unread</p>
+        <p className="text-xs text-muted-foreground mb-4">{unreadCount} unread</p>
       )}
 
-      <div className="flex-1 pb-20 space-y-2">
+      <div className="flex-1 pb-20 space-y-1">
         {loading ? (
           <div className="flex items-center justify-center py-20">
             <Loader2 className="w-8 h-8 animate-spin text-primary" />
           </div>
         ) : notifications.length === 0 ? (
-          <div className="flex flex-col items-center justify-center py-20">
-            <Bell className="w-16 h-16 text-muted-foreground/30 mb-4" />
-            <p className="text-muted-foreground text-sm">No notifications yet</p>
+          <div className="flex flex-col items-center justify-center py-16">
+            <div className="w-20 h-20 rounded-full bg-muted flex items-center justify-center mb-4">
+              <Bell className="w-9 h-9 text-muted-foreground/30" />
+            </div>
+            <p className="text-foreground font-medium mb-1">All caught up</p>
+            <p className="text-sm text-muted-foreground">No notifications yet</p>
           </div>
         ) : (
           notifications.map((notif) => {
@@ -110,19 +114,19 @@ const Notifications = () => {
               <button
                 key={notif.id}
                 onClick={() => handleClick(notif)}
-                className={`w-full flex items-start gap-3 p-3 rounded-xl transition-colors text-left ${
-                  notif.read ? "bg-background hover:bg-secondary" : "bg-primary/5 hover:bg-primary/10"
+                className={`w-full flex items-start gap-3.5 p-3.5 rounded-2xl transition-all text-left ${
+                  notif.read ? "hover:bg-secondary/60" : "bg-primary/5 hover:bg-primary/8"
                 }`}
               >
-                <div className={`w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 ${notif.read ? "bg-muted" : "bg-primary/10"}`}>
-                  <Icon className={`w-5 h-5 ${notif.read ? "text-muted-foreground" : "text-primary"}`} />
+                <div className={`w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 ${notif.read ? "bg-muted" : "bg-primary/10"}`}>
+                  <Icon className={`w-[18px] h-[18px] ${notif.read ? "text-muted-foreground" : "text-primary"}`} />
                 </div>
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center justify-between">
                     <h3 className={`text-sm ${notif.read ? "font-medium text-foreground" : "font-semibold text-foreground"}`}>{notif.title}</h3>
-                    <span className="text-[10px] text-muted-foreground">{timeAgo(notif.created_at)}</span>
+                    <span className="text-[10px] text-muted-foreground ml-2 shrink-0">{timeAgo(notif.created_at)}</span>
                   </div>
-                  {notif.body && <p className="text-xs text-muted-foreground mt-0.5">{notif.body}</p>}
+                  {notif.body && <p className="text-xs text-muted-foreground mt-0.5 leading-relaxed">{notif.body}</p>}
                 </div>
                 {!notif.read && <div className="w-2 h-2 bg-primary rounded-full mt-2 flex-shrink-0" />}
               </button>

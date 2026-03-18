@@ -268,7 +268,7 @@ const Analytics = () => {
     <MobileLayout>
       <PageHeader title={plan === "pro" ? "Full Analytics" : "Basic Analytics"} />
 
-      <div className="flex-1 pb-20 space-y-6">
+      <div className="flex-1 pb-20 section-gap">
         {loading ? (
           <div className="flex items-center justify-center py-20">
             <Loader2 className="w-8 h-8 animate-spin text-primary" />
@@ -302,8 +302,8 @@ const Analytics = () => {
             {/* Overview Metrics */}
             <div className="grid grid-cols-2 gap-3">
               {statCards.map(({ icon: Icon, label, value, color }) => (
-                <div key={label} className="p-4 rounded-xl border border-border bg-card space-y-2">
-                  <div className={`w-10 h-10 rounded-full flex items-center justify-center ${color}`}>
+                <div key={label} className="card-interactive p-4 space-y-2.5">
+                  <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${color}`}>
                     <Icon className="w-5 h-5" />
                   </div>
                   <p className="text-2xl font-bold text-foreground">{value ?? 0}</p>
@@ -318,7 +318,7 @@ const Analytics = () => {
                 <TrendingUp className="w-4 h-4 text-primary" />
                 <h3 className="text-sm font-semibold text-foreground">Traffic Trend</h3>
               </div>
-              <div className="p-4 rounded-xl border border-border bg-card">
+              <div className="card-interactive p-4">
                 {trendData.length > 0 ? (
                   <ResponsiveContainer width="100%" height={180}>
                     <LineChart data={trendData}>
@@ -341,7 +341,7 @@ const Analytics = () => {
                 <h3 className="text-sm font-semibold text-foreground">Top Performing Products</h3>
                 <div className="space-y-2">
                   {topListings.slice(0, 5).map((listing, i) => (
-                    <button key={listing.id} onClick={() => navigate(`/product/${listing.id}`)} className="w-full flex items-center gap-3 p-3 rounded-xl bg-card border border-border text-left">
+                    <button key={listing.id} onClick={() => navigate(`/product/${listing.id}`)} className="card-interactive w-full flex items-center gap-3 p-3.5 text-left">
                       <span className="text-sm font-bold text-muted-foreground w-6">{i + 1}</span>
                       <div className="flex-1 min-w-0">
                         <p className="text-sm font-medium text-foreground truncate">{listing.title}</p>
@@ -391,7 +391,7 @@ const Analytics = () => {
             {plan === "pro" && categoryInsights.length > 0 && (
               <div className="space-y-3">
                 <h3 className="text-sm font-semibold text-foreground">Customer Interest Insights</h3>
-                <div className="p-4 rounded-xl border border-border bg-card space-y-3">
+                <div className="card-interactive p-4 space-y-3">
                   <p className="text-xs text-muted-foreground">Most viewed categories</p>
                   {categoryInsights.slice(0, 5).map((cat, i) => (
                     <div key={cat.category} className="flex items-center gap-3">
@@ -440,7 +440,7 @@ const Analytics = () => {
                     insights.push({ text: "Post more products and share on Instafarm to start getting insights.", type: "info" });
                   }
                   return insights.slice(0, 4).map((insight, i) => (
-                    <div key={i} className={`p-3 rounded-lg text-xs font-medium ${
+                    <div key={i} className={`p-3.5 rounded-xl text-xs font-medium leading-relaxed ${
                       insight.type === "success" ? "bg-primary/10 text-primary" :
                       insight.type === "tip" ? "bg-orange-50 text-orange-700" :
                       "bg-secondary text-muted-foreground"
@@ -455,9 +455,9 @@ const Analytics = () => {
 
             {/* Upsell for Growth */}
             {plan === "growth" && (
-              <div className="p-4 rounded-xl bg-primary/5 border border-primary/20 text-center space-y-2">
+              <div className="card-interactive p-5 text-center space-y-3">
                 <p className="text-sm text-foreground font-medium">Want detailed product analytics & insights?</p>
-                <Button onClick={() => navigate("/plans")} size="sm" className="rounded-full">Upgrade to Pro</Button>
+                <Button onClick={() => navigate("/plans")} size="sm" className="rounded-xl">Upgrade to Pro</Button>
               </div>
             )}
           </>
