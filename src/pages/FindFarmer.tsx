@@ -73,9 +73,12 @@ const FindFarmer = () => {
             <Loader2 className="w-8 h-8 animate-spin text-primary" />
           </div>
         ) : filtered.length === 0 ? (
-          <div className="flex flex-col items-center justify-center py-20">
-            <User className="w-16 h-16 text-muted-foreground/30 mb-4" />
-            <p className="text-muted-foreground text-sm">No farmers found</p>
+          <div className="flex flex-col items-center justify-center py-16">
+            <div className="w-20 h-20 rounded-full bg-muted flex items-center justify-center mb-4">
+              <User className="w-9 h-9 text-muted-foreground/30" />
+            </div>
+            <p className="text-foreground font-medium mb-1">No farmers found</p>
+            <p className="text-sm text-muted-foreground text-center max-w-[240px]">Try adjusting your search terms.</p>
           </div>
         ) : (
           filtered.map((farmer) => (

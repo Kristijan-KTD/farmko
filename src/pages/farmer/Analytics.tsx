@@ -274,10 +274,13 @@ const Analytics = () => {
             <Loader2 className="w-8 h-8 animate-spin text-primary" />
           </div>
         ) : fetchError ? (
-          <div className="flex flex-col items-center justify-center py-20">
-            <AlertTriangle className="w-12 h-12 text-destructive/50 mb-4" />
+          <div className="flex flex-col items-center justify-center py-16">
+            <div className="w-16 h-16 rounded-full bg-destructive/8 flex items-center justify-center mb-4">
+              <AlertTriangle className="w-7 h-7 text-destructive/60" />
+            </div>
+            <p className="text-foreground font-medium mb-1">Something went wrong</p>
             <p className="text-muted-foreground text-sm mb-4">Failed to load analytics</p>
-            <Button variant="outline" onClick={() => window.location.reload()} className="rounded-full">Retry</Button>
+            <Button variant="outline" size="sm" onClick={() => window.location.reload()} className="rounded-md">Retry</Button>
           </div>
         ) : (
           <>
