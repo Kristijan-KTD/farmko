@@ -462,7 +462,7 @@ const ProductDetail = () => {
 
         {/* Write Review */}
         {user?.role === "customer" && (
-          <div className="space-y-3 p-4 rounded-2xl border border-border bg-card shadow-card">
+          <div className="space-y-3 p-4 rounded-lg border border-border bg-card shadow-card">
             <h3 className="text-sm font-semibold text-foreground">Write a Review</h3>
             <div className="flex items-center gap-1">
               {[1, 2, 3, 4, 5].map((s) => (
