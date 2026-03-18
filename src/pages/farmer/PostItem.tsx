@@ -335,7 +335,7 @@ const PostItem = () => {
         </div>
       </div>
       <div className="pb-8 pt-4">
-        <Button onClick={handleContinueToStep2} disabled={!isDataReady} className="w-full rounded-full h-12 text-base font-semibold gap-2">
+        <Button onClick={handleContinueToStep2} disabled={!isDataReady} className="w-full rounded-xl h-12 text-base font-semibold gap-2 shadow-card">
           Continue <ChevronRight className="w-4 h-4" />
         </Button>
       </div>
