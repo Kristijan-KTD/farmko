@@ -254,7 +254,7 @@ const ChatConversation = () => {
       </div>
 
       <div className="p-3 border-t border-border bg-background">
-        <div className="flex items-center gap-2.5 bg-secondary rounded-2xl px-4 py-2.5 border border-border">
+        <div className="flex items-center gap-2.5 bg-secondary rounded-md px-4 py-2.5 border border-border">
           <input
             type="text"
             placeholder="Type a message..."
