@@ -391,7 +391,7 @@ const Analytics = () => {
             {plan === "pro" && categoryInsights.length > 0 && (
               <div className="space-y-3">
                 <h3 className="text-sm font-semibold text-foreground">Customer Interest Insights</h3>
-                <div className="card-interactive p-4 space-y-3">
+                <div className="space-y-3">
                   <p className="text-xs text-muted-foreground">Most viewed categories</p>
                   {categoryInsights.slice(0, 5).map((cat, i) => (
                     <div key={cat.category} className="flex items-center gap-3">
