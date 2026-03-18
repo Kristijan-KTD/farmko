@@ -118,19 +118,19 @@ const Profile = () => {
           </div>
         )}
 
-        <div className="w-full mt-4 space-y-4">
-           <div className="flex items-center gap-3 p-3 rounded-md bg-secondary">
+        <div className="w-full space-y-2">
+           <div className="list-item-subtle">
             <Mail className="w-5 h-5 text-muted-foreground" />
             <span className="text-sm text-foreground">{user?.email}</span>
           </div>
           {user?.phone && (
-             <div className="flex items-center gap-3 p-3 rounded-md bg-secondary">
+             <div className="list-item-subtle">
               <Phone className="w-5 h-5 text-muted-foreground" />
               <span className="text-sm text-foreground">{user.phone}</span>
             </div>
           )}
           {user?.location && (
-            <div className="flex items-center gap-3 p-3 rounded-md bg-secondary">
+            <div className="list-item-subtle">
               <MapPin className="w-5 h-5 text-muted-foreground" />
               <span className="text-sm text-foreground">{user.location}</span>
             </div>
