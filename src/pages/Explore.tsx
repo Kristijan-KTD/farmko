@@ -314,7 +314,7 @@ const LoadingSkeleton = () => (
     <div className="space-y-3">
       <div className="h-5 bg-muted rounded-lg w-32 animate-pulse" />
       {Array.from({ length: 3 }).map((_, i) => (
-        <div key={i} className="rounded-2xl border border-border bg-card p-3 flex gap-3 animate-pulse">
+        <div key={i} className="rounded-lg border border-border bg-card p-3 flex gap-3 animate-pulse">
           <div className="w-16 h-16 rounded-xl bg-muted" />
           <div className="flex-1 space-y-2">
             <div className="h-3.5 bg-muted rounded w-2/3" />
