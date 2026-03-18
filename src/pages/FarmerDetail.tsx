@@ -187,7 +187,7 @@ const FarmerDetail = () => {
           {farmer.bio && <p className="text-sm text-muted-foreground mt-2 text-center px-4">{farmer.bio}</p>}
 
           {/* Trust Stats */}
-          <div className="flex gap-6 mt-4">
+          <div className="flex gap-6 mt-5 pt-5 border-t border-border">
             <div className="text-center">
               <div className="flex items-center gap-1">
                 <ShoppingBag className="w-3.5 h-3.5 text-primary" />
