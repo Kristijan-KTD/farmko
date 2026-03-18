@@ -140,7 +140,7 @@ const Home = () => {
                       { icon: Heart, label: "Favorites", value: stats.favorites, path: "/analytics", color: "text-red-500", bg: "bg-red-500/8" },
                     ].map(({ icon: Icon, label, value, path, color, bg }) => (
                       <button key={label} onClick={() => navigate(path)} className="card-interactive p-4 text-left">
-                        <div className={`w-9 h-9 rounded-xl ${bg} flex items-center justify-center mb-2.5`}>
+                        <div className={`w-9 h-9 rounded-md ${bg} flex items-center justify-center mb-2.5`}>
                           <Icon className={`w-4.5 h-4.5 ${color}`} style={{ width: 18, height: 18 }} />
                         </div>
                         <p className="text-2xl font-bold text-foreground leading-none">{value}</p>
