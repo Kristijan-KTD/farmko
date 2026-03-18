@@ -391,13 +391,13 @@ const ProductDetail = () => {
         </div>
 
         {/* Action Buttons */}
-        <div className="flex gap-2">
-          <Button onClick={handleContactFarmer} className="flex-1 rounded-full h-11 font-semibold gap-2">
+        <div className="flex gap-2.5">
+          <Button onClick={handleContactFarmer} className="flex-1 rounded-xl h-12 font-semibold gap-2 shadow-card">
             <MessageCircle className="w-5 h-5" />
             Contact Farmer
           </Button>
           {user && (
-            <Button variant="outline" onClick={handleToggleFavorite} className="rounded-full h-11 px-4">
+            <Button variant="outline" onClick={handleToggleFavorite} className="rounded-xl h-12 px-4 border-border">
               <Heart className={`w-5 h-5 ${isFavorited ? "fill-red-500 text-red-500" : ""}`} />
             </Button>
           )}
