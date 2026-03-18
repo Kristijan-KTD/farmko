@@ -93,7 +93,7 @@ const Explore = () => {
 
       {/* Search */}
       <div className="flex items-center gap-2.5 mb-4">
-        <div className="flex-1 min-w-0 flex items-center gap-2.5 bg-secondary rounded-2xl px-4 py-2.5 border border-border">
+        <div className="flex-1 min-w-0 flex items-center gap-2.5 bg-secondary rounded-md px-4 py-2.5 border border-border">
           <Search className="w-4 h-4 text-muted-foreground shrink-0" />
           <input
             type="text"
