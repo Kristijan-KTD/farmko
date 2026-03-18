@@ -237,7 +237,7 @@ const MyStore = () => {
                     )}
                   </div>
                   <div className="flex gap-1" onClick={(e) => e.stopPropagation()}>
-                    <button onClick={(e) => { e.stopPropagation(); openEdit(product); }} className="p-2.5 text-muted-foreground hover:text-foreground rounded-xl hover:bg-secondary transition-colors">
+                    <button onClick={(e) => { e.stopPropagation(); openEdit(product); }} className="p-2.5 text-muted-foreground hover:text-foreground rounded-md hover:bg-secondary transition-colors">
                       <Edit2 className="w-4 h-4" />
                     </button>
                     <button onClick={(e) => { e.stopPropagation(); setDeleteId(product.id); }} className="p-2.5 text-muted-foreground hover:text-destructive rounded-xl hover:bg-destructive/10 transition-colors">
