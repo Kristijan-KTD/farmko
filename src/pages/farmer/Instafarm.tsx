@@ -407,7 +407,7 @@ const Instafarm = () => {
                   <button className="text-muted-foreground"><MoreHorizontal className="w-5 h-5" /></button>
                 </div>
 
-                <div className="aspect-square bg-muted rounded-xl overflow-hidden">
+                <div className="aspect-square bg-muted rounded-md overflow-hidden">
                   <img src={post.image_url} alt="" className="w-full h-full object-cover" />
                 </div>
 
