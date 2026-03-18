@@ -462,7 +462,7 @@ const ProductDetail = () => {
 
         {/* Write Review */}
         {user?.role === "customer" && (
-          <div className="space-y-3 p-4 rounded-lg border border-border bg-card shadow-card">
+          <div className="space-y-3">
             <h3 className="text-sm font-semibold text-foreground">Write a Review</h3>
             <div className="flex items-center gap-1">
               {[1, 2, 3, 4, 5].map((s) => (
@@ -498,28 +498,28 @@ const ProductDetail = () => {
             <p className="text-sm text-muted-foreground text-center py-4">No reviews yet</p>
           ) : (
             reviews.map((review) => (
-              <div key={review.id} className="p-3.5 rounded-lg bg-card border border-border shadow-card space-y-1.5">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <div className="w-7 h-7 rounded-full bg-muted flex items-center justify-center overflow-hidden">
-                      {review.reviewer?.avatar_url ? (
-                        <img src={review.reviewer.avatar_url} alt="" className="w-full h-full object-cover" />
-                      ) : (
-                        <span className="text-[10px] font-bold text-muted-foreground">
-                          {review.reviewer?.name?.[0] || "?"}
-                        </span>
-                      )}
-                    </div>
+              <div key={review.id} className="flex items-start gap-3 py-3.5 border-b border-border last:border-0">
+                <div className="w-7 h-7 rounded-full bg-muted flex items-center justify-center overflow-hidden shrink-0">
+                  {review.reviewer?.avatar_url ? (
+                    <img src={review.reviewer.avatar_url} alt="" className="w-full h-full object-cover" />
+                  ) : (
+                    <span className="text-[10px] font-bold text-muted-foreground">
+                      {review.reviewer?.name?.[0] || "?"}
+                    </span>
+                  )}
+                </div>
+                <div className="flex-1 min-w-0 space-y-1">
+                  <div className="flex items-center justify-between">
                     <span className="text-sm font-medium text-foreground">{review.reviewer?.name || "Anonymous"}</span>
+                    <span className="text-[10px] text-muted-foreground">{timeAgo(review.created_at)}</span>
                   </div>
-                  <span className="text-[10px] text-muted-foreground">{timeAgo(review.created_at)}</span>
+                  <div className="flex items-center gap-1">
+                    {[1, 2, 3, 4, 5].map((s) => (
+                      <Star key={s} className={`w-3 h-3 ${s <= review.rating ? "fill-yellow-400 text-yellow-400" : "text-border"}`} />
+                    ))}
+                  </div>
+                  {review.comment && <p className="text-xs text-muted-foreground">{review.comment}</p>}
                 </div>
-                <div className="flex items-center gap-1">
-                  {[1, 2, 3, 4, 5].map((s) => (
-                    <Star key={s} className={`w-3 h-3 ${s <= review.rating ? "fill-yellow-400 text-yellow-400" : "text-border"}`} />
-                  ))}
-                </div>
-                {review.comment && <p className="text-xs text-muted-foreground">{review.comment}</p>}
               </div>
             ))
           )}

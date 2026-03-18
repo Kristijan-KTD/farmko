@@ -187,7 +187,7 @@ const FarmerDetail = () => {
           {farmer.bio && <p className="text-sm text-muted-foreground mt-2 text-center px-4">{farmer.bio}</p>}
 
           {/* Trust Stats */}
-          <div className="flex gap-6 mt-4">
+          <div className="flex gap-6 mt-5 pt-5 border-t border-border">
             <div className="text-center">
               <div className="flex items-center gap-1">
                 <ShoppingBag className="w-3.5 h-3.5 text-primary" />
@@ -216,8 +216,8 @@ const FarmerDetail = () => {
 
         {/* Farm Photos */}
         {photos.length > 0 && (
-          <div>
-            <h3 className="text-sm font-semibold text-foreground mb-3">Farm Photos</h3>
+          <section>
+            <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-3">Farm Photos</h3>
             <div className="grid grid-cols-3 gap-1.5">
               {photos.map((photo) => (
                 <div key={photo.id} className="aspect-square bg-muted rounded-md overflow-hidden border border-border">
@@ -225,13 +225,13 @@ const FarmerDetail = () => {
                 </div>
               ))}
             </div>
-          </div>
+          </section>
         )}
 
         {/* Products */}
         {products.length > 0 && (
-          <div>
-            <h3 className="text-sm font-semibold text-foreground mb-3">Products</h3>
+          <section>
+            <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-3">Products</h3>
             <div className="space-y-2">
               {products.map((p) => (
                 <button key={p.id} onClick={() => handleProductClick(p)} className="list-item-subtle active:scale-[0.98]">
@@ -249,7 +249,7 @@ const FarmerDetail = () => {
                 </button>
               ))}
             </div>
-          </div>
+          </section>
         )}
       </div>
 

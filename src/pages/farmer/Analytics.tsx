@@ -341,8 +341,8 @@ const Analytics = () => {
                 <h3 className="text-sm font-semibold text-foreground">Top Performing Products</h3>
                 <div className="space-y-2">
                   {topListings.slice(0, 5).map((listing, i) => (
-                    <button key={listing.id} onClick={() => navigate(`/product/${listing.id}`)} className="card-interactive w-full flex items-center gap-3 p-3.5 text-left">
-                      <span className="text-sm font-bold text-muted-foreground w-6">{i + 1}</span>
+                    <button key={listing.id} onClick={() => navigate(`/product/${listing.id}`)} className="list-item-subtle w-full">
+                      <span className="text-sm font-bold text-muted-foreground w-6 shrink-0">{i + 1}</span>
                       <div className="flex-1 min-w-0">
                         <p className="text-sm font-medium text-foreground truncate">{listing.title}</p>
                         <div className="flex gap-3 text-xs text-muted-foreground mt-0.5">
@@ -391,7 +391,7 @@ const Analytics = () => {
             {plan === "pro" && categoryInsights.length > 0 && (
               <div className="space-y-3">
                 <h3 className="text-sm font-semibold text-foreground">Customer Interest Insights</h3>
-                <div className="card-interactive p-4 space-y-3">
+                <div className="space-y-3">
                   <p className="text-xs text-muted-foreground">Most viewed categories</p>
                   {categoryInsights.slice(0, 5).map((cat, i) => (
                     <div key={cat.category} className="flex items-center gap-3">
