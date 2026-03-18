@@ -141,7 +141,17 @@
 
 /* Consistent section spacing */
 .section-gap {
-  @apply space-y-6;
+  @apply space-y-7;
+}
+
+/* Tertiary list items — lighter weight than cards */
+.list-item-subtle {
+  @apply flex items-center gap-3 w-full p-3 text-left bg-card border border-border transition-all duration-150;
+  border-radius: var(--radius-lg);
+}
+.list-item-subtle:hover,
+.list-item-subtle:active {
+  background: hsl(var(--secondary));
 }
 
 /* Tap feedback */
