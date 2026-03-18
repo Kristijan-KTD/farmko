@@ -155,7 +155,7 @@ const FarmerDetail = () => {
     <MobileLayout>
       <PageHeader title="Farmer Profile" />
 
-      <div className="flex-1 space-y-6 pb-20">
+      <div className="flex-1 section-gap pb-20">
         {/* Profile Header */}
         <div className="flex flex-col items-center">
           <div className="w-20 h-20 rounded-full bg-muted flex items-center justify-center mb-3 overflow-hidden border border-border">
