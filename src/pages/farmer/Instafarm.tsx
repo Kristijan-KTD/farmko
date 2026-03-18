@@ -355,15 +355,21 @@ const Instafarm = () => {
             <Loader2 className="w-8 h-8 animate-spin text-primary" />
           </div>
         ) : fetchError ? (
-          <div className="flex flex-col items-center justify-center py-20">
-            <AlertTriangle className="w-12 h-12 text-destructive/50 mb-4" />
+          <div className="flex flex-col items-center justify-center py-16">
+            <div className="w-16 h-16 rounded-full bg-destructive/8 flex items-center justify-center mb-4">
+              <AlertTriangle className="w-7 h-7 text-destructive/60" />
+            </div>
+            <p className="text-foreground font-medium mb-1">Something went wrong</p>
             <p className="text-muted-foreground text-sm mb-4">Failed to load posts</p>
-            <Button variant="outline" onClick={() => { setLoading(true); fetchPosts(); }} className="rounded-full">Retry</Button>
+            <Button variant="outline" size="sm" onClick={() => { setLoading(true); fetchPosts(); }} className="rounded-md">Retry</Button>
           </div>
         ) : posts.length === 0 ? (
-          <div className="flex flex-col items-center justify-center py-20">
-            <Camera className="w-16 h-16 text-muted-foreground/30 mb-4" />
-            <p className="text-muted-foreground text-sm">No posts yet</p>
+          <div className="flex flex-col items-center justify-center py-16">
+            <div className="w-20 h-20 rounded-full bg-muted flex items-center justify-center mb-4">
+              <Camera className="w-9 h-9 text-muted-foreground/30" />
+            </div>
+            <p className="text-foreground font-medium mb-1">No posts yet</p>
+            <p className="text-sm text-muted-foreground text-center max-w-[240px]">Share photos from your farm to connect with customers.</p>
           </div>
         ) : view === "grid" ? (
           <div className="grid grid-cols-3 gap-1">
