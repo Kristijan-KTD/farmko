@@ -347,7 +347,7 @@ const ProductDetail = () => {
           )}
 
           {/* Trust & Availability Signals */}
-          <div className="flex flex-wrap gap-2">
+          <div className="flex flex-wrap gap-2 mt-1">
             {product.farmer?.verified && (
               <span className="inline-flex items-center gap-1 text-[11px] font-medium text-blue-600 bg-blue-50 px-2 py-1 rounded-full">
                 <CheckCircle className="w-3 h-3" /> Verified Farmer
