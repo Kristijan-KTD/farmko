@@ -148,7 +148,7 @@ const Home = () => {
                       </button>
                     ))}
                   </div>
-                  <div className="rounded-xl bg-secondary/80 px-4 py-3">
+                  <div className="rounded-md bg-secondary/80 px-4 py-3">
                     <p className="text-xs text-muted-foreground leading-relaxed">
                       💡 {viewsInsight}
                     </p>
