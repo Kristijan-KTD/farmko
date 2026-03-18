@@ -372,8 +372,8 @@ const ProductDetail = () => {
           </div>
 
           {/* Pickup / Delivery Info */}
-          <div className="flex gap-2">
-            <div className="flex-1 p-2.5 rounded-lg bg-secondary flex items-center gap-2">
+          <div className="flex gap-2.5 mt-1">
+            <div className="flex-1 p-3 rounded-xl bg-secondary/80 flex items-center gap-2.5 border border-border">
               <Truck className="w-4 h-4 text-primary shrink-0" />
               <div>
                 <p className="text-[11px] font-semibold text-foreground">Pickup Available</p>
