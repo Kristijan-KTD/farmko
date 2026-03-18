@@ -152,12 +152,12 @@ const Explore = () => {
           <>
             {/* Nearby Products */}
             {nearbyProducts.length > 0 && (
-              <section>
-                <div className="flex items-center gap-2 mb-3">
+               <section>
+                <div className="flex items-center gap-2 mb-3.5">
                    <div className="w-6 h-6 rounded-md bg-primary/10 flex items-center justify-center">
                     <MapPin className="w-3.5 h-3.5 text-primary" />
                   </div>
-                  <h2 className="text-sm font-semibold text-foreground">Nearby Products</h2>
+                  <h2 className="text-sm font-bold text-foreground">Nearby Products</h2>
                 </div>
                 <HorizontalScroll className="gap-3 pb-1">
                   {nearbyProducts.map(product => (
