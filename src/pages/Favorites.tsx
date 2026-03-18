@@ -136,7 +136,7 @@ const Favorites = () => {
                 <div key={product.favoriteId} className="card-interactive flex items-center gap-3 p-3.5">
                   <button
                     onClick={() => navigate(`/product/${product.id}`)}
-                    className="w-16 h-16 rounded-xl bg-muted flex items-center justify-center overflow-hidden shrink-0"
+                    className="w-16 h-16 rounded-md bg-muted flex items-center justify-center overflow-hidden shrink-0"
                   >
                     {product.images?.[0] ? (
                       <img src={product.images[0]} alt={product.title} className="w-full h-full object-cover" />
