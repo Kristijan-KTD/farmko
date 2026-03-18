@@ -261,7 +261,7 @@ const PostItem = () => {
         </div>
 
         {/* Listing limit */}
-        <div className="flex items-center justify-between p-3.5 rounded-xl bg-secondary/80 border border-border">
+        <div className="flex items-center justify-between p-3.5 rounded-md bg-secondary/80 border border-border">
           {!isDataReady ? (
             <div className="flex items-center gap-2">
               <Loader2 className="w-3 h-3 animate-spin text-muted-foreground" />
