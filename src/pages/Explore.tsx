@@ -301,7 +301,7 @@ const LoadingSkeleton = () => (
       <div className="h-5 bg-muted rounded-lg w-36 animate-pulse" />
       <div className="flex gap-3 overflow-hidden">
         {Array.from({ length: 3 }).map((_, i) => (
-          <div key={i} className="shrink-0 w-[160px] rounded-2xl border border-border bg-card overflow-hidden animate-pulse">
+          <div key={i} className="shrink-0 w-[160px] rounded-lg border border-border bg-card overflow-hidden animate-pulse">
             <div className="aspect-[4/3] bg-muted" />
             <div className="p-3 space-y-2">
               <div className="h-3 bg-muted rounded w-3/4" />
