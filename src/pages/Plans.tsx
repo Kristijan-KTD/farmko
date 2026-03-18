@@ -57,7 +57,7 @@ const Plans = () => {
     <MobileLayout>
       <PageHeader title="Subscription Plans" />
 
-      <div className="flex-1 pb-8 space-y-4">
+      <div className="flex-1 pb-8 section-gap">
         {subscribed && subscriptionEnd && (
           <div className="p-3 rounded-md bg-primary/10 border border-primary/20">
             <p className="text-xs text-primary font-medium">

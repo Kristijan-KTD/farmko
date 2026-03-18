@@ -296,7 +296,7 @@ const Instafarm = () => {
   const ProductTag = ({ product }: { product: TaggedProduct }) => (
     <button
       onClick={(e) => { e.stopPropagation(); navigate(`/product/${product.id}`); }}
-      className="flex items-center gap-2 p-2 rounded-lg bg-card border border-border hover:shadow-sm transition-shadow w-full text-left"
+      className="list-item-subtle py-2"
     >
       <div className="w-10 h-10 rounded-md bg-muted overflow-hidden shrink-0 flex items-center justify-center">
         {product.images?.[0] ? (
