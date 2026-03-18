@@ -64,7 +64,7 @@ const AllRecommended = () => {
             <button
               key={product.id}
               onClick={() => handleClick(product)}
-              className="flex items-center gap-2.5 w-full rounded-xl border border-border bg-card p-2.5 text-left hover:shadow-md transition-shadow"
+              className="flex items-center gap-2.5 w-full rounded-md border border-border bg-card p-2.5 text-left hover:shadow-md transition-shadow"
             >
               <div className="w-14 h-14 rounded-lg bg-muted flex items-center justify-center overflow-hidden shrink-0 relative">
                 {product.images?.[0] ? (

@@ -130,7 +130,7 @@ const Profile = () => {
             </div>
           )}
           {user?.location && (
-            <div className="flex items-center gap-3 p-3 rounded-xl bg-secondary">
+            <div className="flex items-center gap-3 p-3 rounded-md bg-secondary">
               <MapPin className="w-5 h-5 text-muted-foreground" />
               <span className="text-sm text-foreground">{user.location}</span>
             </div>

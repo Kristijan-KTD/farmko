@@ -76,7 +76,7 @@ const Plans = () => {
           return (
             <div
               key={tier}
-              className={`rounded-2xl border-2 p-5 space-y-4 bg-card ${planColors[tier]} ${isCurrent ? "relative" : ""}`}
+              className={`rounded-lg border-2 p-5 space-y-4 bg-card ${planColors[tier]} ${isCurrent ? "relative" : ""}`}
             >
               {isCurrent && (
                 <span className="absolute -top-3 left-4 bg-primary text-primary-foreground text-[10px] font-bold px-3 py-1 rounded-full">

@@ -500,7 +500,7 @@ const Instafarm = () => {
           <DialogHeader><DialogTitle>New Post</DialogTitle></DialogHeader>
           <div className="space-y-4">
             {uploadPreview && (
-              <div className="aspect-square rounded-xl overflow-hidden bg-muted">
+              <div className="aspect-square rounded-md overflow-hidden bg-muted">
                 <img src={uploadPreview} alt="Preview" className="w-full h-full object-cover" />
               </div>
             )}

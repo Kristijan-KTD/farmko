@@ -82,7 +82,7 @@ const FindFarmer = () => {
             <button
               key={farmer.id}
               onClick={() => navigate(`/farmer/${farmer.id}`)}
-              className="w-full flex items-center gap-3 p-3 rounded-xl border border-border bg-card text-left hover:shadow-sm transition-shadow"
+              className="w-full flex items-center gap-3 p-3 rounded-md border border-border bg-card text-left hover:shadow-sm transition-shadow"
             >
               <div className="w-14 h-14 rounded-full bg-muted flex items-center justify-center flex-shrink-0 overflow-hidden">
                 {farmer.avatar_url ? (

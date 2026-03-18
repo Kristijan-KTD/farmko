@@ -62,7 +62,7 @@ const AllNewProducts = () => {
               <button
                 key={product.id}
                 onClick={() => handleClick(product)}
-                className="flex flex-col rounded-xl border border-border bg-card overflow-hidden text-left hover:shadow-md transition-shadow"
+                className="flex flex-col rounded-md border border-border bg-card overflow-hidden text-left hover:shadow-md transition-shadow"
               >
                 <div className="aspect-[4/3] bg-muted relative overflow-hidden">
                   {product.images?.[0] ? (
