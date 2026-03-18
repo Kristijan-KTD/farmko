@@ -52,9 +52,12 @@ const AllNewProducts = () => {
             ))}
           </div>
         ) : products.length === 0 ? (
-          <div className="flex flex-col items-center justify-center py-12">
-            <Package className="w-12 h-12 text-muted-foreground/30 mb-3" />
-            <p className="text-muted-foreground text-sm">No products found</p>
+          <div className="flex flex-col items-center justify-center py-16">
+            <div className="w-20 h-20 rounded-full bg-muted flex items-center justify-center mb-4">
+              <Package className="w-9 h-9 text-muted-foreground/30" />
+            </div>
+            <p className="text-foreground font-medium mb-1">No products found</p>
+            <p className="text-sm text-muted-foreground text-center max-w-[240px]">Check back later for new arrivals.</p>
           </div>
         ) : (
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-2.5">
