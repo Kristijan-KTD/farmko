@@ -67,7 +67,7 @@ const FindFarmer = () => {
         />
       </div>
 
-      <div className="flex-1 pb-20 space-y-3">
+      <div className="flex-1 pb-20 space-y-2">
         {loading ? (
           <div className="flex items-center justify-center py-20">
             <Loader2 className="w-8 h-8 animate-spin text-primary" />
