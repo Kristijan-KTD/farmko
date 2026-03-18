@@ -216,8 +216,8 @@ const FarmerDetail = () => {
 
         {/* Farm Photos */}
         {photos.length > 0 && (
-          <div>
-            <h3 className="text-sm font-semibold text-foreground mb-3">Farm Photos</h3>
+          <section>
+            <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-3">Farm Photos</h3>
             <div className="grid grid-cols-3 gap-1.5">
               {photos.map((photo) => (
                 <div key={photo.id} className="aspect-square bg-muted rounded-md overflow-hidden border border-border">
