@@ -158,7 +158,7 @@ const FarmerDetail = () => {
       <div className="flex-1 space-y-6 pb-20">
         {/* Profile Header */}
         <div className="flex flex-col items-center">
-          <div className="w-20 h-20 rounded-full bg-muted flex items-center justify-center mb-3 overflow-hidden">
+          <div className="w-20 h-20 rounded-full bg-muted flex items-center justify-center mb-3 overflow-hidden border border-border">
             {farmer.avatar_url ? (
               <img src={farmer.avatar_url} alt="" className="w-full h-full object-cover" />
             ) : (
