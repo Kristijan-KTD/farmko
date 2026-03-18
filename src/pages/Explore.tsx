@@ -274,7 +274,7 @@ const RecommendedCard = ({ product, onClick }: { product: EnrichedProduct; onCli
         <div className="flex items-center gap-1.5">
           <h3 className="text-sm font-semibold text-foreground truncate">{product.title}</h3>
           {badge && (
-            <span className={`text-[9px] font-bold px-1.5 py-0.5 rounded-lg shrink-0 ${badge.color}`}>{badge.label}</span>
+            <span className={`text-[9px] font-bold px-1.5 py-0.5 rounded-full shrink-0 ${badge.color}`}>{badge.label}</span>
           )}
         </div>
         <div className="flex items-center gap-1 mt-0.5">
