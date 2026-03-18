@@ -156,7 +156,7 @@ const MyStore = () => {
   return (
     <MobileLayout>
       <PageHeader title="My Store" rightAction={
-        <button onClick={() => navigate("/post-item")} className="w-9 h-9 rounded-xl bg-primary/10 flex items-center justify-center">
+        <button onClick={() => navigate("/post-item")} className="w-9 h-9 rounded-md bg-primary/10 flex items-center justify-center">
           <Plus className="w-4.5 h-4.5 text-primary" style={{ width: 18, height: 18 }} />
         </button>
       } />
