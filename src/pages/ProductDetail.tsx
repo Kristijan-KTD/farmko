@@ -380,7 +380,7 @@ const ProductDetail = () => {
                 <p className="text-[10px] text-muted-foreground">Contact farmer for details</p>
               </div>
             </div>
-            <div className="flex-1 p-3 rounded-xl bg-secondary/80 flex items-center gap-2.5 border border-border">
+            <div className="flex-1 p-3 rounded-md bg-secondary/80 flex items-center gap-2.5 border border-border">
               <Clock className="w-4 h-4 text-primary shrink-0" />
               <div>
                 <p className="text-[11px] font-semibold text-foreground">Fresh Daily</p>
