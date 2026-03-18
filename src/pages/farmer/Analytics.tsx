@@ -221,7 +221,7 @@ const Analytics = () => {
                 { label: "Contact Clicks", value: "32" },
                 { label: "Favorites", value: "18" },
               ].map(({ label, value }) => (
-                <div key={label} className="p-4 rounded-xl border border-border bg-card">
+                <div key={label} className="p-4 rounded-md border border-border bg-card">
                   <p className="text-2xl font-bold text-foreground">{value}</p>
                   <p className="text-xs text-muted-foreground">{label}</p>
                 </div>
