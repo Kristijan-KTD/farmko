@@ -254,7 +254,7 @@ const FarmerDetail = () => {
       </div>
 
       <div className="pb-8 pt-4">
-        <Button onClick={handleContact} className="w-full rounded-full h-12 text-base font-semibold gap-2">
+        <Button onClick={handleContact} className="w-full rounded-md h-12 text-base font-semibold gap-2">
           <MessageCircle className="w-5 h-5" />
           Contact Farmer
         </Button>
