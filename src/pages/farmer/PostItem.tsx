@@ -176,7 +176,7 @@ const PostItem = () => {
           {/* Step indicator */}
           <div className="flex items-center gap-2">
             <div className="flex-1 h-1.5 rounded-full bg-primary" />
-            <div className="flex-1 h-1 rounded-full bg-primary" />
+            <div className="flex-1 h-1.5 rounded-full bg-primary" />
           </div>
 
           {/* Quantity */}
