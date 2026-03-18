@@ -284,7 +284,7 @@ const ProductDetail = () => {
 
       <div className="flex-1 section-gap pb-6">
         {/* Image Gallery */}
-        <div className="relative aspect-square bg-muted rounded-2xl flex items-center justify-center overflow-hidden shadow-card">
+        <div className="relative aspect-square bg-muted rounded-lg flex items-center justify-center overflow-hidden shadow-card">
           {product.images && product.images.length > 0 ? (
             <>
               <img src={product.images[currentImageIndex]} alt={product.title} className="w-full h-full object-cover" />
