@@ -156,7 +156,7 @@ const MyStore = () => {
   return (
     <MobileLayout>
       <PageHeader title="My Store" rightAction={
-        <button onClick={() => navigate("/post-item")} className="w-9 h-9 rounded-xl bg-primary/10 flex items-center justify-center">
+        <button onClick={() => navigate("/post-item")} className="w-9 h-9 rounded-md bg-primary/10 flex items-center justify-center">
           <Plus className="w-4.5 h-4.5 text-primary" style={{ width: 18, height: 18 }} />
         </button>
       } />
@@ -187,7 +187,7 @@ const MyStore = () => {
             </div>
             <p className="text-foreground font-medium mb-1">Something went wrong</p>
             <p className="text-muted-foreground text-sm mb-4">Failed to load products</p>
-            <Button variant="outline" onClick={() => window.location.reload()} className="rounded-xl">Retry</Button>
+            <Button variant="outline" onClick={() => window.location.reload()} className="rounded-md">Retry</Button>
           </div>
         ) : products.length === 0 ? (
           <div className="flex-1 flex flex-col items-center justify-center py-16">
@@ -196,7 +196,7 @@ const MyStore = () => {
             </div>
             <p className="text-foreground font-medium mb-1">No products yet</p>
             <p className="text-sm text-muted-foreground mb-5 text-center max-w-[240px]">Start selling by adding your first item to your store.</p>
-            <Button onClick={() => navigate("/post-item")} className="rounded-xl px-6">Add Your First Product</Button>
+            <Button onClick={() => navigate("/post-item")} className="rounded-md px-6">Add Your First Product</Button>
           </div>
         ) : (
           <div className="space-y-2.5">
@@ -208,7 +208,7 @@ const MyStore = () => {
                   onClick={() => navigate(`/product/${product.id}`)}
                   className="card-interactive w-full flex items-center gap-3 p-3.5 text-left"
                 >
-                  <div className="w-16 h-16 bg-muted rounded-xl flex items-center justify-center flex-shrink-0 overflow-hidden">
+                  <div className="w-16 h-16 bg-muted rounded-md flex items-center justify-center flex-shrink-0 overflow-hidden">
                     {product.images?.[0] ? (
                       <img src={product.images[0]} alt="" className="w-full h-full object-cover" />
                     ) : (
@@ -237,10 +237,10 @@ const MyStore = () => {
                     )}
                   </div>
                   <div className="flex gap-1" onClick={(e) => e.stopPropagation()}>
-                    <button onClick={(e) => { e.stopPropagation(); openEdit(product); }} className="p-2.5 text-muted-foreground hover:text-foreground rounded-xl hover:bg-secondary transition-colors">
+                    <button onClick={(e) => { e.stopPropagation(); openEdit(product); }} className="p-2.5 text-muted-foreground hover:text-foreground rounded-md hover:bg-secondary transition-colors">
                       <Edit2 className="w-4 h-4" />
                     </button>
-                    <button onClick={(e) => { e.stopPropagation(); setDeleteId(product.id); }} className="p-2.5 text-muted-foreground hover:text-destructive rounded-xl hover:bg-destructive/10 transition-colors">
+                    <button onClick={(e) => { e.stopPropagation(); setDeleteId(product.id); }} className="p-2.5 text-muted-foreground hover:text-destructive rounded-md hover:bg-destructive/10 transition-colors">
                       <Trash2 className="w-4 h-4" />
                     </button>
                   </div>
@@ -252,20 +252,20 @@ const MyStore = () => {
       </div>
 
       <AlertDialog open={!!deleteId} onOpenChange={(open) => !open && setDeleteId(null)}>
-        <AlertDialogContent className="rounded-2xl">
+        <AlertDialogContent className="rounded-lg">
           <AlertDialogHeader>
             <AlertDialogTitle>Delete Product?</AlertDialogTitle>
             <AlertDialogDescription>This action cannot be undone.</AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel className="rounded-xl">Cancel</AlertDialogCancel>
-            <AlertDialogAction onClick={handleDelete} className="bg-destructive text-destructive-foreground hover:bg-destructive/90 rounded-xl">Delete</AlertDialogAction>
+             <AlertDialogCancel className="rounded-md">Cancel</AlertDialogCancel>
+             <AlertDialogAction onClick={handleDelete} className="bg-destructive text-destructive-foreground hover:bg-destructive/90 rounded-md">Delete</AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
 
       <Dialog open={!!editProduct} onOpenChange={(open) => !open && setEditProduct(null)}>
-        <DialogContent className="rounded-2xl">
+        <DialogContent className="rounded-lg">
           <DialogHeader><DialogTitle>Edit Product</DialogTitle></DialogHeader>
           <div className="space-y-5 pt-2">
             {[
@@ -279,7 +279,7 @@ const MyStore = () => {
                 <input value={value} onChange={(e) => onChange(e.target.value)} className="w-full border-b border-input bg-transparent text-sm outline-none pb-2 focus:border-primary transition-colors" />
               </div>
             ))}
-            <Button onClick={handleSaveEdit} className="w-full rounded-xl h-11">
+            <Button onClick={handleSaveEdit} className="w-full rounded-md h-11">
               <Check className="w-4 h-4 mr-2" /> Save Changes
             </Button>
           </div>

@@ -128,7 +128,7 @@ const Chat = () => {
             </div>
             <p className="text-foreground font-medium mb-1">Something went wrong</p>
             <p className="text-muted-foreground text-sm mb-4">Failed to load conversations</p>
-            <Button variant="outline" size="sm" onClick={() => window.location.reload()} className="rounded-xl">Retry</Button>
+            <Button variant="outline" size="sm" onClick={() => window.location.reload()} className="rounded-md">Retry</Button>
           </div>
         ) : conversations.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-16">
@@ -143,7 +143,7 @@ const Chat = () => {
             <button
               key={chat.id}
               onClick={() => navigate(`/chat/${chat.id}`)}
-              className="w-full flex items-center gap-3.5 p-3.5 rounded-2xl hover:bg-secondary/60 transition-colors text-left"
+              className="w-full flex items-center gap-3.5 p-3.5 rounded-lg hover:bg-secondary/60 transition-colors text-left"
             >
               <div className="relative flex-shrink-0">
                 <div className="w-12 h-12 rounded-full bg-muted flex items-center justify-center overflow-hidden ring-2 ring-border">

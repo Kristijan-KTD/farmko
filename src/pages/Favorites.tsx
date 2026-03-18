@@ -115,7 +115,7 @@ const Favorites = () => {
             </div>
             <p className="text-foreground font-medium mb-1">Something went wrong</p>
             <p className="text-muted-foreground text-sm mb-4">Failed to load favorites</p>
-            <Button variant="outline" size="sm" onClick={() => window.location.reload()} className="rounded-xl">Retry</Button>
+            <Button variant="outline" size="sm" onClick={() => window.location.reload()} className="rounded-md">Retry</Button>
           </div>
         ) : products.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-16">
@@ -124,7 +124,7 @@ const Favorites = () => {
             </div>
             <p className="text-foreground font-medium mb-1">No saved products</p>
             <p className="text-sm text-muted-foreground text-center max-w-[240px] mb-5">Browse the explore page and save products you're interested in.</p>
-            <Button variant="outline" size="sm" onClick={() => navigate("/explore")} className="rounded-xl">
+            <Button variant="outline" size="sm" onClick={() => navigate("/explore")} className="rounded-md">
               Browse Products
             </Button>
           </div>
@@ -136,7 +136,7 @@ const Favorites = () => {
                 <div key={product.favoriteId} className="card-interactive flex items-center gap-3 p-3.5">
                   <button
                     onClick={() => navigate(`/product/${product.id}`)}
-                    className="w-16 h-16 rounded-xl bg-muted flex items-center justify-center overflow-hidden shrink-0"
+                    className="w-16 h-16 rounded-md bg-muted flex items-center justify-center overflow-hidden shrink-0"
                   >
                     {product.images?.[0] ? (
                       <img src={product.images[0]} alt={product.title} className="w-full h-full object-cover" />
@@ -157,7 +157,7 @@ const Favorites = () => {
                   </button>
                   <button
                     onClick={() => handleRemove(product.favoriteId)}
-                    className="p-2.5 rounded-xl hover:bg-destructive/10 transition-colors shrink-0"
+                    className="p-2.5 rounded-md hover:bg-destructive/10 transition-colors shrink-0"
                   >
                     <Trash2 className="w-4 h-4 text-destructive/50" />
                   </button>

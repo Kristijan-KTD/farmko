@@ -74,7 +74,7 @@ const Profile = () => {
 
         {/* Subscription Section for Farmers */}
         {isFarmer && (
-          <div className="w-full mt-4 p-4 rounded-2xl bg-secondary space-y-3">
+          <div className="w-full mt-4 p-4 rounded-lg bg-secondary space-y-3">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
                 <Crown className="w-4 h-4 text-primary" />
@@ -119,18 +119,18 @@ const Profile = () => {
         )}
 
         <div className="w-full mt-4 space-y-4">
-          <div className="flex items-center gap-3 p-3 rounded-xl bg-secondary">
+           <div className="flex items-center gap-3 p-3 rounded-md bg-secondary">
             <Mail className="w-5 h-5 text-muted-foreground" />
             <span className="text-sm text-foreground">{user?.email}</span>
           </div>
           {user?.phone && (
-            <div className="flex items-center gap-3 p-3 rounded-xl bg-secondary">
+             <div className="flex items-center gap-3 p-3 rounded-md bg-secondary">
               <Phone className="w-5 h-5 text-muted-foreground" />
               <span className="text-sm text-foreground">{user.phone}</span>
             </div>
           )}
           {user?.location && (
-            <div className="flex items-center gap-3 p-3 rounded-xl bg-secondary">
+            <div className="flex items-center gap-3 p-3 rounded-md bg-secondary">
               <MapPin className="w-5 h-5 text-muted-foreground" />
               <span className="text-sm text-foreground">{user.location}</span>
             </div>

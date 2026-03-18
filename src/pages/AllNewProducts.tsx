@@ -42,7 +42,7 @@ const AllNewProducts = () => {
         {loading ? (
           <div className="grid grid-cols-2 gap-2.5">
             {Array.from({ length: 6 }).map((_, i) => (
-              <div key={i} className="rounded-xl border border-border bg-card overflow-hidden animate-pulse">
+              <div key={i} className="rounded-md border border-border bg-card overflow-hidden animate-pulse">
                 <div className="aspect-[4/3] bg-muted" />
                 <div className="p-2 space-y-1.5">
                   <div className="h-3 bg-muted rounded w-3/4" />
@@ -62,7 +62,7 @@ const AllNewProducts = () => {
               <button
                 key={product.id}
                 onClick={() => handleClick(product)}
-                className="flex flex-col rounded-xl border border-border bg-card overflow-hidden text-left hover:shadow-md transition-shadow"
+                className="flex flex-col rounded-md border border-border bg-card overflow-hidden text-left hover:shadow-md transition-shadow"
               >
                 <div className="aspect-[4/3] bg-muted relative overflow-hidden">
                   {product.images?.[0] ? (

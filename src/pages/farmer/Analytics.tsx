@@ -211,7 +211,7 @@ const Analytics = () => {
             Upgrade your plan to unlock analytics and see how customers interact with your farm.
           </p>
           <div className="w-full relative mt-4">
-            <div className="absolute inset-0 backdrop-blur-md bg-background/50 z-10 rounded-xl flex items-center justify-center">
+            <div className="absolute inset-0 backdrop-blur-md bg-background/50 z-10 rounded-md flex items-center justify-center">
               <Lock className="w-8 h-8 text-muted-foreground" />
             </div>
             <div className="grid grid-cols-2 gap-3 opacity-50">
@@ -221,7 +221,7 @@ const Analytics = () => {
                 { label: "Contact Clicks", value: "32" },
                 { label: "Favorites", value: "18" },
               ].map(({ label, value }) => (
-                <div key={label} className="p-4 rounded-xl border border-border bg-card">
+                <div key={label} className="p-4 rounded-md border border-border bg-card">
                   <p className="text-2xl font-bold text-foreground">{value}</p>
                   <p className="text-xs text-muted-foreground">{label}</p>
                 </div>
@@ -303,7 +303,7 @@ const Analytics = () => {
             <div className="grid grid-cols-2 gap-3">
               {statCards.map(({ icon: Icon, label, value, color }) => (
                 <div key={label} className="card-interactive p-4 space-y-2.5">
-                  <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${color}`}>
+                  <div className={`w-10 h-10 rounded-md flex items-center justify-center ${color}`}>
                     <Icon className="w-5 h-5" />
                   </div>
                   <p className="text-2xl font-bold text-foreground">{value ?? 0}</p>
@@ -440,7 +440,7 @@ const Analytics = () => {
                     insights.push({ text: "Post more products and share on Instafarm to start getting insights.", type: "info" });
                   }
                   return insights.slice(0, 4).map((insight, i) => (
-                    <div key={i} className={`p-3.5 rounded-xl text-xs font-medium leading-relaxed ${
+                    <div key={i} className={`p-3.5 rounded-md text-xs font-medium leading-relaxed ${
                       insight.type === "success" ? "bg-primary/10 text-primary" :
                       insight.type === "tip" ? "bg-orange-50 text-orange-700" :
                       "bg-secondary text-muted-foreground"
@@ -457,7 +457,7 @@ const Analytics = () => {
             {plan === "growth" && (
               <div className="card-interactive p-5 text-center space-y-3">
                 <p className="text-sm text-foreground font-medium">Want detailed product analytics & insights?</p>
-                <Button onClick={() => navigate("/plans")} size="sm" className="rounded-xl">Upgrade to Pro</Button>
+                <Button onClick={() => navigate("/plans")} size="sm" className="rounded-md">Upgrade to Pro</Button>
               </div>
             )}
           </>

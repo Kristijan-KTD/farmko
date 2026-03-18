@@ -120,7 +120,7 @@ const Home = () => {
         {user?.role === "farmer" && (
           <>
             {/* Section 1: Primary CTA */}
-            <Button onClick={() => navigate("/post-item")} className="w-full rounded-2xl h-13 font-semibold gap-2.5 text-base shadow-card hover:shadow-card-hover transition-shadow" style={{ height: 52 }}>
+            <Button onClick={() => navigate("/post-item")} className="w-full rounded-md h-12 font-semibold gap-2.5 text-base shadow-card hover:shadow-card-hover transition-shadow">
               <Plus className="w-5 h-5" />
               Post New Product
             </Button>
@@ -140,7 +140,7 @@ const Home = () => {
                       { icon: Heart, label: "Favorites", value: stats.favorites, path: "/analytics", color: "text-red-500", bg: "bg-red-500/8" },
                     ].map(({ icon: Icon, label, value, path, color, bg }) => (
                       <button key={label} onClick={() => navigate(path)} className="card-interactive p-4 text-left">
-                        <div className={`w-9 h-9 rounded-xl ${bg} flex items-center justify-center mb-2.5`}>
+                        <div className={`w-9 h-9 rounded-md ${bg} flex items-center justify-center mb-2.5`}>
                           <Icon className={`w-4.5 h-4.5 ${color}`} style={{ width: 18, height: 18 }} />
                         </div>
                         <p className="text-2xl font-bold text-foreground leading-none">{value}</p>
@@ -148,7 +148,7 @@ const Home = () => {
                       </button>
                     ))}
                   </div>
-                  <div className="rounded-xl bg-secondary/80 px-4 py-3">
+                  <div className="rounded-md bg-secondary/80 px-4 py-3">
                     <p className="text-xs text-muted-foreground leading-relaxed">
                       💡 {viewsInsight}
                     </p>
@@ -167,7 +167,7 @@ const Home = () => {
                 <div className="space-y-2">
                   {storePreview.map((p) => (
                     <button key={p.id} onClick={() => navigate(`/product/${p.id}`)} className="card-interactive flex items-center gap-3 w-full p-3 text-left">
-                      <div className="w-12 h-12 rounded-xl bg-muted flex items-center justify-center overflow-hidden shrink-0">
+                      <div className="w-12 h-12 rounded-md bg-muted flex items-center justify-center overflow-hidden shrink-0">
                         {p.images?.[0] ? <img src={p.images[0]} alt="" className="w-full h-full object-cover" /> : <Package className="w-5 h-5 text-muted-foreground/30" />}
                       </div>
                       <div className="flex-1 min-w-0">
@@ -205,14 +205,14 @@ const Home = () => {
           <>
             <div className="flex gap-3">
               <button onClick={() => navigate("/chat")} className="card-interactive flex-1 p-4 text-left">
-                <div className="w-9 h-9 rounded-xl bg-pink-500/8 flex items-center justify-center mb-2.5">
+                <div className="w-9 h-9 rounded-md bg-pink-500/8 flex items-center justify-center mb-2.5">
                   <MessageCircle className="w-[18px] h-[18px] text-pink-500" />
                 </div>
                 <p className="text-2xl font-bold text-foreground leading-none">{stats.unreadChats}</p>
                 <p className="text-[11px] text-muted-foreground mt-1">Unread Chats</p>
               </button>
               <button onClick={() => navigate("/explore")} className="card-interactive flex-1 p-4 text-left">
-                <div className="w-9 h-9 rounded-xl bg-primary/8 flex items-center justify-center mb-2.5">
+                <div className="w-9 h-9 rounded-md bg-primary/8 flex items-center justify-center mb-2.5">
                   <Search className="w-[18px] h-[18px] text-primary" />
                 </div>
                 <p className="text-sm font-semibold text-primary mt-2">Browse Products</p>
@@ -220,7 +220,7 @@ const Home = () => {
               </button>
             </div>
 
-            <Button onClick={() => navigate("/explore")} className="w-full rounded-2xl h-12 font-semibold gap-2 shadow-card">
+            <Button onClick={() => navigate("/explore")} className="w-full rounded-md h-12 font-semibold gap-2 shadow-card">
               <Search className="w-4 h-4" />
               Explore Local Products
             </Button>

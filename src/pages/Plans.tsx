@@ -59,7 +59,7 @@ const Plans = () => {
 
       <div className="flex-1 pb-8 space-y-4">
         {subscribed && subscriptionEnd && (
-          <div className="p-3 rounded-xl bg-primary/10 border border-primary/20">
+          <div className="p-3 rounded-md bg-primary/10 border border-primary/20">
             <p className="text-xs text-primary font-medium">
               Your <span className="font-bold capitalize">{PLANS[currentPlan].name}</span> plan renews on{" "}
               {new Date(subscriptionEnd).toLocaleDateString()}
@@ -76,7 +76,7 @@ const Plans = () => {
           return (
             <div
               key={tier}
-              className={`rounded-2xl border-2 p-5 space-y-4 bg-card ${planColors[tier]} ${isCurrent ? "relative" : ""}`}
+              className={`rounded-lg border-2 p-5 space-y-4 bg-card ${planColors[tier]} ${isCurrent ? "relative" : ""}`}
             >
               {isCurrent && (
                 <span className="absolute -top-3 left-4 bg-primary text-primary-foreground text-[10px] font-bold px-3 py-1 rounded-full">

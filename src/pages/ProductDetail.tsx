@@ -284,7 +284,7 @@ const ProductDetail = () => {
 
       <div className="flex-1 section-gap pb-6">
         {/* Image Gallery */}
-        <div className="relative aspect-square bg-muted rounded-2xl flex items-center justify-center overflow-hidden shadow-card">
+        <div className="relative aspect-square bg-muted rounded-lg flex items-center justify-center overflow-hidden shadow-card">
           {product.images && product.images.length > 0 ? (
             <>
               <img src={product.images[currentImageIndex]} alt={product.title} className="w-full h-full object-cover" />
@@ -292,13 +292,13 @@ const ProductDetail = () => {
                 <>
                   <button
                     onClick={() => setCurrentImageIndex((prev) => (prev - 1 + product.images!.length) % product.images!.length)}
-                    className="absolute left-3 top-1/2 -translate-y-1/2 w-10 h-10 rounded-xl bg-background/80 backdrop-blur-sm flex items-center justify-center shadow-card"
+                    className="absolute left-3 top-1/2 -translate-y-1/2 w-10 h-10 rounded-md bg-background/80 backdrop-blur-sm flex items-center justify-center shadow-card"
                   >
                     <ChevronLeft className="w-5 h-5 text-foreground" />
                   </button>
                   <button
                     onClick={() => setCurrentImageIndex((prev) => (prev + 1) % product.images!.length)}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 w-10 h-10 rounded-xl bg-background/80 backdrop-blur-sm flex items-center justify-center shadow-card"
+                    className="absolute right-3 top-1/2 -translate-y-1/2 w-10 h-10 rounded-md bg-background/80 backdrop-blur-sm flex items-center justify-center shadow-card"
                   >
                     <ChevronRight className="w-5 h-5 text-foreground" />
                   </button>
@@ -320,7 +320,7 @@ const ProductDetail = () => {
           {user && (
             <button
               onClick={handleToggleFavorite}
-              className="absolute top-3 right-3 w-10 h-10 rounded-xl bg-background/80 backdrop-blur-sm flex items-center justify-center shadow-card"
+              className="absolute top-3 right-3 w-10 h-10 rounded-md bg-background/80 backdrop-blur-sm flex items-center justify-center shadow-card"
             >
               <Heart className={`w-5 h-5 ${isFavorited ? "fill-red-500 text-red-500" : "text-muted-foreground"}`} />
             </button>
@@ -373,14 +373,14 @@ const ProductDetail = () => {
 
           {/* Pickup / Delivery Info */}
           <div className="flex gap-2.5 mt-1">
-            <div className="flex-1 p-3 rounded-xl bg-secondary/80 flex items-center gap-2.5 border border-border">
+             <div className="flex-1 p-3 rounded-md bg-secondary/80 flex items-center gap-2.5 border border-border">
               <Truck className="w-4 h-4 text-primary shrink-0" />
               <div>
                 <p className="text-[11px] font-semibold text-foreground">Pickup Available</p>
                 <p className="text-[10px] text-muted-foreground">Contact farmer for details</p>
               </div>
             </div>
-            <div className="flex-1 p-3 rounded-xl bg-secondary/80 flex items-center gap-2.5 border border-border">
+            <div className="flex-1 p-3 rounded-md bg-secondary/80 flex items-center gap-2.5 border border-border">
               <Clock className="w-4 h-4 text-primary shrink-0" />
               <div>
                 <p className="text-[11px] font-semibold text-foreground">Fresh Daily</p>
@@ -392,12 +392,12 @@ const ProductDetail = () => {
 
         {/* Action Buttons */}
         <div className="flex gap-2.5">
-          <Button onClick={handleContactFarmer} className="flex-1 rounded-xl h-12 font-semibold gap-2 shadow-card">
+          <Button onClick={handleContactFarmer} className="flex-1 rounded-md h-12 font-semibold gap-2 shadow-card">
             <MessageCircle className="w-5 h-5" />
             Contact Farmer
           </Button>
           {user && (
-            <Button variant="outline" onClick={handleToggleFavorite} className="rounded-xl h-12 px-4 border-border">
+            <Button variant="outline" onClick={handleToggleFavorite} className="rounded-md h-12 px-4 border-border">
               <Heart className={`w-5 h-5 ${isFavorited ? "fill-red-500 text-red-500" : ""}`} />
             </Button>
           )}
@@ -462,7 +462,7 @@ const ProductDetail = () => {
 
         {/* Write Review */}
         {user?.role === "customer" && (
-          <div className="space-y-3 p-4 rounded-2xl border border-border bg-card shadow-card">
+          <div className="space-y-3 p-4 rounded-lg border border-border bg-card shadow-card">
             <h3 className="text-sm font-semibold text-foreground">Write a Review</h3>
             <div className="flex items-center gap-1">
               {[1, 2, 3, 4, 5].map((s) => (
@@ -485,7 +485,7 @@ const ProductDetail = () => {
               onChange={(e) => setReviewText(e.target.value)}
               className="w-full bg-secondary rounded-lg p-3 text-sm outline-none resize-none h-20 placeholder:text-muted-foreground"
             />
-            <Button onClick={handleSubmitReview} disabled={submitting} size="sm" className="rounded-xl">
+            <Button onClick={handleSubmitReview} disabled={submitting} size="sm" className="rounded-md">
               {submitting ? "Submitting..." : "Submit Review"}
             </Button>
           </div>
@@ -498,7 +498,7 @@ const ProductDetail = () => {
             <p className="text-sm text-muted-foreground text-center py-4">No reviews yet</p>
           ) : (
             reviews.map((review) => (
-              <div key={review.id} className="p-3.5 rounded-2xl bg-card border border-border shadow-card space-y-1.5">
+              <div key={review.id} className="p-3.5 rounded-lg bg-card border border-border shadow-card space-y-1.5">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
                     <div className="w-7 h-7 rounded-full bg-muted flex items-center justify-center overflow-hidden">

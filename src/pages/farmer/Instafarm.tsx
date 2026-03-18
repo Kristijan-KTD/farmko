@@ -407,7 +407,7 @@ const Instafarm = () => {
                   <button className="text-muted-foreground"><MoreHorizontal className="w-5 h-5" /></button>
                 </div>
 
-                <div className="aspect-square bg-muted rounded-xl overflow-hidden">
+                <div className="aspect-square bg-muted rounded-md overflow-hidden">
                   <img src={post.image_url} alt="" className="w-full h-full object-cover" />
                 </div>
 
@@ -500,7 +500,7 @@ const Instafarm = () => {
           <DialogHeader><DialogTitle>New Post</DialogTitle></DialogHeader>
           <div className="space-y-4">
             {uploadPreview && (
-              <div className="aspect-square rounded-xl overflow-hidden bg-muted">
+              <div className="aspect-square rounded-md overflow-hidden bg-muted">
                 <img src={uploadPreview} alt="Preview" className="w-full h-full object-cover" />
               </div>
             )}

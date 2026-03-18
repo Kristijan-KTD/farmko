@@ -84,7 +84,7 @@ const Notifications = () => {
     <MobileLayout>
       <PageHeader title="Notifications" rightAction={
         unreadCount > 0 ? (
-          <button onClick={markAllRead} className="w-9 h-9 rounded-xl bg-primary/10 flex items-center justify-center">
+          <button onClick={markAllRead} className="w-9 h-9 rounded-md bg-primary/10 flex items-center justify-center">
             <CheckCheck className="w-[18px] h-[18px] text-primary" />
           </button>
         ) : undefined
@@ -114,11 +114,11 @@ const Notifications = () => {
               <button
                 key={notif.id}
                 onClick={() => handleClick(notif)}
-                className={`w-full flex items-start gap-3.5 p-3.5 rounded-2xl transition-all text-left ${
+                className={`w-full flex items-start gap-3.5 p-3.5 rounded-lg transition-all text-left ${
                   notif.read ? "hover:bg-secondary/60" : "bg-primary/5 hover:bg-primary/8"
                 }`}
               >
-                <div className={`w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 ${notif.read ? "bg-muted" : "bg-primary/10"}`}>
+                <div className={`w-10 h-10 rounded-md flex items-center justify-center flex-shrink-0 ${notif.read ? "bg-muted" : "bg-primary/10"}`}>
                   <Icon className={`w-[18px] h-[18px] ${notif.read ? "text-muted-foreground" : "text-primary"}`} />
                 </div>
                 <div className="flex-1 min-w-0">

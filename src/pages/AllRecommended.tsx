@@ -46,7 +46,7 @@ const AllRecommended = () => {
       <div className="flex-1 pb-20 overflow-y-auto space-y-2">
         {loading ? (
           Array.from({ length: 5 }).map((_, i) => (
-            <div key={i} className="flex items-center gap-2.5 rounded-xl border border-border bg-card p-2.5 animate-pulse">
+            <div key={i} className="flex items-center gap-2.5 rounded-md border border-border bg-card p-2.5 animate-pulse">
               <div className="w-14 h-14 rounded-lg bg-muted" />
               <div className="flex-1 space-y-2">
                 <div className="h-3 bg-muted rounded w-3/4" />
@@ -64,7 +64,7 @@ const AllRecommended = () => {
             <button
               key={product.id}
               onClick={() => handleClick(product)}
-              className="flex items-center gap-2.5 w-full rounded-xl border border-border bg-card p-2.5 text-left hover:shadow-md transition-shadow"
+              className="flex items-center gap-2.5 w-full rounded-md border border-border bg-card p-2.5 text-left hover:shadow-md transition-shadow"
             >
               <div className="w-14 h-14 rounded-lg bg-muted flex items-center justify-center overflow-hidden shrink-0 relative">
                 {product.images?.[0] ? (
