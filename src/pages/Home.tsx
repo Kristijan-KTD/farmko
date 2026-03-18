@@ -167,7 +167,7 @@ const Home = () => {
                 <div className="space-y-2">
                   {storePreview.map((p) => (
                     <button key={p.id} onClick={() => navigate(`/product/${p.id}`)} className="card-interactive flex items-center gap-3 w-full p-3 text-left">
-                      <div className="w-12 h-12 rounded-xl bg-muted flex items-center justify-center overflow-hidden shrink-0">
+                      <div className="w-12 h-12 rounded-md bg-muted flex items-center justify-center overflow-hidden shrink-0">
                         {p.images?.[0] ? <img src={p.images[0]} alt="" className="w-full h-full object-cover" /> : <Package className="w-5 h-5 text-muted-foreground/30" />}
                       </div>
                       <div className="flex-1 min-w-0">
