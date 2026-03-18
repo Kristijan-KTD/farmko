@@ -249,7 +249,7 @@ const FarmerDetail = () => {
                 </button>
               ))}
             </div>
-          </div>
+          </section>
         )}
       </div>
 
