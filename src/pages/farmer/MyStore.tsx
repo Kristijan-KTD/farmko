@@ -208,7 +208,7 @@ const MyStore = () => {
                   onClick={() => navigate(`/product/${product.id}`)}
                   className="card-interactive w-full flex items-center gap-3 p-3.5 text-left"
                 >
-                  <div className="w-16 h-16 bg-muted rounded-xl flex items-center justify-center flex-shrink-0 overflow-hidden">
+                  <div className="w-16 h-16 bg-muted rounded-md flex items-center justify-center flex-shrink-0 overflow-hidden">
                     {product.images?.[0] ? (
                       <img src={product.images[0]} alt="" className="w-full h-full object-cover" />
                     ) : (
