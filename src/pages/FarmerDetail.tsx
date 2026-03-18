@@ -145,7 +145,7 @@ const FarmerDetail = () => {
         <div className="flex-1 flex flex-col items-center justify-center">
           {error ? <AlertTriangle className="w-16 h-16 text-destructive/30 mb-4" /> : <User className="w-16 h-16 text-muted-foreground/30 mb-4" />}
           <p className="text-muted-foreground">{error ? "Failed to load profile" : "Farmer not found"}</p>
-          {error && <Button variant="outline" size="sm" onClick={() => window.location.reload()} className="mt-3 rounded-full">Retry</Button>}
+          {error && <Button variant="outline" size="sm" onClick={() => window.location.reload()} className="mt-3 rounded-md">Retry</Button>}
         </div>
       </MobileLayout>
     );
@@ -158,7 +158,7 @@ const FarmerDetail = () => {
       <div className="flex-1 space-y-6 pb-20">
         {/* Profile Header */}
         <div className="flex flex-col items-center">
-          <div className="w-20 h-20 rounded-full bg-muted flex items-center justify-center mb-3 overflow-hidden">
+          <div className="w-20 h-20 rounded-full bg-muted flex items-center justify-center mb-3 overflow-hidden border border-border">
             {farmer.avatar_url ? (
               <img src={farmer.avatar_url} alt="" className="w-full h-full object-cover" />
             ) : (
@@ -218,9 +218,9 @@ const FarmerDetail = () => {
         {photos.length > 0 && (
           <div>
             <h3 className="text-sm font-semibold text-foreground mb-3">Farm Photos</h3>
-            <div className="grid grid-cols-3 gap-1">
+            <div className="grid grid-cols-3 gap-1.5">
               {photos.map((photo) => (
-                <div key={photo.id} className="aspect-square bg-muted rounded-sm overflow-hidden">
+                <div key={photo.id} className="aspect-square bg-muted rounded-md overflow-hidden border border-border">
                   <img src={photo.image_url} alt="" className="w-full h-full object-cover" />
                 </div>
               ))}
@@ -234,8 +234,8 @@ const FarmerDetail = () => {
             <h3 className="text-sm font-semibold text-foreground mb-3">Products</h3>
             <div className="space-y-2">
               {products.map((p) => (
-                <button key={p.id} onClick={() => handleProductClick(p)} className="w-full flex items-center gap-3 p-2 rounded-lg border border-border text-left hover:shadow-sm transition-shadow">
-                  <div className="w-12 h-12 bg-muted rounded-lg flex items-center justify-center overflow-hidden">
+                <button key={p.id} onClick={() => handleProductClick(p)} className="w-full flex items-center gap-3 p-3 rounded-lg border border-border bg-card text-left hover:shadow-card-hover transition-all active:scale-[0.98]">
+                  <div className="w-12 h-12 bg-muted rounded-md flex items-center justify-center overflow-hidden">
                     {p.images?.[0] ? (
                       <img src={p.images[0]} alt="" className="w-full h-full object-cover" />
                     ) : (
@@ -254,7 +254,7 @@ const FarmerDetail = () => {
       </div>
 
       <div className="pb-8 pt-4">
-        <Button onClick={handleContact} className="w-full rounded-full h-12 text-base font-semibold gap-2">
+        <Button onClick={handleContact} className="w-full rounded-md h-12 text-base font-semibold gap-2">
           <MessageCircle className="w-5 h-5" />
           Contact Farmer
         </Button>
