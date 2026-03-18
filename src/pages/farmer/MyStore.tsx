@@ -187,7 +187,7 @@ const MyStore = () => {
             </div>
             <p className="text-foreground font-medium mb-1">Something went wrong</p>
             <p className="text-muted-foreground text-sm mb-4">Failed to load products</p>
-            <Button variant="outline" onClick={() => window.location.reload()} className="rounded-xl">Retry</Button>
+            <Button variant="outline" onClick={() => window.location.reload()} className="rounded-md">Retry</Button>
           </div>
         ) : products.length === 0 ? (
           <div className="flex-1 flex flex-col items-center justify-center py-16">
