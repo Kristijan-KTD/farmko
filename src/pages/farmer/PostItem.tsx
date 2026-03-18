@@ -240,7 +240,7 @@ const PostItem = () => {
           </div>
         </div>
         <div className="pb-8 pt-4">
-          <Button onClick={handleSubmit} disabled={isLoading} className="w-full rounded-full h-12 text-base font-semibold">
+          <Button onClick={handleSubmit} disabled={isLoading} className="w-full rounded-xl h-12 text-base font-semibold shadow-card">
             {isLoading ? <><Loader2 className="w-4 h-4 animate-spin mr-2" />Publishing...</> : "Publish Product"}
           </Button>
         </div>
