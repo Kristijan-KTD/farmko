@@ -115,7 +115,7 @@ const Explore = () => {
             <button
               key={cat.key}
               onClick={() => { setSelectedCategory(cat.key === "all" ? null : cat.key); setFilters(f => ({ ...f, category: null })); }}
-              className={`flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-medium shrink-0 transition-all duration-200 ${
+              className={`flex items-center gap-1.5 px-3.5 py-2 rounded-full text-xs font-medium shrink-0 transition-all duration-200 ${
                 isActive || isAll
                   ? "bg-primary text-primary-foreground shadow-sm"
                   : "bg-card text-muted-foreground border border-border hover:border-primary/30"
