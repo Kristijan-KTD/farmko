@@ -190,7 +190,7 @@ const Home = () => {
                   { icon: Bell, label: "Notifications", path: "/notifications" },
                   { icon: Search, label: "Explore", path: "/explore" },
                 ].map(({ icon: Icon, label, path }) => (
-                  <button key={path} onClick={() => navigate(path)} className="card-interactive flex items-center gap-2 px-4 py-2.5 shrink-0">
+                  <button key={path} onClick={() => navigate(path)} className="list-item-subtle gap-2 px-4 py-2.5 shrink-0">
                     <Icon className="w-4 h-4 text-muted-foreground" />
                     <span className="text-xs font-medium text-foreground whitespace-nowrap">{label}</span>
                   </button>
