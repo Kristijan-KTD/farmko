@@ -341,7 +341,7 @@ const Analytics = () => {
                 <h3 className="text-sm font-semibold text-foreground">Top Performing Products</h3>
                 <div className="space-y-2">
                   {topListings.slice(0, 5).map((listing, i) => (
-                    <button key={listing.id} onClick={() => navigate(`/product/${listing.id}`)} className="w-full flex items-center gap-3 p-3 rounded-xl bg-card border border-border text-left">
+                    <button key={listing.id} onClick={() => navigate(`/product/${listing.id}`)} className="card-interactive w-full flex items-center gap-3 p-3.5 text-left">
                       <span className="text-sm font-bold text-muted-foreground w-6">{i + 1}</span>
                       <div className="flex-1 min-w-0">
                         <p className="text-sm font-medium text-foreground truncate">{listing.title}</p>
