@@ -120,7 +120,7 @@ const Home = () => {
         {user?.role === "farmer" && (
           <>
             {/* Section 1: Primary CTA */}
-            <Button onClick={() => navigate("/post-item")} className="w-full rounded-md h-12 font-semibold gap-2.5 text-base shadow-card hover:shadow-card-hover transition-shadow">
+            <Button onClick={() => navigate("/post-item")} className="w-full rounded-md h-12 font-semibold gap-2.5 text-base">
               <Plus className="w-5 h-5" />
               Post New Product
             </Button>
@@ -166,7 +166,7 @@ const Home = () => {
                 </div>
                 <div className="space-y-2">
                   {storePreview.map((p) => (
-                    <button key={p.id} onClick={() => navigate(`/product/${p.id}`)} className="card-interactive flex items-center gap-3 w-full p-3 text-left">
+                    <button key={p.id} onClick={() => navigate(`/product/${p.id}`)} className="list-item-subtle">
                       <div className="w-12 h-12 rounded-md bg-muted flex items-center justify-center overflow-hidden shrink-0">
                         {p.images?.[0] ? <img src={p.images[0]} alt="" className="w-full h-full object-cover" /> : <Package className="w-5 h-5 text-muted-foreground/30" />}
                       </div>
@@ -190,7 +190,7 @@ const Home = () => {
                   { icon: Bell, label: "Notifications", path: "/notifications" },
                   { icon: Search, label: "Explore", path: "/explore" },
                 ].map(({ icon: Icon, label, path }) => (
-                  <button key={path} onClick={() => navigate(path)} className="card-interactive flex items-center gap-2 px-4 py-2.5 shrink-0">
+                  <button key={path} onClick={() => navigate(path)} className="list-item-subtle gap-2 px-4 py-2.5 shrink-0">
                     <Icon className="w-4 h-4 text-muted-foreground" />
                     <span className="text-xs font-medium text-foreground whitespace-nowrap">{label}</span>
                   </button>
@@ -220,7 +220,7 @@ const Home = () => {
               </button>
             </div>
 
-            <Button onClick={() => navigate("/explore")} className="w-full rounded-md h-12 font-semibold gap-2 shadow-card">
+            <Button onClick={() => navigate("/explore")} className="w-full rounded-md h-12 font-semibold gap-2">
               <Search className="w-4 h-4" />
               Explore Local Products
             </Button>
@@ -233,7 +233,7 @@ const Home = () => {
                   { icon: Search, label: "Explore", path: "/explore" },
                   { icon: Bell, label: "Notifications", path: "/notifications" },
                 ].map(({ icon: Icon, label, path }) => (
-                  <button key={path} onClick={() => navigate(path)} className="card-interactive flex items-center gap-2 px-4 py-2.5 shrink-0">
+                  <button key={path} onClick={() => navigate(path)} className="list-item-subtle gap-2 px-4 py-2.5 shrink-0">
                     <Icon className="w-4 h-4 text-muted-foreground" />
                     <span className="text-xs font-medium text-foreground whitespace-nowrap">{label}</span>
                   </button>

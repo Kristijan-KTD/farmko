@@ -152,12 +152,12 @@ const Explore = () => {
           <>
             {/* Nearby Products */}
             {nearbyProducts.length > 0 && (
-              <section>
-                <div className="flex items-center gap-2 mb-3">
+               <section>
+                <div className="flex items-center gap-2 mb-3.5">
                    <div className="w-6 h-6 rounded-md bg-primary/10 flex items-center justify-center">
                     <MapPin className="w-3.5 h-3.5 text-primary" />
                   </div>
-                  <h2 className="text-sm font-semibold text-foreground">Nearby Products</h2>
+                  <h2 className="text-sm font-bold text-foreground">Nearby Products</h2>
                 </div>
                 <HorizontalScroll className="gap-3 pb-1">
                   {nearbyProducts.map(product => (
@@ -169,12 +169,12 @@ const Explore = () => {
 
             {/* New Products */}
             <section>
-              <div className="flex items-center justify-between mb-3">
+               <div className="flex items-center justify-between mb-3.5">
                 <div className="flex items-center gap-2">
                    <div className="w-6 h-6 rounded-md bg-primary/10 flex items-center justify-center">
                     <Clock className="w-3.5 h-3.5 text-primary" />
                   </div>
-                  <h2 className="text-sm font-semibold text-foreground">New Products</h2>
+                  <h2 className="text-sm font-bold text-foreground">New Products</h2>
                 </div>
                 {filtered.length > 5 && (
                   <button onClick={() => navigate("/explore/new")} className="text-xs font-semibold text-primary">See all</button>
@@ -189,12 +189,12 @@ const Explore = () => {
 
             {/* Recommended */}
             <section>
-              <div className="flex items-center justify-between mb-3">
+               <div className="flex items-center justify-between mb-3.5">
                 <div className="flex items-center gap-2">
-                  <div className="w-6 h-6 rounded-md bg-primary/10 flex items-center justify-center">
-                    <Sparkles className="w-3.5 h-3.5 text-primary" />
+                  <div className="w-6 h-6 rounded-md bg-muted flex items-center justify-center">
+                    <Sparkles className="w-3.5 h-3.5 text-muted-foreground" />
                   </div>
-                  <h2 className="text-sm font-semibold text-foreground">Recommended</h2>
+                  <h2 className="text-sm font-semibold text-muted-foreground">Recommended</h2>
                 </div>
                 {filtered.length > 5 && (
                   <button onClick={() => navigate("/explore/recommended")} className="text-xs font-semibold text-primary">See all</button>
@@ -261,7 +261,7 @@ const RecommendedCard = ({ product, onClick }: { product: EnrichedProduct; onCli
   return (
     <button
       onClick={onClick}
-      className="card-interactive flex items-center gap-3 w-full p-3 text-left"
+      className="list-item-subtle"
     >
       <div className="w-16 h-16 rounded-md bg-muted flex items-center justify-center overflow-hidden shrink-0">
         {product.images?.[0] ? (

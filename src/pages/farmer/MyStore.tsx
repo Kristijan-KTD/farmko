@@ -206,7 +206,7 @@ const MyStore = () => {
                 <button
                   key={product.id}
                   onClick={() => navigate(`/product/${product.id}`)}
-                  className="card-interactive w-full flex items-center gap-3 p-3.5 text-left"
+                  className="list-item-subtle w-full p-3.5"
                 >
                   <div className="w-16 h-16 bg-muted rounded-md flex items-center justify-center flex-shrink-0 overflow-hidden">
                     {product.images?.[0] ? (
