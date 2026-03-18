@@ -328,9 +328,9 @@ const ProductDetail = () => {
         </div>
 
         {/* Price & Rating */}
-        <div className="space-y-2">
+        <div className="space-y-3">
           <div className="flex items-center justify-between">
-            <span className="text-2xl font-bold text-primary">${product.price.toFixed(2)}/{product.unit}</span>
+            <span className="text-2xl font-bold text-foreground">${product.price.toFixed(2)}<span className="text-sm font-normal text-muted-foreground">/{product.unit}</span></span>
             <div className="flex items-center gap-1.5">
               <span className="text-sm font-semibold text-foreground">{avgRating}</span>
               <div className="flex items-center gap-0.5">
