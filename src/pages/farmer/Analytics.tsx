@@ -318,7 +318,7 @@ const Analytics = () => {
                 <TrendingUp className="w-4 h-4 text-primary" />
                 <h3 className="text-sm font-semibold text-foreground">Traffic Trend</h3>
               </div>
-              <div className="p-4 rounded-xl border border-border bg-card">
+              <div className="card-interactive p-4">
                 {trendData.length > 0 ? (
                   <ResponsiveContainer width="100%" height={180}>
                     <LineChart data={trendData}>
