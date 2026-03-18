@@ -282,9 +282,9 @@ const ProductDetail = () => {
     <MobileLayout>
       <PageHeader title="Product Details" />
 
-      <div className="flex-1 space-y-4 pb-4">
+      <div className="flex-1 section-gap pb-6">
         {/* Image Gallery */}
-        <div className="relative aspect-square bg-muted rounded-xl flex items-center justify-center overflow-hidden">
+        <div className="relative aspect-square bg-muted rounded-2xl flex items-center justify-center overflow-hidden shadow-card">
           {product.images && product.images.length > 0 ? (
             <>
               <img src={product.images[currentImageIndex]} alt={product.title} className="w-full h-full object-cover" />
