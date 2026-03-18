@@ -196,7 +196,7 @@ const MyStore = () => {
             </div>
             <p className="text-foreground font-medium mb-1">No products yet</p>
             <p className="text-sm text-muted-foreground mb-5 text-center max-w-[240px]">Start selling by adding your first item to your store.</p>
-            <Button onClick={() => navigate("/post-item")} className="rounded-xl px-6">Add Your First Product</Button>
+            <Button onClick={() => navigate("/post-item")} className="rounded-md px-6">Add Your First Product</Button>
           </div>
         ) : (
           <div className="space-y-2.5">
