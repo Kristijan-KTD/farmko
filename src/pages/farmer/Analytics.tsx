@@ -268,7 +268,7 @@ const Analytics = () => {
     <MobileLayout>
       <PageHeader title={plan === "pro" ? "Full Analytics" : "Basic Analytics"} />
 
-      <div className="flex-1 pb-20 space-y-6">
+      <div className="flex-1 pb-20 section-gap">
         {loading ? (
           <div className="flex items-center justify-center py-20">
             <Loader2 className="w-8 h-8 animate-spin text-primary" />
