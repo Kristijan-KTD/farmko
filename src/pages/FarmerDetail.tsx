@@ -145,7 +145,7 @@ const FarmerDetail = () => {
         <div className="flex-1 flex flex-col items-center justify-center">
           {error ? <AlertTriangle className="w-16 h-16 text-destructive/30 mb-4" /> : <User className="w-16 h-16 text-muted-foreground/30 mb-4" />}
           <p className="text-muted-foreground">{error ? "Failed to load profile" : "Farmer not found"}</p>
-          {error && <Button variant="outline" size="sm" onClick={() => window.location.reload()} className="mt-3 rounded-full">Retry</Button>}
+          {error && <Button variant="outline" size="sm" onClick={() => window.location.reload()} className="mt-3 rounded-md">Retry</Button>}
         </div>
       </MobileLayout>
     );
