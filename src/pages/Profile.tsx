@@ -74,7 +74,7 @@ const Profile = () => {
 
         {/* Subscription Section for Farmers */}
         {isFarmer && (
-          <div className="w-full mt-4 p-4 rounded-2xl bg-secondary space-y-3">
+          <div className="w-full mt-4 p-4 rounded-lg bg-secondary space-y-3">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
                 <Crown className="w-4 h-4 text-primary" />
