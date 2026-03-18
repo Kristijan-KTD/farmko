@@ -211,7 +211,7 @@ const Analytics = () => {
             Upgrade your plan to unlock analytics and see how customers interact with your farm.
           </p>
           <div className="w-full relative mt-4">
-            <div className="absolute inset-0 backdrop-blur-md bg-background/50 z-10 rounded-xl flex items-center justify-center">
+            <div className="absolute inset-0 backdrop-blur-md bg-background/50 z-10 rounded-md flex items-center justify-center">
               <Lock className="w-8 h-8 text-muted-foreground" />
             </div>
             <div className="grid grid-cols-2 gap-3 opacity-50">
