@@ -225,7 +225,7 @@ const FarmerDetail = () => {
                 </div>
               ))}
             </div>
-          </div>
+          </section>
         )}
 
         {/* Products */}
