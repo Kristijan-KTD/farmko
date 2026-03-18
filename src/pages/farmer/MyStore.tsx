@@ -66,7 +66,6 @@ const MyStore = () => {
         if (error) throw error;
         setProducts(data || []);
 
-        // Fetch stats for all products
         if (data && data.length > 0) {
           const productIds = data.map(p => p.id);
           const { data: events } = await supabase
@@ -157,17 +156,19 @@ const MyStore = () => {
   return (
     <MobileLayout>
       <PageHeader title="My Store" rightAction={
-        <button onClick={() => navigate("/post-item")} className="text-primary"><Plus className="w-5 h-5" /></button>
+        <button onClick={() => navigate("/post-item")} className="w-9 h-9 rounded-xl bg-primary/10 flex items-center justify-center">
+          <Plus className="w-4.5 h-4.5 text-primary" style={{ width: 18, height: 18 }} />
+        </button>
       } />
 
-      <div className="flex-1 pb-20 space-y-3">
+      <div className="flex-1 pb-20 section-gap">
         {/* Sort control */}
         {products.length > 1 && !loading && (
           <div className="flex items-center justify-between">
             <span className="text-xs text-muted-foreground">{products.length} products</span>
             <button
               onClick={() => setSortBy(sortBy === "newest" ? "most_viewed" : "newest")}
-              className="flex items-center gap-1 text-xs font-medium text-primary"
+              className="flex items-center gap-1.5 text-xs font-medium text-primary bg-primary/8 px-3 py-1.5 rounded-lg"
             >
               <ArrowUpDown className="w-3 h-3" />
               {sortBy === "newest" ? "Newest" : "Most viewed"}
@@ -180,97 +181,105 @@ const MyStore = () => {
             <Loader2 className="w-8 h-8 animate-spin text-primary" />
           </div>
         ) : fetchError ? (
-          <div className="flex-1 flex flex-col items-center justify-center py-20">
-            <AlertTriangle className="w-12 h-12 text-destructive/50 mb-4" />
-            <p className="text-muted-foreground mb-4">Failed to load products</p>
-            <Button variant="outline" onClick={() => window.location.reload()} className="rounded-full">Retry</Button>
+          <div className="flex-1 flex flex-col items-center justify-center py-16">
+            <div className="w-16 h-16 rounded-full bg-destructive/8 flex items-center justify-center mb-4">
+              <AlertTriangle className="w-7 h-7 text-destructive/60" />
+            </div>
+            <p className="text-foreground font-medium mb-1">Something went wrong</p>
+            <p className="text-muted-foreground text-sm mb-4">Failed to load products</p>
+            <Button variant="outline" onClick={() => window.location.reload()} className="rounded-xl">Retry</Button>
           </div>
         ) : products.length === 0 ? (
-          <div className="flex-1 flex flex-col items-center justify-center py-20">
-            <Package className="w-16 h-16 text-muted-foreground/30 mb-4" />
-            <p className="text-muted-foreground mb-4">No products yet</p>
-            <Button onClick={() => navigate("/post-item")} className="rounded-full">Add Your First Product</Button>
+          <div className="flex-1 flex flex-col items-center justify-center py-16">
+            <div className="w-20 h-20 rounded-full bg-muted flex items-center justify-center mb-4">
+              <Package className="w-9 h-9 text-muted-foreground/30" />
+            </div>
+            <p className="text-foreground font-medium mb-1">No products yet</p>
+            <p className="text-sm text-muted-foreground mb-5 text-center max-w-[240px]">Start selling by adding your first item to your store.</p>
+            <Button onClick={() => navigate("/post-item")} className="rounded-xl px-6">Add Your First Product</Button>
           </div>
         ) : (
-          sortedProducts.map((product) => {
-            const stats = productStats.get(product.id);
-            return (
-              <button
-                key={product.id}
-                onClick={() => navigate(`/product/${product.id}`)}
-                className="w-full flex items-center gap-3 p-3 rounded-xl border border-border bg-card text-left hover:shadow-sm transition-shadow"
-              >
-                <div className="w-16 h-16 bg-muted rounded-lg flex items-center justify-center flex-shrink-0 overflow-hidden">
-                  {product.images?.[0] ? (
-                    <img src={product.images[0]} alt="" className="w-full h-full object-cover" />
-                  ) : (
-                    <Package className="w-6 h-6 text-muted-foreground/40" />
-                  )}
-                </div>
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-2">
-                    <h3 className="text-sm font-semibold text-foreground truncate">{product.title}</h3>
-                    <span className={`text-[9px] px-1.5 py-0.5 rounded-full font-medium ${
-                      product.status === "active" ? "bg-primary/10 text-primary" : "bg-muted text-muted-foreground"
-                    }`}>
-                      {product.status}
-                    </span>
+          <div className="space-y-2.5">
+            {sortedProducts.map((product) => {
+              const stats = productStats.get(product.id);
+              return (
+                <button
+                  key={product.id}
+                  onClick={() => navigate(`/product/${product.id}`)}
+                  className="card-interactive w-full flex items-center gap-3 p-3.5 text-left"
+                >
+                  <div className="w-16 h-16 bg-muted rounded-xl flex items-center justify-center flex-shrink-0 overflow-hidden">
+                    {product.images?.[0] ? (
+                      <img src={product.images[0]} alt="" className="w-full h-full object-cover" />
+                    ) : (
+                      <Package className="w-6 h-6 text-muted-foreground/30" />
+                    )}
                   </div>
-                  <div className="flex items-center gap-2 mt-0.5">
-                    <span className="text-sm font-bold text-primary">${product.price.toFixed(2)}</span>
-                    <span className="text-xs text-muted-foreground">· {product.stock || 0} {product.unit}</span>
-                  </div>
-                  {stats && (
-                    <div className="flex items-center gap-3 mt-1">
-                      <span className="text-[10px] text-muted-foreground flex items-center gap-0.5"><Eye className="w-3 h-3" />{stats.views}</span>
-                      <span className="text-[10px] text-muted-foreground flex items-center gap-0.5"><Heart className="w-3 h-3" />{stats.favorites}</span>
-                      <span className="text-[10px] text-muted-foreground flex items-center gap-0.5"><MessageCircle className="w-3 h-3" />{stats.contacts}</span>
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2">
+                      <h3 className="text-sm font-semibold text-foreground truncate">{product.title}</h3>
+                      <span className={`text-[9px] px-2 py-0.5 rounded-lg font-medium ${
+                        product.status === "active" ? "bg-primary/10 text-primary" : "bg-muted text-muted-foreground"
+                      }`}>
+                        {product.status}
+                      </span>
                     </div>
-                  )}
-                </div>
-                <div className="flex gap-1" onClick={(e) => e.stopPropagation()}>
-                  <button onClick={(e) => { e.stopPropagation(); openEdit(product); }} className="p-2 text-muted-foreground hover:text-foreground rounded-lg hover:bg-secondary transition-colors">
-                    <Edit2 className="w-4 h-4" />
-                  </button>
-                  <button onClick={(e) => { e.stopPropagation(); setDeleteId(product.id); }} className="p-2 text-muted-foreground hover:text-destructive rounded-lg hover:bg-destructive/10 transition-colors">
-                    <Trash2 className="w-4 h-4" />
-                  </button>
-                </div>
-              </button>
-            );
-          })
+                    <div className="flex items-center gap-2 mt-1">
+                      <span className="text-sm font-bold text-primary">${product.price.toFixed(2)}</span>
+                      <span className="text-xs text-muted-foreground">· {product.stock || 0} {product.unit}</span>
+                    </div>
+                    {stats && (
+                      <div className="flex items-center gap-3 mt-1.5">
+                        <span className="text-[10px] text-muted-foreground flex items-center gap-1"><Eye className="w-3 h-3" />{stats.views}</span>
+                        <span className="text-[10px] text-muted-foreground flex items-center gap-1"><Heart className="w-3 h-3" />{stats.favorites}</span>
+                        <span className="text-[10px] text-muted-foreground flex items-center gap-1"><MessageCircle className="w-3 h-3" />{stats.contacts}</span>
+                      </div>
+                    )}
+                  </div>
+                  <div className="flex gap-1" onClick={(e) => e.stopPropagation()}>
+                    <button onClick={(e) => { e.stopPropagation(); openEdit(product); }} className="p-2.5 text-muted-foreground hover:text-foreground rounded-xl hover:bg-secondary transition-colors">
+                      <Edit2 className="w-4 h-4" />
+                    </button>
+                    <button onClick={(e) => { e.stopPropagation(); setDeleteId(product.id); }} className="p-2.5 text-muted-foreground hover:text-destructive rounded-xl hover:bg-destructive/10 transition-colors">
+                      <Trash2 className="w-4 h-4" />
+                    </button>
+                  </div>
+                </button>
+              );
+            })}
+          </div>
         )}
       </div>
 
       <AlertDialog open={!!deleteId} onOpenChange={(open) => !open && setDeleteId(null)}>
-        <AlertDialogContent>
+        <AlertDialogContent className="rounded-2xl">
           <AlertDialogHeader>
             <AlertDialogTitle>Delete Product?</AlertDialogTitle>
             <AlertDialogDescription>This action cannot be undone.</AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction onClick={handleDelete} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">Delete</AlertDialogAction>
+            <AlertDialogCancel className="rounded-xl">Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={handleDelete} className="bg-destructive text-destructive-foreground hover:bg-destructive/90 rounded-xl">Delete</AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
 
       <Dialog open={!!editProduct} onOpenChange={(open) => !open && setEditProduct(null)}>
-        <DialogContent>
+        <DialogContent className="rounded-2xl">
           <DialogHeader><DialogTitle>Edit Product</DialogTitle></DialogHeader>
-          <div className="space-y-4 pt-2">
+          <div className="space-y-5 pt-2">
             {[
               { label: "Product Name", value: editName, onChange: setEditName },
               { label: "Price", value: editPrice, onChange: setEditPrice },
               { label: "Stock", value: editStock, onChange: setEditStock },
               { label: "Category", value: editCategory, onChange: setEditCategory },
             ].map(({ label, value, onChange }) => (
-              <div key={label} className="space-y-1">
-                <label className="text-xs text-muted-foreground">{label}</label>
-                <input value={value} onChange={(e) => onChange(e.target.value)} className="w-full border-b border-input bg-transparent text-sm outline-none pb-2 focus:border-primary" />
+              <div key={label} className="space-y-1.5">
+                <label className="text-xs font-medium text-muted-foreground">{label}</label>
+                <input value={value} onChange={(e) => onChange(e.target.value)} className="w-full border-b border-input bg-transparent text-sm outline-none pb-2 focus:border-primary transition-colors" />
               </div>
             ))}
-            <Button onClick={handleSaveEdit} className="w-full rounded-full h-11">
+            <Button onClick={handleSaveEdit} className="w-full rounded-xl h-11">
               <Check className="w-4 h-4 mr-2" /> Save Changes
             </Button>
           </div>

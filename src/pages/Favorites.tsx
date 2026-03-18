@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Heart, Package, Loader2, AlertTriangle, Trash2 } from "lucide-react";
+import { Heart, Package, Loader2, AlertTriangle, Trash2, CheckCircle } from "lucide-react";
 import MobileLayout from "@/components/layout/MobileLayout";
 import PageHeader from "@/components/layout/PageHeader";
 import BottomNav from "@/components/layout/BottomNav";
@@ -9,7 +9,6 @@ import { supabase } from "@/integrations/supabase/client";
 import { getPlanBadge } from "@/services/planService";
 import { toast } from "@/hooks/use-toast";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 
 interface FavoriteProduct {
   favoriteId: string;
@@ -110,28 +109,34 @@ const Favorites = () => {
             <Loader2 className="w-8 h-8 animate-spin text-primary" />
           </div>
         ) : error ? (
-          <div className="flex flex-col items-center justify-center py-20">
-            <AlertTriangle className="w-12 h-12 text-destructive/40 mb-3" />
-            <p className="text-muted-foreground text-sm mb-3">Failed to load favorites</p>
-            <Button variant="outline" size="sm" onClick={() => window.location.reload()} className="rounded-full">Retry</Button>
+          <div className="flex flex-col items-center justify-center py-16">
+            <div className="w-16 h-16 rounded-full bg-destructive/8 flex items-center justify-center mb-4">
+              <AlertTriangle className="w-7 h-7 text-destructive/60" />
+            </div>
+            <p className="text-foreground font-medium mb-1">Something went wrong</p>
+            <p className="text-muted-foreground text-sm mb-4">Failed to load favorites</p>
+            <Button variant="outline" size="sm" onClick={() => window.location.reload()} className="rounded-xl">Retry</Button>
           </div>
         ) : products.length === 0 ? (
-          <div className="flex flex-col items-center justify-center py-20">
-            <Heart className="w-16 h-16 text-muted-foreground/20 mb-4" />
-            <p className="text-muted-foreground text-sm">You haven't saved any products yet.</p>
-            <Button variant="outline" size="sm" onClick={() => navigate("/explore")} className="mt-4 rounded-full">
+          <div className="flex flex-col items-center justify-center py-16">
+            <div className="w-20 h-20 rounded-full bg-muted flex items-center justify-center mb-4">
+              <Heart className="w-9 h-9 text-muted-foreground/30" />
+            </div>
+            <p className="text-foreground font-medium mb-1">No saved products</p>
+            <p className="text-sm text-muted-foreground text-center max-w-[240px] mb-5">Browse the explore page and save products you're interested in.</p>
+            <Button variant="outline" size="sm" onClick={() => navigate("/explore")} className="rounded-xl">
               Browse Products
             </Button>
           </div>
         ) : (
-          <div className="space-y-2">
+          <div className="space-y-2.5">
             {products.map((product) => {
               const badge = getPlanBadge(product.farmerPlan);
               return (
-                <div key={product.favoriteId} className="flex items-center gap-3 p-3 rounded-xl border border-border bg-card">
+                <div key={product.favoriteId} className="card-interactive flex items-center gap-3 p-3.5">
                   <button
                     onClick={() => navigate(`/product/${product.id}`)}
-                    className="w-16 h-16 rounded-lg bg-muted flex items-center justify-center overflow-hidden shrink-0"
+                    className="w-16 h-16 rounded-xl bg-muted flex items-center justify-center overflow-hidden shrink-0"
                   >
                     {product.images?.[0] ? (
                       <img src={product.images[0]} alt={product.title} className="w-full h-full object-cover" />
@@ -141,22 +146,20 @@ const Favorites = () => {
                   </button>
                   <button onClick={() => navigate(`/product/${product.id}`)} className="flex-1 min-w-0 text-left">
                     <h3 className="text-sm font-semibold text-foreground truncate">{product.title}</h3>
-                    <div className="flex items-center gap-1.5 mt-0.5">
-                      <span className="text-[10px] text-muted-foreground truncate">{product.farmerName}</span>
-                      {product.farmerVerified && (
-                        <Badge variant="secondary" className="text-[8px] px-1 py-0 h-4 bg-blue-50 text-blue-600 border-blue-200">✓ Verified</Badge>
-                      )}
+                    <div className="flex items-center gap-1.5 mt-1">
+                      <span className="text-[11px] text-muted-foreground truncate">{product.farmerName}</span>
+                      {product.farmerVerified && <CheckCircle className="w-3 h-3 text-blue-500 shrink-0" />}
                       {badge && (
-                        <span className={`text-[8px] font-bold px-1.5 py-0.5 rounded-full ${badge.color}`}>{badge.label}</span>
+                        <span className={`text-[8px] font-bold px-1.5 py-0.5 rounded-lg ${badge.color}`}>{badge.label}</span>
                       )}
                     </div>
-                    <span className="text-xs font-bold text-primary">${product.price.toFixed(2)}/{product.unit}</span>
+                    <span className="text-xs font-bold text-primary mt-0.5 block">${product.price.toFixed(2)}/{product.unit}</span>
                   </button>
                   <button
                     onClick={() => handleRemove(product.favoriteId)}
-                    className="p-2 rounded-full hover:bg-destructive/10 transition-colors shrink-0"
+                    className="p-2.5 rounded-xl hover:bg-destructive/10 transition-colors shrink-0"
                   >
-                    <Trash2 className="w-4 h-4 text-destructive/60" />
+                    <Trash2 className="w-4 h-4 text-destructive/50" />
                   </button>
                 </div>
               );
