@@ -172,10 +172,10 @@ const PostItem = () => {
     return (
       <MobileLayout>
         <PageHeader title="Details & Photos" onBack={() => setStep(1)} />
-        <div className="flex-1 space-y-5">
+        <div className="flex-1 section-gap">
           {/* Step indicator */}
           <div className="flex items-center gap-2">
-            <div className="flex-1 h-1 rounded-full bg-primary" />
+            <div className="flex-1 h-1.5 rounded-full bg-primary" />
             <div className="flex-1 h-1 rounded-full bg-primary" />
           </div>
 
