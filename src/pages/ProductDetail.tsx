@@ -485,7 +485,7 @@ const ProductDetail = () => {
               onChange={(e) => setReviewText(e.target.value)}
               className="w-full bg-secondary rounded-lg p-3 text-sm outline-none resize-none h-20 placeholder:text-muted-foreground"
             />
-            <Button onClick={handleSubmitReview} disabled={submitting} size="sm" className="rounded-xl">
+            <Button onClick={handleSubmitReview} disabled={submitting} size="sm" className="rounded-md">
               {submitting ? "Submitting..." : "Submit Review"}
             </Button>
           </div>
