@@ -298,7 +298,7 @@ const ProductDetail = () => {
                   </button>
                   <button
                     onClick={() => setCurrentImageIndex((prev) => (prev + 1) % product.images!.length)}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 w-10 h-10 rounded-xl bg-background/80 backdrop-blur-sm flex items-center justify-center shadow-card"
+                    className="absolute right-3 top-1/2 -translate-y-1/2 w-10 h-10 rounded-md bg-background/80 backdrop-blur-sm flex items-center justify-center shadow-card"
                   >
                     <ChevronRight className="w-5 h-5 text-foreground" />
                   </button>
