@@ -189,12 +189,12 @@ const Explore = () => {
 
             {/* Recommended */}
             <section>
-              <div className="flex items-center justify-between mb-3">
+               <div className="flex items-center justify-between mb-3.5">
                 <div className="flex items-center gap-2">
-                  <div className="w-6 h-6 rounded-md bg-primary/10 flex items-center justify-center">
-                    <Sparkles className="w-3.5 h-3.5 text-primary" />
+                  <div className="w-6 h-6 rounded-md bg-muted flex items-center justify-center">
+                    <Sparkles className="w-3.5 h-3.5 text-muted-foreground" />
                   </div>
-                  <h2 className="text-sm font-semibold text-foreground">Recommended</h2>
+                  <h2 className="text-sm font-semibold text-muted-foreground">Recommended</h2>
                 </div>
                 {filtered.length > 5 && (
                   <button onClick={() => navigate("/explore/recommended")} className="text-xs font-semibold text-primary">See all</button>
