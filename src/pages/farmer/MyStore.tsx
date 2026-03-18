@@ -240,7 +240,7 @@ const MyStore = () => {
                     <button onClick={(e) => { e.stopPropagation(); openEdit(product); }} className="p-2.5 text-muted-foreground hover:text-foreground rounded-md hover:bg-secondary transition-colors">
                       <Edit2 className="w-4 h-4" />
                     </button>
-                    <button onClick={(e) => { e.stopPropagation(); setDeleteId(product.id); }} className="p-2.5 text-muted-foreground hover:text-destructive rounded-xl hover:bg-destructive/10 transition-colors">
+                    <button onClick={(e) => { e.stopPropagation(); setDeleteId(product.id); }} className="p-2.5 text-muted-foreground hover:text-destructive rounded-md hover:bg-destructive/10 transition-colors">
                       <Trash2 className="w-4 h-4" />
                     </button>
                   </div>
