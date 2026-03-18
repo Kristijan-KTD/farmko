@@ -169,12 +169,12 @@ const Explore = () => {
 
             {/* New Products */}
             <section>
-              <div className="flex items-center justify-between mb-3">
+               <div className="flex items-center justify-between mb-3.5">
                 <div className="flex items-center gap-2">
                    <div className="w-6 h-6 rounded-md bg-primary/10 flex items-center justify-center">
                     <Clock className="w-3.5 h-3.5 text-primary" />
                   </div>
-                  <h2 className="text-sm font-semibold text-foreground">New Products</h2>
+                  <h2 className="text-sm font-bold text-foreground">New Products</h2>
                 </div>
                 {filtered.length > 5 && (
                   <button onClick={() => navigate("/explore/new")} className="text-xs font-semibold text-primary">See all</button>
