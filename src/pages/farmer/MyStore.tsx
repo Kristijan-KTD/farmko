@@ -265,7 +265,7 @@ const MyStore = () => {
       </AlertDialog>
 
       <Dialog open={!!editProduct} onOpenChange={(open) => !open && setEditProduct(null)}>
-        <DialogContent className="rounded-2xl">
+        <DialogContent className="rounded-lg">
           <DialogHeader><DialogTitle>Edit Product</DialogTitle></DialogHeader>
           <div className="space-y-5 pt-2">
             {[
