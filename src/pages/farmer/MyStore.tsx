@@ -279,7 +279,7 @@ const MyStore = () => {
                 <input value={value} onChange={(e) => onChange(e.target.value)} className="w-full border-b border-input bg-transparent text-sm outline-none pb-2 focus:border-primary transition-colors" />
               </div>
             ))}
-            <Button onClick={handleSaveEdit} className="w-full rounded-xl h-11">
+            <Button onClick={handleSaveEdit} className="w-full rounded-md h-11">
               <Check className="w-4 h-4 mr-2" /> Save Changes
             </Button>
           </div>
