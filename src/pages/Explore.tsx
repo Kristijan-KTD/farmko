@@ -263,7 +263,7 @@ const RecommendedCard = ({ product, onClick }: { product: EnrichedProduct; onCli
       onClick={onClick}
       className="card-interactive flex items-center gap-3 w-full p-3 text-left"
     >
-      <div className="w-16 h-16 rounded-xl bg-muted flex items-center justify-center overflow-hidden shrink-0">
+      <div className="w-16 h-16 rounded-md bg-muted flex items-center justify-center overflow-hidden shrink-0">
         {product.images?.[0] ? (
           <img src={product.images[0]} alt={product.title} className="w-full h-full object-cover" />
         ) : (
