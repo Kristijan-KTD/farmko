@@ -124,7 +124,7 @@ const Favorites = () => {
             </div>
             <p className="text-foreground font-medium mb-1">No saved products</p>
             <p className="text-sm text-muted-foreground text-center max-w-[240px] mb-5">Browse the explore page and save products you're interested in.</p>
-            <Button variant="outline" size="sm" onClick={() => navigate("/explore")} className="rounded-xl">
+            <Button variant="outline" size="sm" onClick={() => navigate("/explore")} className="rounded-md">
               Browse Products
             </Button>
           </div>
