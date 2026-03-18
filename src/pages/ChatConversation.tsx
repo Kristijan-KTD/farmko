@@ -266,7 +266,7 @@ const ChatConversation = () => {
           <button
             onClick={handleSend}
             disabled={!message.trim() || sending}
-            className="w-9 h-9 bg-primary rounded-xl disabled:opacity-40 transition-all flex items-center justify-center hover:shadow-card-hover active:scale-95"
+            className="w-9 h-9 bg-primary rounded-md disabled:opacity-40 transition-all flex items-center justify-center hover:shadow-card-hover active:scale-95"
           >
             <Send className="w-4 h-4 text-primary-foreground" />
           </button>

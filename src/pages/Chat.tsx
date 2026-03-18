@@ -143,7 +143,7 @@ const Chat = () => {
             <button
               key={chat.id}
               onClick={() => navigate(`/chat/${chat.id}`)}
-              className="w-full flex items-center gap-3.5 p-3.5 rounded-2xl hover:bg-secondary/60 transition-colors text-left"
+              className="w-full flex items-center gap-3.5 p-3.5 rounded-lg hover:bg-secondary/60 transition-colors text-left"
             >
               <div className="relative flex-shrink-0">
                 <div className="w-12 h-12 rounded-full bg-muted flex items-center justify-center overflow-hidden ring-2 ring-border">

@@ -157,7 +157,7 @@ const Favorites = () => {
                   </button>
                   <button
                     onClick={() => handleRemove(product.favoriteId)}
-                    className="p-2.5 rounded-xl hover:bg-destructive/10 transition-colors shrink-0"
+                    className="p-2.5 rounded-md hover:bg-destructive/10 transition-colors shrink-0"
                   >
                     <Trash2 className="w-4 h-4 text-destructive/50" />
                   </button>

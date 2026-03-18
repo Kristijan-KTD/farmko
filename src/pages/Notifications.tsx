@@ -118,7 +118,7 @@ const Notifications = () => {
                   notif.read ? "hover:bg-secondary/60" : "bg-primary/5 hover:bg-primary/8"
                 }`}
               >
-                <div className={`w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 ${notif.read ? "bg-muted" : "bg-primary/10"}`}>
+                <div className={`w-10 h-10 rounded-md flex items-center justify-center flex-shrink-0 ${notif.read ? "bg-muted" : "bg-primary/10"}`}>
                   <Icon className={`w-[18px] h-[18px] ${notif.read ? "text-muted-foreground" : "text-primary"}`} />
                 </div>
                 <div className="flex-1 min-w-0">
