@@ -157,7 +157,7 @@ const PostItem = () => {
           </div>
         </div>
         <div className="pb-8 space-y-3 px-3">
-          <Button onClick={() => navigate("/my-store")} className="w-full rounded-xl h-12 text-base font-semibold shadow-card">
+          <Button onClick={() => navigate("/my-store")} className="w-full rounded-md h-12 text-base font-semibold shadow-card">
             Go to My Store
           </Button>
           <Button variant="outline" onClick={() => { setStep(1); setForm({ name: "", description: "", category: "", price: "", quantity: "", unit: "" }); setImages([]); }} className="w-full rounded-xl h-12 text-base">
