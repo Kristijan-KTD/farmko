@@ -200,9 +200,9 @@ const ExploreProductRow = ({ product, onClick }: { product: EnrichedProduct; onC
             <span className={`text-[9px] font-bold px-1.5 py-0.5 rounded-full shrink-0 ${badge.color}`}>{badge.label}</span>
           )}
         </div>
-        <p className="text-tertiary-label truncate mt-0.5 flex items-center gap-1">
+        <p className="text-tertiary-label truncate mt-0.5 flex items-center gap-1 text-[11px]">
           {product.farmer?.name || "Unknown"}
-          {product.farmer?.verified && <CheckCircle className="w-2.5 h-2.5 text-blue-500 shrink-0" />}
+          {product.farmer?.verified && <CheckCircle className="w-3 h-3 text-blue-500 shrink-0" />}
         </p>
       </div>
       <div className="text-right shrink-0 space-y-0.5">
