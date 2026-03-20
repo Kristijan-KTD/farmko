@@ -288,7 +288,8 @@ const Instafarm = () => {
     setUploadPreview("");
     setCaption("");
     setSelectedProductId("");
-    setPriceWarning(false);
+    setCaptionAnalysis({ score: 0, intent: "informational", reasons: [] });
+    setDismissedWarning(false);
   };
 
   const handleCaptionChange = (value: string) => {
