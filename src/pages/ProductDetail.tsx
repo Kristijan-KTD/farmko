@@ -468,7 +468,7 @@ const ProductDetail = () => {
         {/* Write Review */}
         {user?.role === "customer" && (
           <div className="space-y-3">
-            <h3 className="text-sm font-semibold text-foreground">Write a Review</h3>
+            <h3 className="section-title">Write a Review</h3>
             <div className="flex items-center gap-1">
               {[1, 2, 3, 4, 5].map((s) => (
                 <button
