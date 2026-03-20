@@ -160,10 +160,18 @@ const Explore = () => {
           </div>
         ) : (
           <div className="divide-y divide-border/60">
-            {sorted.map((product) => (
+            {sorted.slice(0, visibleCount).map((product) => (
               <ExploreProductRow key={product.id} product={product} onClick={() => handleProductClick(product)} />
             ))}
           </div>
+          {visibleCount < sorted.length && (
+            <button
+              onClick={() => setVisibleCount((c) => c + PAGE_SIZE)}
+              className="w-full py-3 mt-2 text-sm font-medium text-primary hover:text-primary/80 active:scale-[0.98] transition-colors"
+            >
+              View more ({sorted.length - visibleCount} remaining)
+            </button>
+          )}
         )}
       </div>
 
