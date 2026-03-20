@@ -160,9 +160,9 @@ const Home = () => {
 
             {/* Section 3: Quick Management */}
             {storePreview.length > 0 && (
-              <div className="space-y-3">
+              <div className="space-y-2.5">
                 <div className="flex items-center justify-between">
-                  <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">My Store</h3>
+                  <h3 className="section-label">My Store</h3>
                   <button onClick={() => navigate("/my-store")} className="text-xs font-semibold text-primary">View all</button>
                 </div>
                 <div className="space-y-2">
