@@ -185,19 +185,19 @@ const Explore = () => {
 const ExploreProductRow = ({ product, onClick }: { product: EnrichedProduct; onClick: () => void }) => {
   const badge = getPlanBadge(product.farmerPlan);
   return (
-    <button onClick={onClick} className="list-row w-full active:scale-[0.98]">
-      <div className="w-10 h-10 rounded-sm bg-muted flex items-center justify-center overflow-hidden shrink-0">
+    <button onClick={onClick} className="flex items-center gap-3 w-full text-left py-3 px-1 transition-colors active:scale-[0.98]">
+      <div className="w-[52px] h-[52px] rounded-md bg-muted flex items-center justify-center overflow-hidden shrink-0">
         {product.images?.[0] ? (
           <img src={product.images[0]} alt={product.title} className="w-full h-full object-cover" />
         ) : (
-          <Package className="w-4 h-4 text-muted-foreground/20" />
+          <Package className="w-5 h-5 text-muted-foreground/20" />
         )}
       </div>
       <div className="flex-1 min-w-0">
         <div className="flex items-center gap-1">
-          <h3 className="text-[13px] font-medium text-foreground truncate">{product.title}</h3>
+          <h3 className="text-sm font-medium text-foreground truncate">{product.title}</h3>
           {badge && (
-            <span className={`text-[8px] font-bold px-1.5 py-0.5 rounded-full shrink-0 ${badge.color}`}>{badge.label}</span>
+            <span className={`text-[9px] font-bold px-1.5 py-0.5 rounded-full shrink-0 ${badge.color}`}>{badge.label}</span>
           )}
         </div>
         <p className="text-tertiary-label truncate mt-0.5 flex items-center gap-1">
