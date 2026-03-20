@@ -13,8 +13,11 @@ import { haversineKm, formatDistance } from "@/lib/distance";
 import { toast } from "@/hooks/use-toast";
 import { Button } from "@/components/ui/button";
 
+const PAGE_SIZE = 6;
+
 const Explore = () => {
   const [search, setSearch] = useState("");
+  const [visibleCount, setVisibleCount] = useState(PAGE_SIZE);
   const [products, setProducts] = useState<EnrichedProduct[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
@@ -62,6 +65,9 @@ const Explore = () => {
   }, [userLocation]);
 
   const activeCategory = selectedCategory || filters.category;
+
+  // Reset visible count when filters/search change
+  useEffect(() => { setVisibleCount(PAGE_SIZE); }, [search, activeCategory, filters.sortBy, filters.distance]);
 
   const filtered = products.filter((p) => {
     const matchesSearch = !search || p.title.toLowerCase().includes(search.toLowerCase()) || p.farmer?.name?.toLowerCase().includes(search.toLowerCase());
@@ -153,11 +159,21 @@ const Explore = () => {
             <p className="text-muted-foreground text-xs">Try adjusting your search or filters</p>
           </div>
         ) : (
-          <div className="divide-y divide-border/60">
-            {sorted.map((product) => (
-              <ExploreProductRow key={product.id} product={product} onClick={() => handleProductClick(product)} />
-            ))}
-          </div>
+          <>
+            <div className="divide-y divide-border/60">
+              {sorted.slice(0, visibleCount).map((product) => (
+                <ExploreProductRow key={product.id} product={product} onClick={() => handleProductClick(product)} />
+              ))}
+            </div>
+            {visibleCount < sorted.length && (
+              <button
+                onClick={() => setVisibleCount((c) => c + PAGE_SIZE)}
+                className="w-full py-3 mt-2 text-sm font-medium text-primary hover:text-primary/80 active:scale-[0.98] transition-colors"
+              >
+                View more ({sorted.length - visibleCount} remaining)
+              </button>
+            )}
+          </>
         )}
       </div>
 
@@ -171,31 +187,31 @@ const Explore = () => {
 const ExploreProductRow = ({ product, onClick }: { product: EnrichedProduct; onClick: () => void }) => {
   const badge = getPlanBadge(product.farmerPlan);
   return (
-    <button onClick={onClick} className="list-row w-full active:scale-[0.98]">
-      <div className="w-10 h-10 rounded-sm bg-muted flex items-center justify-center overflow-hidden shrink-0">
+    <button onClick={onClick} className="flex items-center gap-3 w-full text-left py-3 px-1 transition-colors active:scale-[0.98]">
+      <div className="w-[52px] h-[52px] rounded-md bg-muted flex items-center justify-center overflow-hidden shrink-0">
         {product.images?.[0] ? (
           <img src={product.images[0]} alt={product.title} className="w-full h-full object-cover" />
         ) : (
-          <Package className="w-4 h-4 text-muted-foreground/20" />
+          <Package className="w-5 h-5 text-muted-foreground/20" />
         )}
       </div>
       <div className="flex-1 min-w-0">
         <div className="flex items-center gap-1">
-          <h3 className="text-[13px] font-medium text-foreground truncate">{product.title}</h3>
+          <h3 className="text-sm font-medium text-foreground truncate">{product.title}</h3>
           {badge && (
-            <span className={`text-[8px] font-bold px-1.5 py-0.5 rounded-full shrink-0 ${badge.color}`}>{badge.label}</span>
+            <span className={`text-[9px] font-bold px-1.5 py-0.5 rounded-full shrink-0 ${badge.color}`}>{badge.label}</span>
           )}
         </div>
-        <p className="text-tertiary-label truncate mt-0.5 flex items-center gap-1">
+        <p className="text-tertiary-label truncate mt-0.5 flex items-center gap-1 text-[11px]">
           {product.farmer?.name || "Unknown"}
-          {product.farmer?.verified && <CheckCircle className="w-2.5 h-2.5 text-blue-500 shrink-0" />}
+          {product.farmer?.verified && <CheckCircle className="w-3 h-3 text-blue-500 shrink-0" />}
         </p>
       </div>
       <div className="text-right shrink-0 space-y-0.5">
-        <span className="text-xs font-bold text-primary block">${product.price.toFixed(2)}</span>
+        <span className="text-sm font-bold text-primary block">${product.price.toFixed(2)}</span>
         {product.distance != null && (
-          <span className="text-tertiary-label flex items-center gap-0.5 justify-end">
-            <MapPin className="w-2.5 h-2.5" />
+          <span className="text-tertiary-label flex items-center gap-0.5 justify-end text-[11px]">
+            <MapPin className="w-3 h-3" />
             {formatDistance(product.distance)}
           </span>
         )}
@@ -208,16 +224,16 @@ const ExploreProductRow = ({ product, onClick }: { product: EnrichedProduct; onC
 
 const ExploreSkeleton = () => (
   <div className="divide-y divide-border/60">
-    {Array.from({ length: 14 }).map((_, i) => (
-      <div key={i} className="flex items-center gap-3 px-1 py-2.5 animate-pulse">
-        <div className="w-10 h-10 rounded-sm bg-muted shrink-0" />
-        <div className="flex-1 space-y-1.5">
-          <div className="h-3.5 bg-muted rounded w-3/4" />
-          <div className="h-2.5 bg-muted rounded w-1/2" />
+    {Array.from({ length: 6 }).map((_, i) => (
+      <div key={i} className="flex items-center gap-3 px-1 py-3 animate-pulse">
+        <div className="w-[52px] h-[52px] rounded-md bg-muted shrink-0" />
+        <div className="flex-1 space-y-2">
+          <div className="h-4 bg-muted rounded w-3/4" />
+          <div className="h-3 bg-muted rounded w-1/2" />
         </div>
-        <div className="space-y-1.5">
-          <div className="h-3 bg-muted rounded w-10" />
-          <div className="h-2 bg-muted rounded w-8 ml-auto" />
+        <div className="space-y-2">
+          <div className="h-4 bg-muted rounded w-12" />
+          <div className="h-3 bg-muted rounded w-8 ml-auto" />
         </div>
       </div>
     ))}
