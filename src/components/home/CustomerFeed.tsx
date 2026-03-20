@@ -276,16 +276,16 @@ const FreshFromFarmsSection = ({ userLocation }: { userLocation: { lat: number; 
 // ── Farmer Card ─────────────────────────────────────────────────
 
 const FarmerCard = ({ farmer, onClick }: { farmer: NearbyFarmer; onClick: () => void }) => (
-  <button onClick={onClick} className="card-interactive flex flex-col items-center shrink-0 w-[130px] min-w-[130px] snap-start p-5 text-center">
-    <div className="w-14 h-14 rounded-full bg-muted overflow-hidden flex items-center justify-center mb-3 ring-2 ring-border">
+  <button onClick={onClick} className="card-interactive flex flex-col items-center shrink-0 w-[120px] min-w-[120px] snap-start p-4 text-center">
+    <div className="w-12 h-12 rounded-full bg-muted overflow-hidden flex items-center justify-center mb-2.5 ring-2 ring-border">
       {farmer.avatar_url ? (
         <img src={farmer.avatar_url} alt="" className="w-full h-full object-cover" />
       ) : (
-        <span className="text-sm font-bold text-muted-foreground">{farmer.name[0]}</span>
+        <span className="text-[11px] font-bold text-muted-foreground">{farmer.name[0]}</span>
       )}
     </div>
     <p className="text-xs font-semibold text-foreground truncate w-full">{farmer.name}</p>
-    <div className="flex items-center gap-1 mt-1.5">
+    <div className="flex items-center gap-1 mt-1">
       {farmer.verified && <CheckCircle className="w-3 h-3 text-blue-500" />}
       {farmer.distance != null && (
         <span className="text-[9px] text-muted-foreground flex items-center gap-0.5">
