@@ -191,8 +191,8 @@ const Explore = () => {
             <section>
                <div className="flex items-center justify-between mb-3.5">
                 <div className="flex items-center gap-2">
-                  <div className="w-6 h-6 rounded-md flex items-center justify-center bg-primary opacity-20">
-                    <Sparkles className="w-3.5 h-3.5 text-primary bg-inherit opacity-100" />
+                  <div className="w-6 h-6 rounded-md bg-primary/10 flex items-center justify-center">
+                    <Sparkles className="w-3.5 h-3.5 text-primary" />
                   </div>
                   <h2 className="text-sm font-bold text-foreground">Recommended</h2>
                 </div>
