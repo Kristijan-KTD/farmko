@@ -55,7 +55,10 @@ serve(async (req) => {
       });
     }
 
-    logStep("User authenticated via claims", { userId, email });
+    const user = userData.user;
+    const userId = user.id;
+    const email = user.email!;
+    logStep("User authenticated", { userId, email });
 
     const stripe = new Stripe(stripeKey, { apiVersion: "2023-10-16" });
     const customers = await stripe.customers.list({ email, limit: 1 });
