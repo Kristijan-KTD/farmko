@@ -190,7 +190,7 @@ const Explore = () => {
             </section>
 
             {/* From Farms Near You - Instafarm */}
-            <InstafarmExploreSection />
+            <InstafarmExploreSection userLocation={userLocation} />
 
             {/* Recommended */}
             <section>
@@ -300,8 +300,8 @@ const RecommendedCard = ({ product, onClick }: {product: EnrichedProduct;onClick
 
 };
 
-const InstafarmExploreSection = () => {
-  const { posts, loading } = useInstafarmPosts({ limit: 8 });
+const InstafarmExploreSection = ({ userLocation }: { userLocation: { lat: number; lng: number } | null }) => {
+  const { posts, loading, isFallback } = useInstafarmPosts({ limit: 8, userLocation, maxDistance: 100 });
 
   if (loading || posts.length === 0) return null;
 
@@ -316,6 +316,9 @@ const InstafarmExploreSection = () => {
         </div>
         <button onClick={() => window.location.href = "/instafarm"} className="text-xs font-semibold text-primary">See all</button>
       </div>
+      {isFallback && userLocation && (
+        <p className="text-[11px] text-muted-foreground mb-2">No nearby farms found. Showing farms from your region.</p>
+      )}
       <HorizontalScroll className="gap-3 pb-1">
         {posts.map((post) => (
           <InstafarmCard key={post.id} post={post} variant="compact" />
