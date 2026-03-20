@@ -227,6 +227,9 @@ const Home = () => {
               Explore Local Products
             </Button>
 
+            {/* Fresh from farms - Instafarm */}
+            <FreshFromFarmsSection />
+
             <div className="space-y-3">
               <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Quick Access</h3>
               <HorizontalScroll className="gap-2.5 pb-1" snap={false}>
