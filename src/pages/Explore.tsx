@@ -105,7 +105,7 @@ const Explore = () => {
       </div>
 
       {/* Category Chips */}
-      <div className="flex overflow-x-auto gap-1.5 mb-2 pb-0.5 no-scrollbar">
+      <div className="flex overflow-x-auto gap-1.5 mb-1.5 pb-0.5 no-scrollbar">
         {CATEGORIES.slice(0, 8).map((cat) => {
           const isActive = activeCategory === (cat.key === "all" ? null : cat.key);
           const isAll = cat.key === "all" && !activeCategory;
@@ -113,9 +113,9 @@ const Explore = () => {
             <button
               key={cat.key}
               onClick={() => { setSelectedCategory(cat.key === "all" ? null : cat.key); setFilters((f) => ({ ...f, category: null })); }}
-              className={`flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-medium shrink-0 transition-all duration-200 ${
+              className={`flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-medium shrink-0 transition-colors duration-150 ${
                 isActive || isAll
-                  ? "bg-primary text-primary-foreground shadow-sm"
+                  ? "bg-primary text-primary-foreground"
                   : "bg-card text-muted-foreground border border-border hover:border-primary/30"
               }`}
             >
