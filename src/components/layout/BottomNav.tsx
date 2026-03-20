@@ -27,19 +27,19 @@ const BottomNav = () => {
 
   return (
     <div className="fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-md bg-background border-t border-border z-50 lg:hidden">
-      <nav className="flex justify-around items-center h-16 px-2">
+      <nav className="flex justify-around items-center h-14 px-2">
         {items.map(({ icon: Icon, path, label }) => {
           const isActive = location.pathname === path;
           return (
             <button
               key={path}
               onClick={() => navigate(path)}
-              className={`flex flex-col items-center gap-1 p-2 transition-colors ${
+              className={`flex flex-col items-center justify-center gap-0.5 w-14 h-full transition-colors ${
                 isActive ? "text-primary" : "text-muted-foreground"
               }`}
             >
               <Icon className="w-5 h-5" />
-              <span className="text-[10px] font-medium">{label}</span>
+              <span className="text-[10px] font-medium leading-none">{label}</span>
             </button>
           );
         })}

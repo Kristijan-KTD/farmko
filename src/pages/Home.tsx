@@ -96,24 +96,24 @@ const Home = () => {
 
       <div className="flex-1 pb-20 lg:pb-4 section-gap">
         {/* Profile Header */}
-        <div className="flex items-center gap-3.5">
-          <div className="w-13 h-13 rounded-full bg-muted overflow-hidden flex items-center justify-center ring-2 ring-border" style={{ width: 52, height: 52 }}>
+        <div className="flex items-center gap-3">
+          <div className="w-12 h-12 rounded-full bg-muted overflow-hidden flex items-center justify-center ring-2 ring-border">
             {user?.avatar_url ? (
               <img src={user.avatar_url} alt="" className="w-full h-full object-cover" />
             ) : (
-              <User className="w-6 h-6 text-muted-foreground" />
+              <User className="w-5 h-5 text-muted-foreground" />
             )}
           </div>
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-2">
-              <h2 className="text-lg font-bold text-foreground truncate leading-tight">{user?.name || "User"}</h2>
+              <h2 className="text-base font-bold text-foreground truncate leading-tight">{user?.name || "User"}</h2>
               {planBadge && (
-                <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${planBadge.color}`}>
+                <span className={`text-[9px] font-bold px-1.5 py-0.5 rounded-full ${planBadge.color}`}>
                   {planBadge.label}
                 </span>
               )}
             </div>
-            <p className="text-xs text-muted-foreground capitalize mt-0.5">{user?.role}</p>
+            <p className="text-[11px] text-muted-foreground capitalize mt-0.5">{user?.role}</p>
           </div>
         </div>
 
@@ -121,30 +121,30 @@ const Home = () => {
         {user?.role === "farmer" && (
           <>
             {/* Section 1: Primary CTA */}
-            <Button onClick={() => navigate("/post-item")} className="w-full rounded-md h-12 font-semibold gap-2.5 text-base">
-              <Plus className="w-5 h-5" />
+            <Button onClick={() => navigate("/post-item")} className="w-full rounded-md h-11 font-semibold gap-2 text-sm">
+              <Plus className="w-4.5 h-4.5" style={{ width: 18, height: 18 }} />
               Post New Product
             </Button>
 
             {/* Section 2: Performance Summary */}
-            <div className="space-y-3">
-              <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Performance</h3>
+            <div className="space-y-2.5">
+              <h3 className="section-label">Performance</h3>
               {loading ? (
                 <div className="flex justify-center py-8"><Loader2 className="w-5 h-5 animate-spin text-primary" /></div>
               ) : (
                 <>
-                  <div className="grid grid-cols-2 gap-3">
+                  <div className="grid grid-cols-2 gap-2.5">
                     {[
                       { icon: Package, label: "Listings", value: stats.activeListings, path: "/my-store", color: "text-primary", bg: "bg-primary/8" },
                       { icon: Eye, label: "Views (7d)", value: stats.profileViews, path: "/analytics", color: "text-blue-500", bg: "bg-blue-500/8" },
                       { icon: MessageCircle, label: "Unread Chats", value: stats.unreadChats, path: "/chat", color: "text-pink-500", bg: "bg-pink-500/8" },
                       { icon: Heart, label: "Favorites", value: stats.favorites, path: "/analytics", color: "text-red-500", bg: "bg-red-500/8" },
                     ].map(({ icon: Icon, label, value, path, color, bg }) => (
-                      <button key={label} onClick={() => navigate(path)} className="card-interactive p-4 text-left">
-                        <div className={`w-9 h-9 rounded-md ${bg} flex items-center justify-center mb-2.5`}>
-                          <Icon className={`w-4.5 h-4.5 ${color}`} style={{ width: 18, height: 18 }} />
+                      <button key={label} onClick={() => navigate(path)} className="card-interactive p-3.5 text-left">
+                        <div className={`w-8 h-8 rounded-md ${bg} flex items-center justify-center mb-2`}>
+                          <Icon className={`${color}`} style={{ width: 16, height: 16 }} />
                         </div>
-                        <p className="text-2xl font-bold text-foreground leading-none">{value}</p>
+                        <p className="text-xl font-bold text-foreground leading-none">{value}</p>
                         <p className="text-[11px] text-muted-foreground mt-1">{label}</p>
                       </button>
                     ))}
@@ -160,20 +160,20 @@ const Home = () => {
 
             {/* Section 3: Quick Management */}
             {storePreview.length > 0 && (
-              <div className="space-y-3">
+              <div className="space-y-2.5">
                 <div className="flex items-center justify-between">
-                  <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">My Store</h3>
+                  <h3 className="section-label">My Store</h3>
                   <button onClick={() => navigate("/my-store")} className="text-xs font-semibold text-primary">View all</button>
                 </div>
-                <div className="space-y-2">
+                <div className="space-y-1">
                   {storePreview.map((p) => (
                     <button key={p.id} onClick={() => navigate(`/product/${p.id}`)} className="list-item-subtle">
-                      <div className="w-12 h-12 rounded-md bg-muted flex items-center justify-center overflow-hidden shrink-0">
-                        {p.images?.[0] ? <img src={p.images[0]} alt="" className="w-full h-full object-cover" /> : <Package className="w-5 h-5 text-muted-foreground/30" />}
+                      <div className="w-11 h-11 rounded-md bg-muted flex items-center justify-center overflow-hidden shrink-0">
+                        {p.images?.[0] ? <img src={p.images[0]} alt="" className="w-full h-full object-cover" /> : <Package className="w-4 h-4 text-muted-foreground/30" />}
                       </div>
                       <div className="flex-1 min-w-0">
-                        <p className="text-sm font-medium text-foreground truncate">{p.title}</p>
-                        <p className="text-xs font-semibold text-primary mt-0.5">${p.price.toFixed(2)}</p>
+                        <p className="text-[13px] font-medium text-foreground truncate">{p.title}</p>
+                        <p className="text-xs font-bold text-primary mt-0.5">${p.price.toFixed(2)}</p>
                       </div>
                     </button>
                   ))}
@@ -182,8 +182,8 @@ const Home = () => {
             )}
 
             {/* Section 4: Quick Links */}
-            <div className="space-y-3">
-              <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Quick Access</h3>
+            <div className="space-y-2.5">
+              <h3 className="section-label">Quick Access</h3>
               <HorizontalScroll className="gap-2.5 pb-1" snap={false}>
                 {[
                   { icon: Store, label: "My Store", path: "/my-store" },

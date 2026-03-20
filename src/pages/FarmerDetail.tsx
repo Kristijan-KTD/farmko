@@ -222,7 +222,7 @@ const FarmerDetail = () => {
         {/* Farm Photos (legacy - only show if no instafarm) */}
         {photos.length > 0 && (
           <section>
-            <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-3">Farm Photos</h3>
+            <h3 className="section-label mb-2.5">Farm Photos</h3>
             <div className="grid grid-cols-3 gap-1.5">
               {photos.map((photo) => (
                 <div key={photo.id} className="aspect-square bg-muted rounded-md overflow-hidden border border-border">
@@ -236,8 +236,8 @@ const FarmerDetail = () => {
         {/* Products */}
         {products.length > 0 && (
           <section>
-            <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-3">Products</h3>
-            <div className="space-y-2">
+            <h3 className="section-label mb-2.5">Products</h3>
+            <div className="space-y-1">
               {products.map((p) => (
                 <button key={p.id} onClick={() => handleProductClick(p)} className="list-item-subtle active:scale-[0.98]">
                   <div className="w-12 h-12 bg-muted rounded-md flex items-center justify-center overflow-hidden shrink-0">
@@ -258,9 +258,9 @@ const FarmerDetail = () => {
         )}
       </div>
 
-      <div className="pb-8 pt-4">
-        <Button onClick={handleContact} className="w-full rounded-md h-12 text-base font-semibold gap-2">
-          <MessageCircle className="w-5 h-5" />
+      <div className="pb-6 pt-3">
+        <Button onClick={handleContact} className="w-full rounded-md h-11 text-sm font-semibold gap-2">
+          <MessageCircle className="w-4.5 h-4.5" style={{ width: 18, height: 18 }} />
           Contact Farmer
         </Button>
       </div>
@@ -281,7 +281,7 @@ const FarmerInstafarmSection = ({ farmerId }: { farmerId: string }) => {
           <div className="w-6 h-6 rounded-md bg-primary/10 flex items-center justify-center">
             <Camera className="w-3.5 h-3.5 text-primary" />
           </div>
-          <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">From the Farm</h3>
+          <h3 className="section-label">From the Farm</h3>
         </div>
         <button onClick={() => navigate("/instafarm")} className="text-xs font-semibold text-primary">View all</button>
       </div>

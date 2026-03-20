@@ -139,14 +139,14 @@
   box-shadow: var(--shadow-card-hover);
 }
 
-/* Consistent section spacing */
+/* Consistent section spacing — 24px between sections */
 .section-gap {
-  @apply space-y-7;
+  @apply space-y-6;
 }
 
 /* Tertiary list items — lighter weight than cards */
 .list-item-subtle {
-  @apply flex items-center gap-3 w-full py-2.5 px-2.5 text-left transition-colors duration-150;
+  @apply flex items-center gap-3 w-full py-2.5 px-3 text-left transition-colors duration-150;
   border-radius: var(--radius-md);
 }
 .list-item-subtle:hover,
@@ -159,4 +159,19 @@
   .card-interactive:active {
     transform: scale(0.985);
   }
+}
+
+/* Section title — primary */
+.section-title {
+  @apply text-sm font-semibold text-foreground leading-tight;
+}
+
+/* Section subtitle — tertiary */
+.section-subtitle {
+  @apply text-[11px] text-muted-foreground;
+}
+
+/* Label — uppercase section header */
+.section-label {
+  @apply text-[11px] font-semibold text-muted-foreground uppercase tracking-wider;
 }

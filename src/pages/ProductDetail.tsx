@@ -284,7 +284,7 @@ const ProductDetail = () => {
     <MobileLayout>
       <PageHeader title="Product Details" />
 
-      <div className="flex-1 section-gap pb-6">
+      <div className="flex-1 section-gap pb-6 space-y-6">
         {/* Image Gallery */}
         <div className="relative aspect-square bg-muted rounded-lg flex items-center justify-center overflow-hidden shadow-card">
           {product.images && product.images.length > 0 ? (
@@ -394,12 +394,12 @@ const ProductDetail = () => {
 
         {/* Action Buttons */}
         <div className="flex gap-2.5">
-          <Button onClick={handleContactFarmer} className="flex-1 rounded-md h-12 font-semibold gap-2 shadow-card">
-            <MessageCircle className="w-5 h-5" />
+          <Button onClick={handleContactFarmer} className="flex-1 rounded-md h-11 font-semibold gap-2 text-sm shadow-card">
+            <MessageCircle className="w-4.5 h-4.5" style={{ width: 18, height: 18 }} />
             Contact Farmer
           </Button>
           {user && (
-            <Button variant="outline" onClick={handleToggleFavorite} className="rounded-md h-12 px-4 border-border">
+            <Button variant="outline" onClick={handleToggleFavorite} className="rounded-md h-11 px-3.5 border-border">
               <Heart className={`w-5 h-5 ${isFavorited ? "fill-red-500 text-red-500" : ""}`} />
             </Button>
           )}
@@ -448,8 +448,8 @@ const ProductDetail = () => {
         {/* More From This Farmer */}
         {moreFromFarmer.length > 0 && (
           <section>
-            <h3 className="text-sm font-semibold text-foreground mb-2">More from this farmer</h3>
-            <HorizontalScroll className="gap-3 pb-1">
+            <h3 className="section-title mb-2.5">More from this farmer</h3>
+            <HorizontalScroll className="gap-2.5 pb-1">
               {moreFromFarmer.map((p) => <MiniProductCard key={p.id} p={p} />)}
             </HorizontalScroll>
           </section>
@@ -458,8 +458,8 @@ const ProductDetail = () => {
         {/* Similar Products */}
         {similarProducts.length > 0 && (
           <section>
-            <h3 className="text-sm font-semibold text-foreground mb-2">Similar products</h3>
-            <HorizontalScroll className="gap-3 pb-1">
+            <h3 className="section-title mb-2.5">Similar products</h3>
+            <HorizontalScroll className="gap-2.5 pb-1">
               {similarProducts.map((p) => <MiniProductCard key={p.id} p={p} />)}
             </HorizontalScroll>
           </section>
@@ -468,7 +468,7 @@ const ProductDetail = () => {
         {/* Write Review */}
         {user?.role === "customer" && (
           <div className="space-y-3">
-            <h3 className="text-sm font-semibold text-foreground">Write a Review</h3>
+            <h3 className="section-title">Write a Review</h3>
             <div className="flex items-center gap-1">
               {[1, 2, 3, 4, 5].map((s) => (
                 <button
@@ -498,7 +498,7 @@ const ProductDetail = () => {
 
         {/* Reviews */}
         <div className="space-y-3">
-          <h3 className="text-sm font-semibold text-foreground">Reviews ({reviews.length})</h3>
+          <h3 className="section-title">Reviews ({reviews.length})</h3>
           {reviews.length === 0 ? (
             <p className="text-sm text-muted-foreground text-center py-4">No reviews yet</p>
           ) : (

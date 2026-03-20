@@ -105,13 +105,13 @@ const CustomerFeed = () => {
   }
 
   return (
-    <div className="space-y-10 pb-24">
+    <div className="space-y-8 pb-24">
       {/* SECTION 1 – Greeting */}
-      <section className="space-y-1.5">
-        <h1 className="text-xl font-bold text-foreground leading-tight">
+      <section className="space-y-1">
+        <h1 className="text-lg font-bold text-foreground leading-tight">
           {getGreeting()}{user?.name ? `, ${user.name.split(" ")[0]}` : ""} 👋
         </h1>
-        <p className="text-[13px] text-muted-foreground">Discover what's fresh and local today</p>
+        <p className="section-subtitle">Discover what's fresh and local today</p>
       </section>
 
       {/* SECTION 2 – Trending Near You */}
@@ -123,7 +123,7 @@ const CustomerFeed = () => {
             subtitle="Popular this week"
             onSeeAll={() => navigate("/explore")}
           />
-          <HorizontalScroll className="gap-4 pb-1">
+          <HorizontalScroll className="gap-3 pb-1">
             {nearbyProducts.map((product) => (
               <FeedProductCard key={product.id} product={product} onClick={() => handleProductClick(product)} />
             ))}
@@ -143,7 +143,7 @@ const CustomerFeed = () => {
             subtitle="Fresh today"
             onSeeAll={() => navigate("/explore/recommended")}
           />
-          <HorizontalScroll className="gap-4 pb-1">
+          <HorizontalScroll className="gap-3 pb-1">
             {recommended.map((product) => (
               <FeedProductCard key={product.id} product={product} onClick={() => handleProductClick(product)} />
             ))}
@@ -160,7 +160,7 @@ const CustomerFeed = () => {
             subtitle="Meet your local growers"
             onSeeAll={() => navigate("/find-farmer")}
           />
-          <HorizontalScroll className="gap-4 pb-1">
+          <HorizontalScroll className="gap-3 pb-1">
             {farmers.map((farmer) => (
               <FarmerCard key={farmer.id} farmer={farmer} onClick={() => navigate(`/farmer/${farmer.id}`)} />
             ))}
@@ -193,14 +193,14 @@ const FeedSectionHeader = ({
   subtitle?: string;
   onSeeAll?: () => void;
 }) => (
-  <div className="flex items-start justify-between mb-4">
-    <div className="flex items-start gap-2.5">
+  <div className="flex items-start justify-between mb-3">
+    <div className="flex items-start gap-2">
       <div className="w-7 h-7 rounded-lg bg-primary/10 flex items-center justify-center mt-0.5">
-        <Icon className="w-4 h-4 text-primary" />
+        <Icon className="w-3.5 h-3.5 text-primary" />
       </div>
       <div>
-        <h2 className="text-sm font-bold text-foreground leading-tight">{title}</h2>
-        {subtitle && <p className="text-[11px] text-muted-foreground mt-0.5">{subtitle}</p>}
+        <h2 className="section-title">{title}</h2>
+        {subtitle && <p className="section-subtitle mt-0.5">{subtitle}</p>}
       </div>
     </div>
     {onSeeAll && (
@@ -214,28 +214,28 @@ const FeedSectionHeader = ({
 const FeedProductCard = ({ product, onClick }: { product: EnrichedProduct; onClick: () => void }) => {
   const badge = getPlanBadge(product.farmerPlan);
   return (
-    <button onClick={onClick} className="card-interactive flex flex-col shrink-0 w-[180px] min-w-[180px] snap-start overflow-hidden text-left">
-      <div className="aspect-[3/2] bg-muted relative overflow-hidden rounded-t-[16px]">
+    <button onClick={onClick} className="card-interactive flex flex-col shrink-0 w-[164px] min-w-[164px] snap-start overflow-hidden text-left">
+      <div className="aspect-[3/2] bg-muted relative overflow-hidden" style={{ borderRadius: 'var(--radius-lg) var(--radius-lg) 0 0' }}>
         {product.images?.[0] ? (
           <img src={product.images[0]} alt={product.title} className="absolute inset-0 w-full h-full object-cover" />
         ) : (
           <div className="absolute inset-0 flex items-center justify-center">
-            <Package className="w-9 h-9 text-muted-foreground/20" />
+            <Package className="w-8 h-8 text-muted-foreground/20" />
           </div>
         )}
         {badge && (
-          <div className={`absolute top-2.5 right-2.5 px-2 py-0.5 rounded-lg text-[9px] font-bold ${badge.color}`}>
+          <div className={`absolute top-2 right-2 px-1.5 py-0.5 rounded-md text-[9px] font-bold ${badge.color}`}>
             {badge.label}
           </div>
         )}
       </div>
-      <div className="p-3.5 space-y-1">
-        <h3 className="text-sm font-semibold text-foreground truncate">{product.title}</h3>
+      <div className="p-3 space-y-1">
+        <h3 className="text-[13px] font-semibold text-foreground truncate">{product.title}</h3>
         <div className="flex items-center justify-between">
-          <span className="text-sm font-bold text-primary">${product.price.toFixed(2)}</span>
+          <span className="text-[13px] font-bold text-primary">${product.price.toFixed(2)}</span>
           {product.distance != null && (
             <span className="text-[10px] text-muted-foreground flex items-center gap-0.5">
-              <MapPin className="w-3 h-3" />
+              <MapPin className="w-2.5 h-2.5" />
               {formatDistance(product.distance)}
             </span>
           )}
@@ -276,16 +276,16 @@ const FreshFromFarmsSection = ({ userLocation }: { userLocation: { lat: number; 
 // ── Farmer Card ─────────────────────────────────────────────────
 
 const FarmerCard = ({ farmer, onClick }: { farmer: NearbyFarmer; onClick: () => void }) => (
-  <button onClick={onClick} className="card-interactive flex flex-col items-center shrink-0 w-[130px] min-w-[130px] snap-start p-5 text-center">
-    <div className="w-14 h-14 rounded-full bg-muted overflow-hidden flex items-center justify-center mb-3 ring-2 ring-border">
+  <button onClick={onClick} className="card-interactive flex flex-col items-center shrink-0 w-[120px] min-w-[120px] snap-start p-4 text-center">
+    <div className="w-12 h-12 rounded-full bg-muted overflow-hidden flex items-center justify-center mb-2.5 ring-2 ring-border">
       {farmer.avatar_url ? (
         <img src={farmer.avatar_url} alt="" className="w-full h-full object-cover" />
       ) : (
-        <span className="text-sm font-bold text-muted-foreground">{farmer.name[0]}</span>
+        <span className="text-[11px] font-bold text-muted-foreground">{farmer.name[0]}</span>
       )}
     </div>
     <p className="text-xs font-semibold text-foreground truncate w-full">{farmer.name}</p>
-    <div className="flex items-center gap-1 mt-1.5">
+    <div className="flex items-center gap-1 mt-1">
       {farmer.verified && <CheckCircle className="w-3 h-3 text-blue-500" />}
       {farmer.distance != null && (
         <span className="text-[9px] text-muted-foreground flex items-center gap-0.5">
