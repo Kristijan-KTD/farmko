@@ -256,4 +256,30 @@ const Home = () => {
   );
 };
 
+const FreshFromFarmsSection = () => {
+  const { posts, loading } = useInstafarmPosts({ limit: 6 });
+  const navigate = useNavigate();
+
+  if (loading || posts.length === 0) return null;
+
+  return (
+    <div className="space-y-3">
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-2">
+          <div className="w-6 h-6 rounded-md bg-primary/10 flex items-center justify-center">
+            <Camera className="w-3.5 h-3.5 text-primary" />
+          </div>
+          <h3 className="text-sm font-bold text-foreground">Fresh from farms</h3>
+        </div>
+        <button onClick={() => navigate("/instafarm")} className="text-xs font-semibold text-primary">See all</button>
+      </div>
+      <HorizontalScroll className="gap-3 pb-1">
+        {posts.map((post) => (
+          <InstafarmCard key={post.id} post={post} variant="compact" />
+        ))}
+      </HorizontalScroll>
+    </div>
+  );
+};
+
 export default Home;
