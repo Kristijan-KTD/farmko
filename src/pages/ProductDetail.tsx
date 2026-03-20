@@ -448,8 +448,8 @@ const ProductDetail = () => {
         {/* More From This Farmer */}
         {moreFromFarmer.length > 0 && (
           <section>
-            <h3 className="text-sm font-semibold text-foreground mb-2">More from this farmer</h3>
-            <HorizontalScroll className="gap-3 pb-1">
+            <h3 className="section-title mb-2.5">More from this farmer</h3>
+            <HorizontalScroll className="gap-2.5 pb-1">
               {moreFromFarmer.map((p) => <MiniProductCard key={p.id} p={p} />)}
             </HorizontalScroll>
           </section>
