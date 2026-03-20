@@ -10,6 +10,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAnalyticsTracking } from "@/hooks/useAnalyticsTracking";
 import HorizontalScroll from "@/components/HorizontalScroll";
 import { getPlanBadge } from "@/services/planService";
+import InstafarmCard from "@/components/instafarm/InstafarmCard";
+import { useInstafarmPosts } from "@/hooks/useInstafarmPosts";
 
 interface Review {
   id: string;
