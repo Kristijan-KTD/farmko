@@ -127,8 +127,8 @@ const Home = () => {
             </Button>
 
             {/* Section 2: Performance Summary */}
-            <div className="space-y-3">
-              <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Performance</h3>
+            <div className="space-y-2.5">
+              <h3 className="section-label">Performance</h3>
               {loading ? (
                 <div className="flex justify-center py-8"><Loader2 className="w-5 h-5 animate-spin text-primary" /></div>
               ) : (
