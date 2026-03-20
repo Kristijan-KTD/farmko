@@ -128,7 +128,7 @@ const Explore = () => {
 
       {/* Results count */}
       {!loading && !error && filtered.length > 0 && (
-        <p className="text-[11px] text-muted-foreground mb-1.5">{sorted.length} result{sorted.length !== 1 ? "s" : ""}</p>
+        <p className="text-[11px] text-muted-foreground mb-1">{sorted.length} result{sorted.length !== 1 ? "s" : ""}</p>
       )}
 
       {/* Product List — dense, compact */}
