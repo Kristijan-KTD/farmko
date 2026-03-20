@@ -11,12 +11,12 @@ const PageHeader = ({ title, onBack, rightAction }: PageHeaderProps) => {
   const navigate = useNavigate();
 
   return (
-    <div className="flex items-center justify-between py-4">
-      <button onClick={onBack || (() => navigate(-1))} className="p-1">
+    <div className="flex items-center justify-between h-14">
+      <button onClick={onBack || (() => navigate(-1))} className="w-8 h-8 flex items-center justify-center -ml-1">
         <ArrowLeft className="w-5 h-5 text-foreground" />
       </button>
-      <h1 className="text-base font-semibold text-foreground">{title}</h1>
-      <div className="w-8">{rightAction}</div>
+      <h1 className="text-[15px] font-semibold text-foreground">{title}</h1>
+      <div className="w-8 flex items-center justify-center">{rightAction}</div>
     </div>
   );
 };
