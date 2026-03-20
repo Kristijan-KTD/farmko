@@ -96,24 +96,24 @@ const Home = () => {
 
       <div className="flex-1 pb-20 lg:pb-4 section-gap">
         {/* Profile Header */}
-        <div className="flex items-center gap-3.5">
-          <div className="w-13 h-13 rounded-full bg-muted overflow-hidden flex items-center justify-center ring-2 ring-border" style={{ width: 52, height: 52 }}>
+        <div className="flex items-center gap-3">
+          <div className="w-12 h-12 rounded-full bg-muted overflow-hidden flex items-center justify-center ring-2 ring-border">
             {user?.avatar_url ? (
               <img src={user.avatar_url} alt="" className="w-full h-full object-cover" />
             ) : (
-              <User className="w-6 h-6 text-muted-foreground" />
+              <User className="w-5 h-5 text-muted-foreground" />
             )}
           </div>
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-2">
-              <h2 className="text-lg font-bold text-foreground truncate leading-tight">{user?.name || "User"}</h2>
+              <h2 className="text-base font-bold text-foreground truncate leading-tight">{user?.name || "User"}</h2>
               {planBadge && (
-                <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${planBadge.color}`}>
+                <span className={`text-[9px] font-bold px-1.5 py-0.5 rounded-full ${planBadge.color}`}>
                   {planBadge.label}
                 </span>
               )}
             </div>
-            <p className="text-xs text-muted-foreground capitalize mt-0.5">{user?.role}</p>
+            <p className="text-[11px] text-muted-foreground capitalize mt-0.5">{user?.role}</p>
           </div>
         </div>
 
