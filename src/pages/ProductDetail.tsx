@@ -399,7 +399,7 @@ const ProductDetail = () => {
             Contact Farmer
           </Button>
           {user && (
-            <Button variant="outline" onClick={handleToggleFavorite} className="rounded-md h-12 px-4 border-border">
+            <Button variant="outline" onClick={handleToggleFavorite} className="rounded-md h-11 px-3.5 border-border">
               <Heart className={`w-5 h-5 ${isFavorited ? "fill-red-500 text-red-500" : ""}`} />
             </Button>
           )}
