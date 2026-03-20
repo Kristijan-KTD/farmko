@@ -165,15 +165,15 @@ const Home = () => {
                   <h3 className="section-label">My Store</h3>
                   <button onClick={() => navigate("/my-store")} className="text-xs font-semibold text-primary">View all</button>
                 </div>
-                <div className="space-y-2">
+                <div className="space-y-1">
                   {storePreview.map((p) => (
                     <button key={p.id} onClick={() => navigate(`/product/${p.id}`)} className="list-item-subtle">
-                      <div className="w-12 h-12 rounded-md bg-muted flex items-center justify-center overflow-hidden shrink-0">
-                        {p.images?.[0] ? <img src={p.images[0]} alt="" className="w-full h-full object-cover" /> : <Package className="w-5 h-5 text-muted-foreground/30" />}
+                      <div className="w-11 h-11 rounded-md bg-muted flex items-center justify-center overflow-hidden shrink-0">
+                        {p.images?.[0] ? <img src={p.images[0]} alt="" className="w-full h-full object-cover" /> : <Package className="w-4 h-4 text-muted-foreground/30" />}
                       </div>
                       <div className="flex-1 min-w-0">
-                        <p className="text-sm font-medium text-foreground truncate">{p.title}</p>
-                        <p className="text-xs font-semibold text-primary mt-0.5">${p.price.toFixed(2)}</p>
+                        <p className="text-[13px] font-medium text-foreground truncate">{p.title}</p>
+                        <p className="text-xs font-bold text-primary mt-0.5">${p.price.toFixed(2)}</p>
                       </div>
                     </button>
                   ))}
