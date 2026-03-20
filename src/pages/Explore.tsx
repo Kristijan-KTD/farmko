@@ -209,13 +209,13 @@ const ExploreProductRow = ({ product, onClick }: { product: EnrichedProduct; onC
 const ExploreSkeleton = () => (
   <div className="divide-y divide-border">
     {Array.from({ length: 12 }).map((_, i) => (
-      <div key={i} className="flex items-center gap-2.5 px-1 py-2 animate-pulse">
-        <div className="w-11 h-11 rounded-lg bg-muted shrink-0" />
+      <div key={i} className="flex items-center gap-3 px-1 py-2.5 animate-pulse">
+        <div className="w-11 h-11 rounded-md bg-muted shrink-0" />
         <div className="flex-1 space-y-1.5">
           <div className="h-3.5 bg-muted rounded w-3/4" />
           <div className="h-3 bg-muted rounded w-1/2" />
         </div>
-        <div className="space-y-1">
+        <div className="space-y-1.5">
           <div className="h-3 bg-muted rounded w-10" />
           <div className="h-2.5 bg-muted rounded w-8 ml-auto" />
         </div>
