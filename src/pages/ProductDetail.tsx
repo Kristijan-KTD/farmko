@@ -458,8 +458,8 @@ const ProductDetail = () => {
         {/* Similar Products */}
         {similarProducts.length > 0 && (
           <section>
-            <h3 className="text-sm font-semibold text-foreground mb-2">Similar products</h3>
-            <HorizontalScroll className="gap-3 pb-1">
+            <h3 className="section-title mb-2.5">Similar products</h3>
+            <HorizontalScroll className="gap-2.5 pb-1">
               {similarProducts.map((p) => <MiniProductCard key={p.id} p={p} />)}
             </HorizontalScroll>
           </section>
