@@ -627,13 +627,54 @@ const Instafarm = () => {
                 onChange={(e) => handleCaptionChange(e.target.value)}
                 className="w-full bg-secondary rounded-lg p-3 text-sm outline-none resize-none h-20 placeholder:text-muted-foreground"
               />
-              {/* Price warning */}
-              {priceWarning && (
-                <div className="flex items-start gap-2 mt-2 p-2.5 rounded-md bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-800">
-                  <AlertTriangle className="w-4 h-4 text-amber-600 shrink-0 mt-0.5" />
-                  <p className="text-[11px] text-amber-700 dark:text-amber-400 leading-relaxed">
-                    Your caption contains pricing. To promote a product, please link it to an existing listing below.
-                  </p>
+              {/* Smart intent detection warnings */}
+              {(showSoftWarning || showHardBlock) && intentMessage && (
+                <div className={`flex items-start gap-2 mt-2 p-2.5 rounded-md border ${
+                  showHardBlock
+                    ? "bg-destructive/5 border-destructive/30"
+                    : "bg-amber-50 dark:bg-amber-950/30 border-amber-200 dark:border-amber-800"
+                }`}>
+                  {showHardBlock
+                    ? <ShieldAlert className="w-4 h-4 text-destructive shrink-0 mt-0.5" />
+                    : <Info className="w-4 h-4 text-amber-600 shrink-0 mt-0.5" />
+                  }
+                  <div className="flex-1">
+                    <p className={`text-[11px] font-medium ${showHardBlock ? "text-destructive" : "text-amber-700 dark:text-amber-400"}`}>
+                      {intentMessage.title}
+                    </p>
+                    <p className={`text-[11px] mt-0.5 leading-relaxed ${showHardBlock ? "text-destructive/80" : "text-amber-600 dark:text-amber-400/80"}`}>
+                      {intentMessage.description}
+                    </p>
+                    {/* Assist actions */}
+                    <div className="flex items-center gap-2 mt-2">
+                      {farmerProducts.length > 0 ? (
+                        <button
+                          onClick={() => {
+                            const tagSection = document.getElementById("product-tag-section");
+                            tagSection?.scrollIntoView({ behavior: "smooth" });
+                          }}
+                          className="inline-flex items-center gap-1 text-[11px] font-semibold text-primary"
+                        >
+                          <LinkIcon className="w-3 h-3" /> Link existing product
+                        </button>
+                      ) : (
+                        <button
+                          onClick={() => navigate("/post")}
+                          className="inline-flex items-center gap-1 text-[11px] font-semibold text-primary"
+                        >
+                          <Package className="w-3 h-3" /> Create product listing
+                        </button>
+                      )}
+                      {showSoftWarning && (
+                        <button
+                          onClick={() => setDismissedWarning(true)}
+                          className="text-[11px] text-muted-foreground ml-auto"
+                        >
+                          Dismiss
+                        </button>
+                      )}
+                    </div>
+                  </div>
                 </div>
               )}
             </div>
