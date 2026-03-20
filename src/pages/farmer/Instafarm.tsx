@@ -59,12 +59,7 @@ interface FarmerProduct {
   images: string[] | null;
 }
 
-// Detects price-like patterns in text (e.g. "$5", "€10", "5.00 per", "10$/kg")
-const PRICE_PATTERN = /[$€£]\s*\d+|\d+\s*[$€£]|\d+\.\d{2}|\d+\s*(per|each|\/)\s*/i;
-
-function detectsPriceInCaption(caption: string): boolean {
-  return PRICE_PATTERN.test(caption);
-}
+import { analyzeCaption, getIntentMessage, type CaptionAnalysis } from "@/lib/captionAnalysis";
 
 const Instafarm = () => {
   const [view, setView] = useState<"grid" | "feed">("grid");
