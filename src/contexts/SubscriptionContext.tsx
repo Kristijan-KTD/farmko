@@ -38,7 +38,10 @@ interface SubscriptionState {
   subscriptionEnd: string | null;
   isLoading: boolean;
   listingLimit: number | null;
+  postLimit: number | null;
   canCreateListing: (currentCount: number) => boolean;
+  canCreatePost: (currentMonthCount: number) => boolean;
+  canTagProducts: boolean;
   hasFeature: (feature: "analytics" | "featured_badge" | "farm_story" | "farm_banner" | "favorites") => boolean;
   refreshSubscription: () => Promise<void>;
 }
