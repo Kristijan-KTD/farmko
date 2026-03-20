@@ -1,10 +1,11 @@
 import { useState, useEffect, useRef, useCallback } from "react";
-import { Plus, Heart, MessageCircle, Grid, Image as ImageIcon, Loader2, Camera, AlertTriangle, Package, ExternalLink } from "lucide-react";
+import { Plus, Heart, MessageCircle, Grid, Image as ImageIcon, Loader2, Camera, AlertTriangle, Package, ExternalLink, Lock } from "lucide-react";
 import MobileLayout from "@/components/layout/MobileLayout";
 import PageHeader from "@/components/layout/PageHeader";
 import BottomNav from "@/components/layout/BottomNav";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/contexts/AuthContext";
+import { useSubscription } from "@/contexts/SubscriptionContext";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import {
@@ -21,6 +22,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import UpgradeModal from "@/components/UpgradeModal";
 
 interface Comment {
   id: string;
@@ -57,6 +59,13 @@ interface FarmerProduct {
   images: string[] | null;
 }
 
+// Detects price-like patterns in text (e.g. "$5", "€10", "5.00 per", "10$/kg")
+const PRICE_PATTERN = /[$€£]\s*\d+|\d+\s*[$€£]|\d+\.\d{2}|\d+\s*(per|each|\/)\s*/i;
+
+function detectsPriceInCaption(caption: string): boolean {
+  return PRICE_PATTERN.test(caption);
+}
+
 const Instafarm = () => {
   const [view, setView] = useState<"grid" | "feed">("grid");
   const [posts, setPosts] = useState<Post[]>([]);
@@ -74,9 +83,14 @@ const Instafarm = () => {
   const [uploadFile, setUploadFile] = useState<File | null>(null);
   const [uploadPreview, setUploadPreview] = useState("");
   const [uploading, setUploading] = useState(false);
+  const [monthlyPostCount, setMonthlyPostCount] = useState(0);
+  const [showUpgrade, setShowUpgrade] = useState(false);
+  const [upgradeMessage, setUpgradeMessage] = useState({ title: "", description: "" });
+  const [priceWarning, setPriceWarning] = useState(false);
   const fileRef = useRef<HTMLInputElement>(null);
   const { toast } = useToast();
   const { user } = useAuth();
+  const { plan, canCreatePost, postLimit, canTagProducts, isLoading: subLoading } = useSubscription();
   const navigate = useNavigate();
 
   // Fetch farmer's products for tagging
@@ -89,6 +103,23 @@ const Instafarm = () => {
       .eq("status", "active")
       .then(({ data }) => {
         if (data) setFarmerProducts(data);
+      });
+  }, [user]);
+
+  // Count posts this month
+  useEffect(() => {
+    if (!user || user.role !== "farmer") return;
+    const startOfMonth = new Date();
+    startOfMonth.setDate(1);
+    startOfMonth.setHours(0, 0, 0, 0);
+
+    supabase
+      .from("instafarm_posts")
+      .select("id", { count: "exact", head: true })
+      .eq("farmer_id", user.id)
+      .gte("created_at", startOfMonth.toISOString())
+      .then(({ count }) => {
+        setMonthlyPostCount(count || 0);
       });
   }, [user]);
 
@@ -226,6 +257,19 @@ const Instafarm = () => {
     }
   };
 
+  const handleNewPostClick = () => {
+    if (subLoading) return;
+    if (!canCreatePost(monthlyPostCount)) {
+      setUpgradeMessage({
+        title: "You've reached your free post limit",
+        description: `Your ${plan} plan allows ${postLimit} posts per month. Upgrade to share more and promote your products.`,
+      });
+      setShowUpgrade(true);
+      return;
+    }
+    fileRef.current?.click();
+  };
+
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
@@ -236,6 +280,7 @@ const Instafarm = () => {
     setUploadFile(file);
     const previewUrl = URL.createObjectURL(file);
     setUploadPreview(previewUrl);
+    setPriceWarning(false);
     setShowUpload(true);
   };
 
@@ -246,10 +291,41 @@ const Instafarm = () => {
     setUploadPreview("");
     setCaption("");
     setSelectedProductId("");
+    setPriceWarning(false);
+  };
+
+  const handleCaptionChange = (value: string) => {
+    setCaption(value);
+    // Detect price patterns when no product is linked
+    const productId = selectedProductId && selectedProductId !== "none" ? selectedProductId : null;
+    setPriceWarning(!productId && detectsPriceInCaption(value));
   };
 
   const handleUploadPost = async () => {
     if (!uploadFile || !user || uploading) return;
+
+    const productId = selectedProductId && selectedProductId !== "none" ? selectedProductId : null;
+
+    // Block if price-like content without linked product
+    if (!productId && detectsPriceInCaption(caption)) {
+      toast({
+        title: "Product link required",
+        description: "To promote a product with pricing, please link it to an existing listing.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    // Re-check post limit
+    if (!canCreatePost(monthlyPostCount)) {
+      setUpgradeMessage({
+        title: "You've reached your free post limit",
+        description: `Upgrade to share more posts and promote your products.`,
+      });
+      setShowUpgrade(true);
+      return;
+    }
+
     setUploading(true);
 
     try {
@@ -265,11 +341,12 @@ const Instafarm = () => {
         farmer_id: user.id,
         image_url: urlData.publicUrl,
         caption: caption || null,
-        product_id: selectedProductId || null,
+        product_id: productId,
       });
 
       if (insertErr) throw new Error(insertErr.message);
 
+      setMonthlyPostCount(prev => prev + 1);
       closeUploadDialog();
       toast({ title: "Post shared!" });
       fetchPosts();
@@ -292,6 +369,7 @@ const Instafarm = () => {
 
   const totalLikes = posts.reduce((a, p) => a + p.likes_count, 0);
   const totalComments = posts.reduce((a, p) => a + p.comments_count, 0);
+  const postLimitDisplay = postLimit === null ? "Unlimited" : String(postLimit);
 
   const ProductTag = ({ product }: { product: TaggedProduct }) => (
     <button
@@ -317,14 +395,14 @@ const Instafarm = () => {
     <MobileLayout>
       <PageHeader title="Instafarm" rightAction={
         user?.role === "farmer" ? (
-          <button className="text-primary" onClick={() => fileRef.current?.click()}>
+          <button className="text-primary" onClick={handleNewPostClick}>
             <Plus className="w-5 h-5" />
           </button>
         ) : undefined
       } />
       <input ref={fileRef} type="file" accept="image/*" className="hidden" onChange={handleFileSelect} />
 
-      {/* Stats bar */}
+      {/* Stats bar with post limit */}
       <div className="flex items-center justify-around py-3 mb-2 border-b border-border">
         <div className="text-center">
           <p className="text-lg font-bold text-foreground">{posts.length}</p>
@@ -339,6 +417,26 @@ const Instafarm = () => {
           <p className="text-[10px] text-muted-foreground">Comments</p>
         </div>
       </div>
+
+      {/* Post limit indicator for farmers */}
+      {user?.role === "farmer" && !subLoading && (
+        <div className="flex items-center justify-between px-1 py-2 mb-3">
+          <span className="text-[11px] text-muted-foreground">
+            Posts this month: <span className="font-semibold text-foreground">{monthlyPostCount}</span> / <span className="font-semibold text-foreground">{postLimitDisplay}</span>
+          </span>
+          {!canCreatePost(monthlyPostCount) && (
+            <button
+              onClick={() => {
+                setUpgradeMessage({ title: "You've reached your free post limit", description: "Upgrade to Pro to share more and promote your products." });
+                setShowUpgrade(true);
+              }}
+              className="text-[11px] font-semibold text-primary"
+            >
+              Upgrade
+            </button>
+          )}
+        </div>
+      )}
 
       <div className="flex gap-4 mb-4 border-b border-border">
         <button onClick={() => setView("grid")} className={`pb-3 px-2 text-sm font-medium transition-colors ${view === "grid" ? "text-primary border-b-2 border-primary" : "text-muted-foreground"}`}>
@@ -416,7 +514,7 @@ const Instafarm = () => {
                   <img src={post.image_url} alt="" className="w-full h-full object-cover" />
                 </div>
 
-                {/* Caption first — story focus */}
+                {/* Caption — story focus */}
                 {post.caption && (
                   <p className="text-sm text-foreground leading-relaxed">
                     <span className="font-semibold">{post.farmer?.name ?? "Unknown"} </span>
@@ -424,7 +522,7 @@ const Instafarm = () => {
                   </p>
                 )}
 
-                {/* Tagged Product — prominent */}
+                {/* Tagged Product — only show product card when linked */}
                 {post.tagged_product && <ProductTag product={post.tagged_product} />}
 
                 {/* Subtle social actions */}
@@ -439,6 +537,7 @@ const Instafarm = () => {
                       {post.comments_count > 0 && <span>{post.comments_count}</span>}
                     </button>
                   </div>
+                  {/* CTA: only "View Product" when linked, otherwise "View Farmer" */}
                   <button
                     onClick={() => {
                       if (post.tagged_product) navigate(`/product/${post.tagged_product.id}`);
@@ -515,37 +614,95 @@ const Instafarm = () => {
                 <img src={uploadPreview} alt="Preview" className="w-full h-full object-cover" />
               </div>
             )}
-            <textarea
-              placeholder="Write a caption..."
-              value={caption}
-              onChange={(e) => setCaption(e.target.value)}
-              className="w-full bg-secondary rounded-lg p-3 text-sm outline-none resize-none h-20 placeholder:text-muted-foreground"
-            />
-            {/* Product tagging */}
-            {farmerProducts.length > 0 && (
-              <div className="space-y-1.5">
-                <label className="text-xs font-medium text-muted-foreground">Tag a product (optional)</label>
-                <Select value={selectedProductId} onValueChange={setSelectedProductId}>
-                  <SelectTrigger className="w-full">
-                    <SelectValue placeholder="Select a product to tag" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="none">No product</SelectItem>
-                    {farmerProducts.map(p => (
-                      <SelectItem key={p.id} value={p.id}>
-                        {p.title} — ${p.price.toFixed(2)}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+            <div>
+              <textarea
+                placeholder="Write a caption..."
+                value={caption}
+                onChange={(e) => handleCaptionChange(e.target.value)}
+                className="w-full bg-secondary rounded-lg p-3 text-sm outline-none resize-none h-20 placeholder:text-muted-foreground"
+              />
+              {/* Price warning */}
+              {priceWarning && (
+                <div className="flex items-start gap-2 mt-2 p-2.5 rounded-md bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-800">
+                  <AlertTriangle className="w-4 h-4 text-amber-600 shrink-0 mt-0.5" />
+                  <p className="text-[11px] text-amber-700 dark:text-amber-400 leading-relaxed">
+                    Your caption contains pricing. To promote a product, please link it to an existing listing below.
+                  </p>
+                </div>
+              )}
+            </div>
+
+            {/* Product tagging — controlled by plan */}
+            {canTagProducts ? (
+              farmerProducts.length > 0 ? (
+                <div className="space-y-1.5">
+                  <label className="text-xs font-medium text-muted-foreground">Tag a product (optional)</label>
+                  <Select value={selectedProductId} onValueChange={(v) => {
+                    setSelectedProductId(v);
+                    // Re-check price warning
+                    const linked = v && v !== "none";
+                    setPriceWarning(!linked && detectsPriceInCaption(caption));
+                  }}>
+                    <SelectTrigger className="w-full">
+                      <SelectValue placeholder="Select a product to tag" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="none">No product</SelectItem>
+                      {farmerProducts.map(p => (
+                        <SelectItem key={p.id} value={p.id}>
+                          {p.title} — ${p.price.toFixed(2)}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  {farmerProducts.length === 0 && (
+                    <p className="text-[11px] text-muted-foreground">
+                      No active listings. <button onClick={() => navigate("/post")} className="text-primary font-semibold">Create a listing</button> to tag products.
+                    </p>
+                  )}
+                </div>
+              ) : (
+                <div className="p-3 rounded-md bg-secondary border border-border">
+                  <p className="text-xs text-muted-foreground">
+                    No active listings. <button onClick={() => navigate("/post")} className="text-primary font-semibold">Create a product listing</button> to promote items in your posts.
+                  </p>
+                </div>
+              )
+            ) : (
+              <div className="p-3 rounded-md bg-secondary border border-border flex items-start gap-2">
+                <Lock className="w-4 h-4 text-muted-foreground shrink-0 mt-0.5" />
+                <div>
+                  <p className="text-xs font-medium text-foreground">Product tagging</p>
+                  <p className="text-[11px] text-muted-foreground mt-0.5">
+                    Upgrade to Growth or Pro to tag products in your posts.{" "}
+                    <button
+                      onClick={() => {
+                        setUpgradeMessage({ title: "Upgrade to tag products", description: "Product tagging lets you link listings directly to your posts, driving more sales." });
+                        setShowUpgrade(true);
+                      }}
+                      className="text-primary font-semibold"
+                    >
+                      View Plans
+                    </button>
+                  </p>
+                </div>
               </div>
             )}
-            <Button onClick={handleUploadPost} disabled={uploading} className="w-full rounded-full">
+
+            <Button onClick={handleUploadPost} disabled={uploading || (priceWarning && !selectedProductId)} className="w-full rounded-full">
               {uploading ? "Posting..." : "Share Post"}
             </Button>
           </div>
         </DialogContent>
       </Dialog>
+
+      {/* Upgrade Modal */}
+      <UpgradeModal
+        open={showUpgrade}
+        onClose={() => setShowUpgrade(false)}
+        title={upgradeMessage.title}
+        description={upgradeMessage.description}
+      />
 
       <BottomNav />
     </MobileLayout>
