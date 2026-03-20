@@ -281,7 +281,7 @@ const FarmerInstafarmSection = ({ farmerId }: { farmerId: string }) => {
           <div className="w-6 h-6 rounded-md bg-primary/10 flex items-center justify-center">
             <Camera className="w-3.5 h-3.5 text-primary" />
           </div>
-          <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">From the Farm</h3>
+          <h3 className="section-label">From the Farm</h3>
         </div>
         <button onClick={() => navigate("/instafarm")} className="text-xs font-semibold text-primary">View all</button>
       </div>

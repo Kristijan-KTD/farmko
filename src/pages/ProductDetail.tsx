@@ -498,7 +498,7 @@ const ProductDetail = () => {
 
         {/* Reviews */}
         <div className="space-y-3">
-          <h3 className="text-sm font-semibold text-foreground">Reviews ({reviews.length})</h3>
+          <h3 className="section-title">Reviews ({reviews.length})</h3>
           {reviews.length === 0 ? (
             <p className="text-sm text-muted-foreground text-center py-4">No reviews yet</p>
           ) : (
