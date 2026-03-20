@@ -257,7 +257,18 @@ const Home = () => {
 };
 
 const FreshFromFarmsSection = () => {
-  const { posts, loading } = useInstafarmPosts({ limit: 6 });
+  const [userLocation, setUserLocation] = useState<{ lat: number; lng: number } | null>(null);
+
+  useEffect(() => {
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        (pos) => setUserLocation({ lat: pos.coords.latitude, lng: pos.coords.longitude }),
+        () => {}
+      );
+    }
+  }, []);
+
+  const { posts, loading, isFallback } = useInstafarmPosts({ limit: 6, userLocation, maxDistance: 100 });
   const navigate = useNavigate();
 
   if (loading || posts.length === 0) return null;
@@ -273,6 +284,9 @@ const FreshFromFarmsSection = () => {
         </div>
         <button onClick={() => navigate("/instafarm")} className="text-xs font-semibold text-primary">See all</button>
       </div>
+      {isFallback && userLocation && (
+        <p className="text-[11px] text-muted-foreground">No nearby farms found. Showing farms from your region.</p>
+      )}
       <HorizontalScroll className="gap-3 pb-1">
         {posts.map((post) => (
           <InstafarmCard key={post.id} post={post} variant="compact" />
