@@ -171,8 +171,8 @@ const Explore = () => {
 const ExploreProductRow = ({ product, onClick }: { product: EnrichedProduct; onClick: () => void }) => {
   const badge = getPlanBadge(product.farmerPlan);
   return (
-    <button onClick={onClick} className="w-full flex items-center gap-2.5 px-1 py-2 hover:bg-accent/40 transition-colors text-left active:scale-[0.98]">
-      <div className="w-11 h-11 rounded-lg bg-muted flex items-center justify-center overflow-hidden shrink-0">
+    <button onClick={onClick} className="w-full flex items-center gap-3 px-1 py-2.5 hover:bg-accent/40 transition-colors text-left active:scale-[0.98]">
+      <div className="w-11 h-11 rounded-md bg-muted flex items-center justify-center overflow-hidden shrink-0">
         {product.images?.[0] ? (
           <img src={product.images[0]} alt={product.title} className="w-full h-full object-cover" />
         ) : (
@@ -186,15 +186,15 @@ const ExploreProductRow = ({ product, onClick }: { product: EnrichedProduct; onC
             <span className={`text-[8px] font-bold px-1.5 py-0.5 rounded-full shrink-0 ${badge.color}`}>{badge.label}</span>
           )}
         </div>
-        <div className="flex items-center gap-1 mt-0.5">
-          <p className="text-[11px] text-muted-foreground truncate">{product.farmer?.name || "Unknown"}</p>
+        <p className="text-[11px] text-muted-foreground truncate mt-0.5 flex items-center gap-1">
+          {product.farmer?.name || "Unknown"}
           {product.farmer?.verified && <CheckCircle className="w-2.5 h-2.5 text-blue-500 shrink-0" />}
-        </div>
+        </p>
       </div>
-      <div className="text-right shrink-0">
-        <span className="text-xs font-bold text-primary">${product.price.toFixed(2)}</span>
+      <div className="text-right shrink-0 space-y-0.5">
+        <span className="text-xs font-bold text-primary block">${product.price.toFixed(2)}</span>
         {product.distance != null && (
-          <span className="text-[9px] text-muted-foreground flex items-center gap-0.5 justify-end mt-0.5">
+          <span className="text-[9px] text-muted-foreground flex items-center gap-0.5 justify-end">
             <MapPin className="w-2.5 h-2.5" />
             {formatDistance(product.distance)}
           </span>
