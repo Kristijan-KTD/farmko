@@ -44,30 +44,21 @@ serve(async (req) => {
     }
 
     const token = authHeader.replace("Bearer ", "");
+    const { data: userData, error: userError } = await supabaseClient.auth.getUser(token);
     
-    // Use getClaims for local JWT validation (no server round-trip, more resilient)
-    const { data: claimsData, error: claimsError } = await supabaseClient.auth.getClaims(token);
-    
-    if (claimsError || !claimsData?.claims) {
-      logStep("JWT claims validation failed", { error: claimsError?.message });
-      return new Response(JSON.stringify({ error: "Invalid token", subscribed: false, plan: "starter" }), {
+    if (userError || !userData.user?.email) {
+      logStep("Auth failed, returning starter gracefully", { error: userError?.message });
+      // Return 200 with starter instead of 401 to prevent frontend error loops
+      return new Response(JSON.stringify({ subscribed: false, plan: "starter" }), {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
-        status: 401,
+        status: 200,
       });
     }
 
-    const userId = claimsData.claims.sub as string;
-    const email = claimsData.claims.email as string;
-    
-    if (!email) {
-      logStep("No email in JWT claims");
-      return new Response(JSON.stringify({ error: "No email in token", subscribed: false, plan: "starter" }), {
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-        status: 401,
-      });
-    }
-
-    logStep("User authenticated via claims", { userId, email });
+    const user = userData.user;
+    const userId = user.id;
+    const email = user.email!;
+    logStep("User authenticated", { userId, email });
 
     const stripe = new Stripe(stripeKey, { apiVersion: "2023-10-16" });
     const customers = await stripe.customers.list({ email, limit: 1 });
