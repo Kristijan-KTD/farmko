@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { MapPin, Package, Sparkles, Camera, User, CheckCircle, Loader2, TrendingUp, Leaf, Clock } from "lucide-react";
+import { MapPin, Package, Sparkles, Camera, User, CheckCircle, Loader2, TrendingUp } from "lucide-react";
 import HorizontalScroll from "@/components/HorizontalScroll";
 import InstafarmCard from "@/components/instafarm/InstafarmCard";
 import { useInstafarmPosts } from "@/hooks/useInstafarmPosts";
@@ -105,18 +105,18 @@ const CustomerFeed = () => {
   }
 
   return (
-    <div className="space-y-8 pb-24">
+    <div className="pb-24">
       {/* SECTION 1 – Greeting */}
       <section className="space-y-1">
         <h1 className="text-lg font-bold text-foreground leading-tight">
           {getGreeting()}{user?.name ? `, ${user.name.split(" ")[0]}` : ""} 👋
         </h1>
-        <p className="section-subtitle">Discover what's fresh and local today</p>
+        <p className="text-secondary-meta">Discover what's fresh and local today</p>
       </section>
 
-      {/* SECTION 2 – Trending Near You */}
+      {/* SECTION 2 – Trending Near You (Level 1 — primary) */}
       {nearbyProducts.length > 0 && (
-        <section>
+        <section className="section-l1">
           <FeedSectionHeader
             icon={TrendingUp}
             title="Trending near you"
@@ -131,12 +131,14 @@ const CustomerFeed = () => {
         </section>
       )}
 
-      {/* SECTION 3 – Fresh from Farms (Instafarm) */}
-      <FreshFromFarmsSection userLocation={userLocation} />
+      {/* SECTION 3 – Fresh from Farms (Level 2 — standard) */}
+      <div className="section-l2">
+        <FreshFromFarmsSection userLocation={userLocation} />
+      </div>
 
-      {/* SECTION 4 – Picked for You (horizontal scroll) */}
+      {/* SECTION 4 – Picked for You (Level 2 — standard) */}
       {recommended.length > 0 && (
-        <section>
+        <section className="section-l2">
           <FeedSectionHeader
             icon={Sparkles}
             title="Picked for you"
@@ -151,16 +153,16 @@ const CustomerFeed = () => {
         </section>
       )}
 
-      {/* SECTION 5 – Farmers Near You */}
+      {/* SECTION 5 – Farmers Near You (Level 3 — compact) */}
       {farmers.length > 0 && (
-        <section>
+        <section className="section-l3">
           <FeedSectionHeader
             icon={User}
             title="Farmers near you"
             subtitle="Meet your local growers"
             onSeeAll={() => navigate("/find-farmer")}
           />
-          <HorizontalScroll className="gap-3 pb-1">
+          <HorizontalScroll className="gap-2.5 pb-1">
             {farmers.map((farmer) => (
               <FarmerCard key={farmer.id} farmer={farmer} onClick={() => navigate(`/farmer/${farmer.id}`)} />
             ))}
@@ -194,27 +196,27 @@ const FeedSectionHeader = ({
   onSeeAll?: () => void;
 }) => (
   <div className="flex items-start justify-between mb-3">
-    <div className="flex items-start gap-2">
-      <div className="w-7 h-7 rounded-lg bg-primary/10 flex items-center justify-center mt-0.5">
+    <div className="flex items-center gap-2">
+      <div className="w-7 h-7 rounded-lg bg-primary/10 flex items-center justify-center">
         <Icon className="w-3.5 h-3.5 text-primary" />
       </div>
       <div>
-        <h2 className="section-title">{title}</h2>
-        {subtitle && <p className="section-subtitle mt-0.5">{subtitle}</p>}
+        <h2 className="text-primary-title">{title}</h2>
+        {subtitle && <p className="text-tertiary-label mt-0.5">{subtitle}</p>}
       </div>
     </div>
     {onSeeAll && (
-      <button onClick={onSeeAll} className="text-xs font-semibold text-primary mt-0.5">See all</button>
+      <button onClick={onSeeAll} className="text-xs font-semibold text-primary pt-1">See all</button>
     )}
   </div>
 );
 
-// ── Feed Product Card (visual, spacious) ────────────────────────
+// ── Feed Product Card (Feature Card — visual, spacious) ─────────
 
 const FeedProductCard = ({ product, onClick }: { product: EnrichedProduct; onClick: () => void }) => {
   const badge = getPlanBadge(product.farmerPlan);
   return (
-    <button onClick={onClick} className="card-interactive flex flex-col shrink-0 w-[164px] min-w-[164px] snap-start overflow-hidden text-left">
+    <button onClick={onClick} className="card-interactive flex flex-col shrink-0 w-[160px] min-w-[160px] snap-start overflow-hidden text-left">
       <div className="aspect-[3/2] bg-muted relative overflow-hidden" style={{ borderRadius: 'var(--radius-lg) var(--radius-lg) 0 0' }}>
         {product.images?.[0] ? (
           <img src={product.images[0]} alt={product.title} className="absolute inset-0 w-full h-full object-cover" />
@@ -234,7 +236,7 @@ const FeedProductCard = ({ product, onClick }: { product: EnrichedProduct; onCli
         <div className="flex items-center justify-between">
           <span className="text-[13px] font-bold text-primary">${product.price.toFixed(2)}</span>
           {product.distance != null && (
-            <span className="text-[10px] text-muted-foreground flex items-center gap-0.5">
+            <span className="text-tertiary-label flex items-center gap-0.5">
               <MapPin className="w-2.5 h-2.5" />
               {formatDistance(product.distance)}
             </span>
@@ -262,9 +264,9 @@ const FreshFromFarmsSection = ({ userLocation }: { userLocation: { lat: number; 
         onSeeAll={() => navigate("/instafarm")}
       />
       {isFallback && userLocation && (
-        <p className="text-[11px] text-muted-foreground mb-2.5">No nearby farms found. Showing farms from your region.</p>
+        <p className="text-tertiary-label mb-2.5">No nearby farms found. Showing farms from your region.</p>
       )}
-      <HorizontalScroll className="gap-4 pb-1">
+      <HorizontalScroll className="gap-3 pb-1">
         {posts.map((post) => (
           <InstafarmCard key={post.id} post={post} variant="compact" />
         ))}
@@ -273,11 +275,11 @@ const FreshFromFarmsSection = ({ userLocation }: { userLocation: { lat: number; 
   );
 };
 
-// ── Farmer Card ─────────────────────────────────────────────────
+// ── Farmer Card (Standard Card — compact) ───────────────────────
 
 const FarmerCard = ({ farmer, onClick }: { farmer: NearbyFarmer; onClick: () => void }) => (
-  <button onClick={onClick} className="card-interactive flex flex-col items-center shrink-0 w-[120px] min-w-[120px] snap-start p-4 text-center">
-    <div className="w-12 h-12 rounded-full bg-muted overflow-hidden flex items-center justify-center mb-2.5 ring-2 ring-border">
+  <button onClick={onClick} className="card-interactive flex flex-col items-center shrink-0 w-[112px] min-w-[112px] snap-start p-3.5 text-center">
+    <div className="w-11 h-11 rounded-full bg-muted overflow-hidden flex items-center justify-center mb-2 ring-2 ring-border">
       {farmer.avatar_url ? (
         <img src={farmer.avatar_url} alt="" className="w-full h-full object-cover" />
       ) : (
@@ -285,10 +287,10 @@ const FarmerCard = ({ farmer, onClick }: { farmer: NearbyFarmer; onClick: () => 
       )}
     </div>
     <p className="text-xs font-semibold text-foreground truncate w-full">{farmer.name}</p>
-    <div className="flex items-center gap-1 mt-1">
+    <div className="flex items-center gap-1 mt-0.5">
       {farmer.verified && <CheckCircle className="w-3 h-3 text-blue-500" />}
       {farmer.distance != null && (
-        <span className="text-[9px] text-muted-foreground flex items-center gap-0.5">
+        <span className="text-tertiary-label flex items-center gap-0.5">
           <MapPin className="w-2.5 h-2.5" />
           {formatDistance(farmer.distance)}
         </span>
