@@ -312,11 +312,11 @@ const Instafarm = () => {
 
     const productId = selectedProductId && selectedProductId !== "none" ? selectedProductId : null;
 
-    // Block if price-like content without linked product
-    if (!productId && detectsPriceInCaption(caption)) {
+    // Block if commercial intent without linked product
+    if (isBlocked) {
       toast({
         title: "Product link required",
-        description: "To promote a product with pricing, please link it to an existing listing.",
+        description: "Your caption contains selling language. Please link a product listing to publish.",
         variant: "destructive",
       });
       return;
