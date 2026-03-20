@@ -442,6 +442,9 @@ const ProductDetail = () => {
           </button>
         )}
 
+        {/* From This Farm - Instafarm */}
+        {product.farmer && <FromThisFarmSection farmerId={product.farmer_id} />}
+
         {/* More From This Farmer */}
         {moreFromFarmer.length > 0 && (
           <section>
