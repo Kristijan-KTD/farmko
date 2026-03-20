@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { User, Plus, Package, MessageCircle, Eye, Heart, Search, Bell, Store, Crown, Loader2, Camera } from "lucide-react";
+import { User, Plus, Package, MessageCircle, Eye, Heart, Bell, Store, Crown, Loader2 } from "lucide-react";
 import MobileLayout from "@/components/layout/MobileLayout";
 import TopBar from "@/components/layout/TopBar";
 import BottomNav from "@/components/layout/BottomNav";
@@ -11,8 +11,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { getPlanBadge } from "@/services/planService";
 import { Button } from "@/components/ui/button";
 import HorizontalScroll from "@/components/HorizontalScroll";
-import InstafarmCard from "@/components/instafarm/InstafarmCard";
-import { useInstafarmPosts } from "@/hooks/useInstafarmPosts";
+import CustomerFeed from "@/components/home/CustomerFeed";
 
 interface DashboardStats {
   activeListings: number;
