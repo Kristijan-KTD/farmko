@@ -222,7 +222,7 @@ const FarmerDetail = () => {
         {/* Farm Photos (legacy - only show if no instafarm) */}
         {photos.length > 0 && (
           <section>
-            <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-3">Farm Photos</h3>
+            <h3 className="section-label mb-2.5">Farm Photos</h3>
             <div className="grid grid-cols-3 gap-1.5">
               {photos.map((photo) => (
                 <div key={photo.id} className="aspect-square bg-muted rounded-md overflow-hidden border border-border">
