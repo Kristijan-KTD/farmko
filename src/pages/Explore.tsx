@@ -189,6 +189,9 @@ const Explore = () => {
               </HorizontalScroll>
             </section>
 
+            {/* From Farms Near You - Instafarm */}
+            <InstafarmExploreSection />
+
             {/* Recommended */}
             <section>
                <div className="flex items-center justify-between mb-3.5">
