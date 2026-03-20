@@ -139,23 +139,23 @@ const Chat = () => {
             <p className="text-xs text-muted-foreground text-center max-w-[220px]">Start a conversation with a farmer or customer to get going.</p>
           </div>
         ) : (
-          <div className="divide-y divide-border">
+          <div className="divide-y divide-border/60">
             {conversations.map((chat) => (
               <button
                 key={chat.id}
                 onClick={() => navigate(`/chat/${chat.id}`)}
-                className="w-full flex items-center gap-3 py-3 transition-colors text-left active:scale-[0.98]"
+                className="list-row w-full active:scale-[0.98]"
               >
                 <div className="relative shrink-0">
-                  <div className="w-11 h-11 rounded-full bg-muted flex items-center justify-center overflow-hidden ring-2 ring-border">
+                  <div className="w-10 h-10 rounded-full bg-muted flex items-center justify-center overflow-hidden ring-2 ring-border">
                     {chat.other_user?.avatar_url ? (
                       <img src={chat.other_user.avatar_url} alt="" className="w-full h-full object-cover" />
                     ) : (
-                      <User className="w-4.5 h-4.5 text-muted-foreground" style={{ width: 18, height: 18 }} />
+                      <User className="w-4 h-4 text-muted-foreground" />
                     )}
                   </div>
                   {(chat.unread_count || 0) > 0 && (
-                    <span className="absolute -top-0.5 -right-0.5 w-4.5 h-4.5 bg-primary rounded-full flex items-center justify-center text-[9px] font-bold text-primary-foreground ring-2 ring-background" style={{ width: 18, height: 18 }}>
+                    <span className="absolute -top-0.5 -right-0.5 w-[18px] h-[18px] bg-primary rounded-full flex items-center justify-center text-[9px] font-bold text-primary-foreground ring-2 ring-background">
                       {chat.unread_count}
                     </span>
                   )}
@@ -163,7 +163,7 @@ const Chat = () => {
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center justify-between">
                     <h3 className={`text-[13px] ${(chat.unread_count || 0) > 0 ? "font-bold" : "font-medium"} text-foreground`}>{chat.other_user?.name}</h3>
-                    <span className="text-[10px] text-muted-foreground">{timeAgo(chat.last_message_at)}</span>
+                    <span className="text-tertiary-label">{timeAgo(chat.last_message_at)}</span>
                   </div>
                   <p className={`text-[11px] truncate mt-0.5 ${(chat.unread_count || 0) > 0 ? "text-foreground font-medium" : "text-muted-foreground"}`}>
                     {chat.last_message || "Start a conversation"}

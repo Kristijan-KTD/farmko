@@ -97,7 +97,7 @@ const Profile = () => {
                 <Button
                   variant="outline"
                   size="sm"
-                  className="flex-1 rounded-full text-xs"
+                  className="flex-1 rounded-md text-xs"
                   onClick={handleManageSubscription}
                   disabled={portalLoading}
                 >
@@ -107,7 +107,7 @@ const Profile = () => {
               ) : (
                 <Button
                   size="sm"
-                  className="flex-1 rounded-full text-xs"
+                  className="flex-1 rounded-md text-xs"
                   onClick={() => navigate("/plans")}
                 >
                   <ArrowUpRight className="w-3 h-3 mr-1" />
