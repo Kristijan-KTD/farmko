@@ -10,7 +10,6 @@ import { useSubscription } from "@/contexts/SubscriptionContext";
 import { supabase } from "@/integrations/supabase/client";
 import { getPlanBadge } from "@/services/planService";
 import { Button } from "@/components/ui/button";
-import HorizontalScroll from "@/components/HorizontalScroll";
 import CustomerFeed from "@/components/home/CustomerFeed";
 
 interface DashboardStats {
