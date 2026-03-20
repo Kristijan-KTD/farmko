@@ -140,11 +140,11 @@ const Home = () => {
                       { icon: MessageCircle, label: "Unread Chats", value: stats.unreadChats, path: "/chat", color: "text-pink-500", bg: "bg-pink-500/8" },
                       { icon: Heart, label: "Favorites", value: stats.favorites, path: "/analytics", color: "text-red-500", bg: "bg-red-500/8" },
                     ].map(({ icon: Icon, label, value, path, color, bg }) => (
-                      <button key={label} onClick={() => navigate(path)} className="card-interactive p-4 text-left">
-                        <div className={`w-9 h-9 rounded-md ${bg} flex items-center justify-center mb-2.5`}>
-                          <Icon className={`w-4.5 h-4.5 ${color}`} style={{ width: 18, height: 18 }} />
+                      <button key={label} onClick={() => navigate(path)} className="card-interactive p-3.5 text-left">
+                        <div className={`w-8 h-8 rounded-md ${bg} flex items-center justify-center mb-2`}>
+                          <Icon className={`${color}`} style={{ width: 16, height: 16 }} />
                         </div>
-                        <p className="text-2xl font-bold text-foreground leading-none">{value}</p>
+                        <p className="text-xl font-bold text-foreground leading-none">{value}</p>
                         <p className="text-[11px] text-muted-foreground mt-1">{label}</p>
                       </button>
                     ))}
