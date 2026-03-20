@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef, useCallback } from "react";
-import { Plus, Heart, MessageCircle, Grid, Image as ImageIcon, MoreHorizontal, Loader2, Camera, AlertTriangle, Package, ExternalLink } from "lucide-react";
+import { Plus, Heart, MessageCircle, Grid, Image as ImageIcon, Loader2, Camera, AlertTriangle, Package, ExternalLink } from "lucide-react";
 import MobileLayout from "@/components/layout/MobileLayout";
 import PageHeader from "@/components/layout/PageHeader";
 import BottomNav from "@/components/layout/BottomNav";
