@@ -682,15 +682,15 @@ const Instafarm = () => {
             {/* Product tagging — controlled by plan */}
             {canTagProducts ? (
               farmerProducts.length > 0 ? (
-                <div className="space-y-1.5">
-                  <label className="text-xs font-medium text-muted-foreground">Tag a product (optional)</label>
+                <div className="space-y-1.5" id="product-tag-section">
+                  <label className="text-xs font-medium text-muted-foreground">Tag a product {isBlocked ? "(required)" : "(optional)"}</label>
                   <Select value={selectedProductId} onValueChange={(v) => {
                     setSelectedProductId(v);
-                    // Re-check price warning
                     const linked = v && v !== "none";
-                    setPriceWarning(!linked && detectsPriceInCaption(caption));
+                    setCaptionAnalysis(linked ? { score: 0, intent: "informational", reasons: [] } : analyzeCaption(caption));
+                    setDismissedWarning(false);
                   }}>
-                    <SelectTrigger className="w-full">
+                    <SelectTrigger className={`w-full ${isBlocked && !hasProductLinked ? "border-destructive ring-1 ring-destructive/30" : ""}`}>
                       <SelectValue placeholder="Select a product to tag" />
                     </SelectTrigger>
                     <SelectContent>
@@ -736,7 +736,7 @@ const Instafarm = () => {
               </div>
             )}
 
-            <Button onClick={handleUploadPost} disabled={uploading || (priceWarning && !selectedProductId)} className="w-full rounded-full">
+            <Button onClick={handleUploadPost} disabled={uploading || isBlocked} className="w-full rounded-full">
               {uploading ? "Posting..." : "Share Post"}
             </Button>
           </div>
