@@ -50,27 +50,27 @@ const Profile = () => {
       <PageHeader title="Profile" />
 
       <div className="flex-1 flex flex-col items-center section-gap">
-        <div className="relative mb-4">
-          <div className="w-24 h-24 rounded-full bg-muted flex items-center justify-center overflow-hidden">
+        <div className="relative mb-2">
+          <div className="w-20 h-20 rounded-full bg-muted flex items-center justify-center overflow-hidden">
             {user?.avatar_url ? (
               <img src={user.avatar_url} alt="" className="w-full h-full object-cover" />
             ) : (
-              <User className="w-12 h-12 text-muted-foreground" />
+              <User className="w-10 h-10 text-muted-foreground" />
             )}
           </div>
           {showBadge && (() => {
             const Icon = planIcons[plan];
             return Icon ? (
-              <div className={`absolute -bottom-1 -right-1 w-8 h-8 rounded-full flex items-center justify-center border-2 border-background shadow-md ${
+              <div className={`absolute -bottom-1 -right-1 w-7 h-7 rounded-full flex items-center justify-center border-2 border-background shadow-sm ${
                 plan === "pro" ? "bg-yellow-500 text-white" : "bg-primary text-primary-foreground"
               }`}>
-                <Icon className="w-4 h-4" />
+                <Icon className="w-3.5 h-3.5" />
               </div>
             ) : null;
           })()}
         </div>
-        <h2 className="text-xl font-bold text-foreground">{user?.name}</h2>
-        <p className="text-sm text-primary capitalize mb-2">{user?.role}</p>
+        <h2 className="text-lg font-bold text-foreground">{user?.name}</h2>
+        <p className="text-xs text-primary capitalize">{user?.role}</p>
 
         {/* Subscription Section for Farmers */}
         {isFarmer && (
