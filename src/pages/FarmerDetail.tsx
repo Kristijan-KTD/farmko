@@ -236,7 +236,7 @@ const FarmerDetail = () => {
         {/* Products */}
         {products.length > 0 && (
           <section>
-            <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-3">Products</h3>
+            <h3 className="section-label mb-2.5">Products</h3>
             <div className="space-y-2">
               {products.map((p) => (
                 <button key={p.id} onClick={() => handleProductClick(p)} className="list-item-subtle active:scale-[0.98]">
