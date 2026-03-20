@@ -121,8 +121,8 @@ const Home = () => {
         {user?.role === "farmer" && (
           <>
             {/* Section 1: Primary CTA */}
-            <Button onClick={() => navigate("/post-item")} className="w-full rounded-md h-12 font-semibold gap-2.5 text-base">
-              <Plus className="w-5 h-5" />
+            <Button onClick={() => navigate("/post-item")} className="w-full rounded-md h-11 font-semibold gap-2 text-sm">
+              <Plus className="w-4.5 h-4.5" style={{ width: 18, height: 18 }} />
               Post New Product
             </Button>
 
