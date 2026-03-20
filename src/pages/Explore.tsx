@@ -13,8 +13,11 @@ import { haversineKm, formatDistance } from "@/lib/distance";
 import { toast } from "@/hooks/use-toast";
 import { Button } from "@/components/ui/button";
 
+const PAGE_SIZE = 6;
+
 const Explore = () => {
   const [search, setSearch] = useState("");
+  const [visibleCount, setVisibleCount] = useState(PAGE_SIZE);
   const [products, setProducts] = useState<EnrichedProduct[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
