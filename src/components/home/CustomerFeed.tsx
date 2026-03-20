@@ -193,14 +193,14 @@ const FeedSectionHeader = ({
   subtitle?: string;
   onSeeAll?: () => void;
 }) => (
-  <div className="flex items-start justify-between mb-4">
-    <div className="flex items-start gap-2.5">
+  <div className="flex items-start justify-between mb-3">
+    <div className="flex items-start gap-2">
       <div className="w-7 h-7 rounded-lg bg-primary/10 flex items-center justify-center mt-0.5">
-        <Icon className="w-4 h-4 text-primary" />
+        <Icon className="w-3.5 h-3.5 text-primary" />
       </div>
       <div>
-        <h2 className="text-sm font-bold text-foreground leading-tight">{title}</h2>
-        {subtitle && <p className="text-[11px] text-muted-foreground mt-0.5">{subtitle}</p>}
+        <h2 className="section-title">{title}</h2>
+        {subtitle && <p className="section-subtitle mt-0.5">{subtitle}</p>}
       </div>
     </div>
     {onSeeAll && (
