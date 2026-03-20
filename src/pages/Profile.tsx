@@ -141,8 +141,8 @@ const Profile = () => {
         </div>
       </div>
 
-      <div className="pb-8 pt-4">
-        <Button onClick={() => navigate("/edit-profile")} className="w-full rounded-full h-12 text-base font-semibold">
+      <div className="pb-6 pt-3">
+        <Button onClick={() => navigate("/edit-profile")} className="w-full rounded-md h-11 text-sm font-semibold">
           Edit Profile
         </Button>
       </div>

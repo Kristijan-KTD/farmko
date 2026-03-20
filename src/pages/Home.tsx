@@ -182,8 +182,8 @@ const Home = () => {
             )}
 
             {/* Section 4: Quick Links */}
-            <div className="space-y-3">
-              <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Quick Access</h3>
+            <div className="space-y-2.5">
+              <h3 className="section-label">Quick Access</h3>
               <HorizontalScroll className="gap-2.5 pb-1" snap={false}>
                 {[
                   { icon: Store, label: "My Store", path: "/my-store" },
