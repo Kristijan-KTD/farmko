@@ -206,10 +206,10 @@ const ExploreProductRow = ({ product, onClick }: { product: EnrichedProduct; onC
         </p>
       </div>
       <div className="text-right shrink-0 space-y-0.5">
-        <span className="text-xs font-bold text-primary block">${product.price.toFixed(2)}</span>
+        <span className="text-sm font-bold text-primary block">${product.price.toFixed(2)}</span>
         {product.distance != null && (
-          <span className="text-tertiary-label flex items-center gap-0.5 justify-end">
-            <MapPin className="w-2.5 h-2.5" />
+          <span className="text-tertiary-label flex items-center gap-0.5 justify-end text-[11px]">
+            <MapPin className="w-3 h-3" />
             {formatDistance(product.distance)}
           </span>
         )}
