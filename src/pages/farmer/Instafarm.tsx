@@ -276,7 +276,8 @@ const Instafarm = () => {
     setUploadFile(file);
     const previewUrl = URL.createObjectURL(file);
     setUploadPreview(previewUrl);
-    setPriceWarning(false);
+    setCaptionAnalysis({ score: 0, intent: "informational", reasons: [] });
+    setDismissedWarning(false);
     setShowUpload(true);
   };
 
