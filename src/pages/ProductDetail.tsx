@@ -534,4 +534,26 @@ const ProductDetail = () => {
   );
 };
 
+const FromThisFarmSection = ({ farmerId }: { farmerId: string }) => {
+  const { posts, loading } = useInstafarmPosts({ farmerId, limit: 4 });
+
+  if (loading || posts.length === 0) return null;
+
+  return (
+    <section>
+      <div className="flex items-center gap-2 mb-3">
+        <div className="w-6 h-6 rounded-md bg-primary/10 flex items-center justify-center">
+          <Camera className="w-3.5 h-3.5 text-primary" />
+        </div>
+        <h3 className="text-sm font-semibold text-foreground">From this farm</h3>
+      </div>
+      <div className="grid grid-cols-2 gap-2.5">
+        {posts.map((post) => (
+          <InstafarmCard key={post.id} post={post} variant="standard" />
+        ))}
+      </div>
+    </section>
+  );
+};
+
 export default ProductDetail;
