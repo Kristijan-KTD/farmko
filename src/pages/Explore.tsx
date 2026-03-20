@@ -190,7 +190,7 @@ const Explore = () => {
             </section>
 
             {/* From Farms Near You - Instafarm */}
-            <InstafarmExploreSection />
+            <InstafarmExploreSection userLocation={userLocation} />
 
             {/* Recommended */}
             <section>
