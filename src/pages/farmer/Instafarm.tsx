@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef, useCallback } from "react";
-import { Plus, Heart, MessageCircle, Grid, Image as ImageIcon, Loader2, Camera, AlertTriangle, Package, ExternalLink, Lock } from "lucide-react";
+import { Plus, Heart, MessageCircle, Grid, Image as ImageIcon, Loader2, Camera, AlertTriangle, Package, ExternalLink, Lock, Info, ShieldAlert, LinkIcon } from "lucide-react";
 import MobileLayout from "@/components/layout/MobileLayout";
 import PageHeader from "@/components/layout/PageHeader";
 import BottomNav from "@/components/layout/BottomNav";
@@ -59,12 +59,7 @@ interface FarmerProduct {
   images: string[] | null;
 }
 
-// Detects price-like patterns in text (e.g. "$5", "€10", "5.00 per", "10$/kg")
-const PRICE_PATTERN = /[$€£]\s*\d+|\d+\s*[$€£]|\d+\.\d{2}|\d+\s*(per|each|\/)\s*/i;
-
-function detectsPriceInCaption(caption: string): boolean {
-  return PRICE_PATTERN.test(caption);
-}
+import { analyzeCaption, getIntentMessage, type CaptionAnalysis } from "@/lib/captionAnalysis";
 
 const Instafarm = () => {
   const [view, setView] = useState<"grid" | "feed">("grid");
@@ -86,7 +81,8 @@ const Instafarm = () => {
   const [monthlyPostCount, setMonthlyPostCount] = useState(0);
   const [showUpgrade, setShowUpgrade] = useState(false);
   const [upgradeMessage, setUpgradeMessage] = useState({ title: "", description: "" });
-  const [priceWarning, setPriceWarning] = useState(false);
+  const [captionAnalysis, setCaptionAnalysis] = useState<CaptionAnalysis>({ score: 0, intent: "informational", reasons: [] });
+  const [dismissedWarning, setDismissedWarning] = useState(false);
   const fileRef = useRef<HTMLInputElement>(null);
   const { toast } = useToast();
   const { user } = useAuth();
@@ -280,7 +276,8 @@ const Instafarm = () => {
     setUploadFile(file);
     const previewUrl = URL.createObjectURL(file);
     setUploadPreview(previewUrl);
-    setPriceWarning(false);
+    setCaptionAnalysis({ score: 0, intent: "informational", reasons: [] });
+    setDismissedWarning(false);
     setShowUpload(true);
   };
 
@@ -291,26 +288,35 @@ const Instafarm = () => {
     setUploadPreview("");
     setCaption("");
     setSelectedProductId("");
-    setPriceWarning(false);
+    setCaptionAnalysis({ score: 0, intent: "informational", reasons: [] });
+    setDismissedWarning(false);
   };
 
   const handleCaptionChange = (value: string) => {
     setCaption(value);
-    // Detect price patterns when no product is linked
+    setDismissedWarning(false);
     const productId = selectedProductId && selectedProductId !== "none" ? selectedProductId : null;
-    setPriceWarning(!productId && detectsPriceInCaption(value));
+    const analysis = analyzeCaption(value);
+    // If product is linked, treat as safe
+    setCaptionAnalysis(productId ? { score: 0, intent: "informational", reasons: [] } : analysis);
   };
+
+  const hasProductLinked = selectedProductId && selectedProductId !== "none";
+  const intentMessage = !hasProductLinked ? getIntentMessage(captionAnalysis.intent) : null;
+  const showSoftWarning = intentMessage?.severity === "warning" && !dismissedWarning;
+  const showHardBlock = intentMessage?.severity === "error";
+  const isBlocked = showHardBlock && !hasProductLinked;
 
   const handleUploadPost = async () => {
     if (!uploadFile || !user || uploading) return;
 
     const productId = selectedProductId && selectedProductId !== "none" ? selectedProductId : null;
 
-    // Block if price-like content without linked product
-    if (!productId && detectsPriceInCaption(caption)) {
+    // Block if commercial intent without linked product
+    if (isBlocked) {
       toast({
         title: "Product link required",
-        description: "To promote a product with pricing, please link it to an existing listing.",
+        description: "Your caption contains selling language. Please link a product listing to publish.",
         variant: "destructive",
       });
       return;
@@ -621,13 +627,54 @@ const Instafarm = () => {
                 onChange={(e) => handleCaptionChange(e.target.value)}
                 className="w-full bg-secondary rounded-lg p-3 text-sm outline-none resize-none h-20 placeholder:text-muted-foreground"
               />
-              {/* Price warning */}
-              {priceWarning && (
-                <div className="flex items-start gap-2 mt-2 p-2.5 rounded-md bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-800">
-                  <AlertTriangle className="w-4 h-4 text-amber-600 shrink-0 mt-0.5" />
-                  <p className="text-[11px] text-amber-700 dark:text-amber-400 leading-relaxed">
-                    Your caption contains pricing. To promote a product, please link it to an existing listing below.
-                  </p>
+              {/* Smart intent detection warnings */}
+              {(showSoftWarning || showHardBlock) && intentMessage && (
+                <div className={`flex items-start gap-2 mt-2 p-2.5 rounded-md border ${
+                  showHardBlock
+                    ? "bg-destructive/5 border-destructive/30"
+                    : "bg-amber-50 dark:bg-amber-950/30 border-amber-200 dark:border-amber-800"
+                }`}>
+                  {showHardBlock
+                    ? <ShieldAlert className="w-4 h-4 text-destructive shrink-0 mt-0.5" />
+                    : <Info className="w-4 h-4 text-amber-600 shrink-0 mt-0.5" />
+                  }
+                  <div className="flex-1">
+                    <p className={`text-[11px] font-medium ${showHardBlock ? "text-destructive" : "text-amber-700 dark:text-amber-400"}`}>
+                      {intentMessage.title}
+                    </p>
+                    <p className={`text-[11px] mt-0.5 leading-relaxed ${showHardBlock ? "text-destructive/80" : "text-amber-600 dark:text-amber-400/80"}`}>
+                      {intentMessage.description}
+                    </p>
+                    {/* Assist actions */}
+                    <div className="flex items-center gap-2 mt-2">
+                      {farmerProducts.length > 0 ? (
+                        <button
+                          onClick={() => {
+                            const tagSection = document.getElementById("product-tag-section");
+                            tagSection?.scrollIntoView({ behavior: "smooth" });
+                          }}
+                          className="inline-flex items-center gap-1 text-[11px] font-semibold text-primary"
+                        >
+                          <LinkIcon className="w-3 h-3" /> Link existing product
+                        </button>
+                      ) : (
+                        <button
+                          onClick={() => navigate("/post")}
+                          className="inline-flex items-center gap-1 text-[11px] font-semibold text-primary"
+                        >
+                          <Package className="w-3 h-3" /> Create product listing
+                        </button>
+                      )}
+                      {showSoftWarning && (
+                        <button
+                          onClick={() => setDismissedWarning(true)}
+                          className="text-[11px] text-muted-foreground ml-auto"
+                        >
+                          Dismiss
+                        </button>
+                      )}
+                    </div>
+                  </div>
                 </div>
               )}
             </div>
@@ -635,15 +682,15 @@ const Instafarm = () => {
             {/* Product tagging — controlled by plan */}
             {canTagProducts ? (
               farmerProducts.length > 0 ? (
-                <div className="space-y-1.5">
-                  <label className="text-xs font-medium text-muted-foreground">Tag a product (optional)</label>
+                <div className="space-y-1.5" id="product-tag-section">
+                  <label className="text-xs font-medium text-muted-foreground">Tag a product {isBlocked ? "(required)" : "(optional)"}</label>
                   <Select value={selectedProductId} onValueChange={(v) => {
                     setSelectedProductId(v);
-                    // Re-check price warning
                     const linked = v && v !== "none";
-                    setPriceWarning(!linked && detectsPriceInCaption(caption));
+                    setCaptionAnalysis(linked ? { score: 0, intent: "informational", reasons: [] } : analyzeCaption(caption));
+                    setDismissedWarning(false);
                   }}>
-                    <SelectTrigger className="w-full">
+                    <SelectTrigger className={`w-full ${isBlocked && !hasProductLinked ? "border-destructive ring-1 ring-destructive/30" : ""}`}>
                       <SelectValue placeholder="Select a product to tag" />
                     </SelectTrigger>
                     <SelectContent>
@@ -689,7 +736,7 @@ const Instafarm = () => {
               </div>
             )}
 
-            <Button onClick={handleUploadPost} disabled={uploading || (priceWarning && !selectedProductId)} className="w-full rounded-full">
+            <Button onClick={handleUploadPost} disabled={uploading || isBlocked} className="w-full rounded-full">
               {uploading ? "Posting..." : "Share Post"}
             </Button>
           </div>
