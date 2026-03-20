@@ -105,21 +105,21 @@ const Explore = () => {
       </div>
 
       {/* Category Chips */}
-      <div className="flex overflow-x-auto gap-1.5 mb-2 pb-0.5 no-scrollbar">
-        {CATEGORIES.slice(0, 8).map((cat) => {
+      <div className="flex overflow-x-auto gap-2 mb-3 pb-1 no-scrollbar">
+        {CATEGORIES.map((cat) => {
           const isActive = activeCategory === (cat.key === "all" ? null : cat.key);
           const isAll = cat.key === "all" && !activeCategory;
           return (
             <button
               key={cat.key}
               onClick={() => { setSelectedCategory(cat.key === "all" ? null : cat.key); setFilters((f) => ({ ...f, category: null })); }}
-              className={`flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-medium shrink-0 transition-colors duration-150 ${
+              className={`flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-[13px] font-medium shrink-0 transition-colors duration-150 active:scale-[0.97] ${
                 isActive || isAll
                   ? "bg-primary text-primary-foreground"
                   : "bg-card text-muted-foreground border border-border hover:border-primary/30"
               }`}
             >
-              <cat.icon className="w-3 h-3" />
+              <cat.icon className="w-3.5 h-3.5" />
               {cat.label}
             </button>
           );

@@ -1,10 +1,7 @@
 import { useState } from "react";
-import { Filter } from "lucide-react";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { Label } from "@/components/ui/label";
+import { SlidersHorizontal, ArrowDownUp, MapPin, X } from "lucide-react";
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
-import { CATEGORIES } from "@/lib/categories";
 
 export interface FilterState {
   category: string | null;
@@ -18,22 +15,25 @@ interface ExploreFilterProps {
   hasLocation?: boolean;
 }
 
+const SORT_OPTIONS = [
+  { value: "newest" as const, label: "Newest first" },
+  { value: "oldest" as const, label: "Oldest first" },
+  { value: "closest" as const, label: "Closest first", requiresLocation: true },
+];
+
 const DISTANCE_OPTIONS = [
-  { value: "any", label: "Any distance" },
-  { value: "5", label: "5 km" },
-  { value: "10", label: "10 km" },
-  { value: "25", label: "25 km" },
-  { value: "50", label: "50 km" },
+  { value: null, label: "Any" },
+  { value: 5, label: "5 km" },
+  { value: 10, label: "10 km" },
+  { value: 25, label: "25 km" },
+  { value: 50, label: "50 km" },
 ];
 
 const ExploreFilter = ({ filters, onApply, hasLocation }: ExploreFilterProps) => {
   const [open, setOpen] = useState(false);
   const [local, setLocal] = useState<FilterState>(filters);
 
-  const categoryOptions = CATEGORIES.filter((c) => c.key !== "all");
-
   const activeCount = [
-    local.category,
     local.sortBy !== "newest" ? local.sortBy : null,
     local.distance,
   ].filter(Boolean).length;
@@ -55,99 +55,102 @@ const ExploreFilter = ({ filters, onApply, hasLocation }: ExploreFilterProps) =>
     setOpen(false);
   };
 
+  const sortOptions = SORT_OPTIONS.filter(
+    (opt) => !opt.requiresLocation || hasLocation
+  );
+
   return (
-    <Dialog open={open} onOpenChange={handleOpen}>
-      <DialogTrigger asChild>
-        <button className="flex items-center gap-1.5 px-3 py-2 rounded-full bg-secondary text-sm text-foreground border border-border hover:bg-accent transition-colors relative">
-          <Filter className="w-4 h-4" />
+    <Sheet open={open} onOpenChange={handleOpen}>
+      <SheetTrigger asChild>
+        <button className="flex items-center gap-1.5 px-3.5 py-2 rounded-full bg-card text-sm font-medium text-foreground border border-border hover:border-primary/30 transition-colors active:scale-[0.97] relative">
+          <SlidersHorizontal className="w-4 h-4" />
           <span>Filter</span>
           {activeCount > 0 && (
-            <span className="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-primary text-primary-foreground text-[10px] flex items-center justify-center font-bold">
+            <span className="absolute -top-1.5 -right-1.5 w-[18px] h-[18px] rounded-full bg-primary text-primary-foreground text-[10px] flex items-center justify-center font-bold">
               {activeCount}
             </span>
           )}
         </button>
-      </DialogTrigger>
-      <DialogContent className="max-w-sm max-h-[80vh] overflow-y-auto">
-        <DialogHeader>
-          <DialogTitle className="text-base">Filter Products</DialogTitle>
-        </DialogHeader>
+      </SheetTrigger>
+      <SheetContent side="bottom" className="rounded-t-2xl px-4 pb-8 pt-3 max-h-[70vh]">
+        {/* Drag handle */}
+        <div className="flex justify-center mb-3">
+          <div className="w-10 h-1 rounded-full bg-border" />
+        </div>
 
-        <div className="space-y-5 pt-2">
-          {/* Category */}
-          <div>
-            <h3 className="text-sm font-semibold text-foreground mb-2">Category</h3>
-            <RadioGroup
-              value={local.category || "all"}
-              onValueChange={(v) => setLocal({ ...local, category: v === "all" ? null : v })}
-              className="grid grid-cols-2 gap-1.5"
-            >
-              <div className="flex items-center gap-2">
-                <RadioGroupItem value="all" id="cat-all" />
-                <Label htmlFor="cat-all" className="text-sm cursor-pointer">All</Label>
-              </div>
-              {categoryOptions.map((cat) => (
-                <div key={cat.key} className="flex items-center gap-2">
-                  <RadioGroupItem value={cat.key} id={`cat-${cat.key}`} />
-                  <Label htmlFor={`cat-${cat.key}`} className="text-sm cursor-pointer">{cat.label}</Label>
-                </div>
-              ))}
-            </RadioGroup>
+        <SheetHeader className="pb-1">
+          <div className="flex items-center justify-between">
+            <SheetTitle className="text-base font-semibold text-foreground">Filters</SheetTitle>
+            {activeCount > 0 && (
+              <button
+                onClick={handleReset}
+                className="text-xs text-muted-foreground hover:text-foreground transition-colors"
+              >
+                Clear all
+              </button>
+            )}
           </div>
+        </SheetHeader>
 
-          {/* Sort */}
+        <div className="space-y-6 pt-4">
+          {/* Sort By */}
           <div>
-            <h3 className="text-sm font-semibold text-foreground mb-2">Sort by</h3>
-            <RadioGroup
-              value={local.sortBy}
-              onValueChange={(v) => setLocal({ ...local, sortBy: v as FilterState["sortBy"] })}
-              className="space-y-1.5"
-            >
-              <div className="flex items-center gap-2">
-                <RadioGroupItem value="newest" id="sort-newest" />
-                <Label htmlFor="sort-newest" className="text-sm cursor-pointer">Newest first</Label>
-              </div>
-              <div className="flex items-center gap-2">
-                <RadioGroupItem value="oldest" id="sort-oldest" />
-                <Label htmlFor="sort-oldest" className="text-sm cursor-pointer">Oldest first</Label>
-              </div>
-              {hasLocation && (
-                <div className="flex items-center gap-2">
-                  <RadioGroupItem value="closest" id="sort-closest" />
-                  <Label htmlFor="sort-closest" className="text-sm cursor-pointer">Closest first</Label>
-                </div>
-              )}
-            </RadioGroup>
+            <div className="flex items-center gap-2 mb-3">
+              <ArrowDownUp className="w-4 h-4 text-muted-foreground" />
+              <h3 className="text-sm font-semibold text-foreground">Sort by</h3>
+            </div>
+            <div className="flex flex-wrap gap-2">
+              {sortOptions.map((opt) => (
+                <button
+                  key={opt.value}
+                  onClick={() => setLocal({ ...local, sortBy: opt.value })}
+                  className={`px-4 py-2 rounded-xl text-[13px] font-medium transition-all duration-150 active:scale-[0.97] ${
+                    local.sortBy === opt.value
+                      ? "bg-primary text-primary-foreground shadow-sm"
+                      : "bg-secondary text-foreground hover:bg-accent border border-border"
+                  }`}
+                >
+                  {opt.label}
+                </button>
+              ))}
+            </div>
           </div>
 
           {/* Distance */}
           <div>
-            <h3 className="text-sm font-semibold text-foreground mb-2">Distance</h3>
-            <RadioGroup
-              value={local.distance?.toString() || "any"}
-              onValueChange={(v) => setLocal({ ...local, distance: v === "any" ? null : Number(v) })}
-              className="space-y-1.5"
-            >
+            <div className="flex items-center gap-2 mb-3">
+              <MapPin className="w-4 h-4 text-muted-foreground" />
+              <h3 className="text-sm font-semibold text-foreground">Distance</h3>
+            </div>
+            <div className="flex flex-wrap gap-2">
               {DISTANCE_OPTIONS.map((opt) => (
-                <div key={opt.value} className="flex items-center gap-2">
-                  <RadioGroupItem value={opt.value} id={`dist-${opt.value}`} />
-                  <Label htmlFor={`dist-${opt.value}`} className="text-sm cursor-pointer">{opt.label}</Label>
-                </div>
+                <button
+                  key={opt.value ?? "any"}
+                  onClick={() => setLocal({ ...local, distance: opt.value })}
+                  className={`px-4 py-2 rounded-xl text-[13px] font-medium transition-all duration-150 active:scale-[0.97] ${
+                    local.distance === opt.value
+                      ? "bg-primary text-primary-foreground shadow-sm"
+                      : "bg-secondary text-foreground hover:bg-accent border border-border"
+                  }`}
+                >
+                  {opt.label}
+                </button>
               ))}
-            </RadioGroup>
+            </div>
           </div>
         </div>
 
-        <div className="flex gap-2 pt-3">
-          <Button variant="outline" onClick={handleReset} className="flex-1 text-sm">
-            Reset
-          </Button>
-          <Button onClick={handleApply} className="flex-1 text-sm">
+        {/* Apply Button */}
+        <div className="pt-6">
+          <Button
+            onClick={handleApply}
+            className="w-full h-12 rounded-xl text-sm font-semibold"
+          >
             Apply Filters
           </Button>
         </div>
-      </DialogContent>
-    </Dialog>
+      </SheetContent>
+    </Sheet>
   );
 };
 
