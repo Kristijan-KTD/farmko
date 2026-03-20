@@ -36,7 +36,7 @@ serve(async (req) => {
     if (!stripeKey) throw new Error("STRIPE_SECRET_KEY is not set");
 
     const authHeader = req.headers.get("Authorization");
-    if (!authHeader) {
+    if (!authHeader?.startsWith("Bearer ")) {
       return new Response(JSON.stringify({ error: "No authorization header", subscribed: false, plan: "starter" }), {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
         status: 401,
@@ -44,28 +44,39 @@ serve(async (req) => {
     }
 
     const token = authHeader.replace("Bearer ", "");
-    const { data: userData, error: userError } = await supabaseClient.auth.getUser(token);
     
-    if (userError || !userData.user?.email) {
-      logStep("Auth session expired or invalid", { error: userError?.message });
-      return new Response(JSON.stringify({ error: "Session expired", subscribed: false, plan: "starter" }), {
+    // Use getClaims for local JWT validation (no server round-trip, more resilient)
+    const { data: claimsData, error: claimsError } = await supabaseClient.auth.getClaims(token);
+    
+    if (claimsError || !claimsData?.claims) {
+      logStep("JWT claims validation failed", { error: claimsError?.message });
+      return new Response(JSON.stringify({ error: "Invalid token", subscribed: false, plan: "starter" }), {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
         status: 401,
       });
     }
+
+    const userId = claimsData.claims.sub as string;
+    const email = claimsData.claims.email as string;
     
-    const user = userData.user;
-    logStep("User authenticated", { userId: user.id, email: user.email });
+    if (!email) {
+      logStep("No email in JWT claims");
+      return new Response(JSON.stringify({ error: "No email in token", subscribed: false, plan: "starter" }), {
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+        status: 401,
+      });
+    }
+
+    logStep("User authenticated via claims", { userId, email });
 
     const stripe = new Stripe(stripeKey, { apiVersion: "2023-10-16" });
-    const customers = await stripe.customers.list({ email: user.email, limit: 1 });
+    const customers = await stripe.customers.list({ email, limit: 1 });
 
     if (customers.data.length === 0) {
       logStep("No Stripe customer found, defaulting to starter");
-      // Ensure starter subscription exists
       await supabaseClient
         .from("farmer_subscriptions")
-        .upsert({ farmer_id: user.id, plan: "starter", status: "active" }, { onConflict: "farmer_id" });
+        .upsert({ farmer_id: userId, plan: "starter", status: "active" }, { onConflict: "farmer_id" });
 
       return new Response(JSON.stringify({ subscribed: false, plan: "starter" }), {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
@@ -86,7 +97,7 @@ serve(async (req) => {
       logStep("No active subscription");
       await supabaseClient
         .from("farmer_subscriptions")
-        .upsert({ farmer_id: user.id, plan: "starter", status: "active", stripe_customer_id: customerId }, { onConflict: "farmer_id" });
+        .upsert({ farmer_id: userId, plan: "starter", status: "active", stripe_customer_id: customerId }, { onConflict: "farmer_id" });
 
       return new Response(JSON.stringify({ subscribed: false, plan: "starter" }), {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
@@ -100,11 +111,10 @@ serve(async (req) => {
     const subscriptionEnd = new Date(subscription.current_period_end * 1000).toISOString();
     logStep("Active subscription found", { plan, productId, subscriptionEnd });
 
-    // Update local subscription record
     await supabaseClient
       .from("farmer_subscriptions")
       .upsert({
-        farmer_id: user.id,
+        farmer_id: userId,
         plan,
         status: "active",
         stripe_subscription_id: subscription.id,
