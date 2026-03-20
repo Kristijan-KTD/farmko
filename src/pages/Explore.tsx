@@ -86,8 +86,8 @@ const Explore = () => {
       <PageHeader title="Explore" />
 
       {/* Search */}
-      <div className="flex items-center gap-2 mb-2">
-        <div className="flex-1 min-w-0 flex items-center gap-2 bg-secondary rounded-md px-3 py-2 border border-border">
+      <div className="flex items-center gap-2 mb-1.5">
+        <div className="flex-1 min-w-0 flex items-center gap-2 bg-secondary rounded-md px-3 h-10 border border-border">
           <Search className="w-4 h-4 text-muted-foreground shrink-0" />
           <input
             type="text"
