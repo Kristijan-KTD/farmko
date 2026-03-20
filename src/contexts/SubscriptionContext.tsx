@@ -171,26 +171,22 @@ export const SubscriptionProvider = ({ children }: { children: ReactNode }) => {
   }, [session, user, refreshSubscription]);
 
   const listingLimit: number | null = plan === "pro" ? null : (PLANS[plan].listingLimit ?? 3);
+  const postLimit: number | null = plan === "pro" ? null : (plan === "growth" ? 20 : 3);
+  const canTagProducts = plan === "growth" || plan === "pro";
 
   const canCreateListing = useCallback((currentCount: number) => {
-    // While loading, block but UI should show loading state
     if (isLoading) return false;
-
-    // Pro plan: always unlimited
     if (plan === "pro") return true;
-
-    // Null limit means unlimited
     if (listingLimit === null) return true;
-
-    const result = currentCount < listingLimit;
-    console.log("[Subscription] canCreateListing:", {
-      plan,
-      listingLimit,
-      activeCount: currentCount,
-      canCreate: result,
-    });
-    return result;
+    return currentCount < listingLimit;
   }, [plan, listingLimit, isLoading]);
+
+  const canCreatePost = useCallback((currentMonthCount: number) => {
+    if (isLoading) return false;
+    if (plan === "pro") return true;
+    if (postLimit === null) return true;
+    return currentMonthCount < postLimit;
+  }, [plan, postLimit, isLoading]);
 
   const hasFeature = useCallback((feature: "analytics" | "featured_badge" | "farm_story" | "farm_banner" | "favorites") => {
     switch (feature) {
@@ -207,7 +203,7 @@ export const SubscriptionProvider = ({ children }: { children: ReactNode }) => {
   }, [plan]);
 
   return (
-    <SubscriptionContext.Provider value={{ plan, subscribed, subscriptionEnd, isLoading, listingLimit, canCreateListing, hasFeature, refreshSubscription }}>
+    <SubscriptionContext.Provider value={{ plan, subscribed, subscriptionEnd, isLoading, listingLimit, postLimit, canCreateListing, canCreatePost, canTagProducts, hasFeature, refreshSubscription }}>
       {children}
     </SubscriptionContext.Provider>
   );
