@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { User, Plus, Package, MessageCircle, Eye, Heart, Search, Bell, Store, Crown, Loader2, Camera } from "lucide-react";
+import { User, Plus, Package, MessageCircle, Eye, Heart, Search, Bell, Store, Crown, Loader2 } from "lucide-react";
 import MobileLayout from "@/components/layout/MobileLayout";
 import TopBar from "@/components/layout/TopBar";
 import BottomNav from "@/components/layout/BottomNav";
@@ -11,8 +11,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { getPlanBadge } from "@/services/planService";
 import { Button } from "@/components/ui/button";
 import HorizontalScroll from "@/components/HorizontalScroll";
-import InstafarmCard from "@/components/instafarm/InstafarmCard";
-import { useInstafarmPosts } from "@/hooks/useInstafarmPosts";
+import CustomerFeed from "@/components/home/CustomerFeed";
 
 interface DashboardStats {
   activeListings: number;
@@ -202,97 +201,14 @@ const Home = () => {
           </>
         )}
 
-        {/* CUSTOMER DASHBOARD */}
-        {user?.role === "customer" && (
-          <>
-            <div className="flex gap-3">
-              <button onClick={() => navigate("/chat")} className="card-interactive flex-1 p-4 text-left">
-                <div className="w-9 h-9 rounded-md bg-pink-500/8 flex items-center justify-center mb-2.5">
-                  <MessageCircle className="w-[18px] h-[18px] text-pink-500" />
-                </div>
-                <p className="text-2xl font-bold text-foreground leading-none">{stats.unreadChats}</p>
-                <p className="text-[11px] text-muted-foreground mt-1">Unread Chats</p>
-              </button>
-              <button onClick={() => navigate("/explore")} className="card-interactive flex-1 p-4 text-left">
-                <div className="w-9 h-9 rounded-md bg-primary/8 flex items-center justify-center mb-2.5">
-                  <Search className="w-[18px] h-[18px] text-primary" />
-                </div>
-                <p className="text-sm font-semibold text-primary mt-2">Browse Products</p>
-                <p className="text-[11px] text-muted-foreground mt-0.5">Discover</p>
-              </button>
-            </div>
-
-            <Button onClick={() => navigate("/explore")} className="w-full rounded-md h-12 font-semibold gap-2">
-              <Search className="w-4 h-4" />
-              Explore Local Products
-            </Button>
-
-            {/* Fresh from farms - Instafarm */}
-            <FreshFromFarmsSection />
-
-            <div className="space-y-3">
-              <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Quick Access</h3>
-              <HorizontalScroll className="gap-2.5 pb-1" snap={false}>
-                {[
-                  { icon: Heart, label: "Saved", path: "/favorites" },
-                  { icon: Search, label: "Explore", path: "/explore" },
-                  { icon: Bell, label: "Notifications", path: "/notifications" },
-                ].map(({ icon: Icon, label, path }) => (
-                  <button key={path} onClick={() => navigate(path)} className="list-item-subtle gap-2 px-4 py-2.5 shrink-0">
-                    <Icon className="w-4 h-4 text-muted-foreground" />
-                    <span className="text-xs font-medium text-foreground whitespace-nowrap">{label}</span>
-                  </button>
-                ))}
-              </HorizontalScroll>
-            </div>
-          </>
-        )}
+        {/* CUSTOMER FEED */}
+        {user?.role === "customer" && <CustomerFeed />}
       </div>
 
       <div className="lg:hidden">
         <BottomNav />
       </div>
     </MobileLayout>
-  );
-};
-
-const FreshFromFarmsSection = () => {
-  const [userLocation, setUserLocation] = useState<{ lat: number; lng: number } | null>(null);
-
-  useEffect(() => {
-    if (navigator.geolocation) {
-      navigator.geolocation.getCurrentPosition(
-        (pos) => setUserLocation({ lat: pos.coords.latitude, lng: pos.coords.longitude }),
-        () => {}
-      );
-    }
-  }, []);
-
-  const { posts, loading, isFallback } = useInstafarmPosts({ limit: 6, userLocation, maxDistance: 100 });
-  const navigate = useNavigate();
-
-  if (loading || posts.length === 0) return null;
-
-  return (
-    <div className="space-y-3">
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-2">
-          <div className="w-6 h-6 rounded-md bg-primary/10 flex items-center justify-center">
-            <Camera className="w-3.5 h-3.5 text-primary" />
-          </div>
-          <h3 className="text-sm font-bold text-foreground">Fresh from farms</h3>
-        </div>
-        <button onClick={() => navigate("/instafarm")} className="text-xs font-semibold text-primary">See all</button>
-      </div>
-      {isFallback && userLocation && (
-        <p className="text-[11px] text-muted-foreground">No nearby farms found. Showing farms from your region.</p>
-      )}
-      <HorizontalScroll className="gap-3 pb-1">
-        {posts.map((post) => (
-          <InstafarmCard key={post.id} post={post} variant="compact" />
-        ))}
-      </HorizontalScroll>
-    </div>
   );
 };
 
