@@ -165,10 +165,10 @@ const Home = () => {
                   <h3 className="section-label">My Store</h3>
                   <button onClick={() => navigate("/my-store")} className="text-xs font-semibold text-primary">View all</button>
                 </div>
-                <div className="space-y-1">
+                <div className="divide-y divide-border/60">
                   {storePreview.map((p) => (
-                    <button key={p.id} onClick={() => navigate(`/product/${p.id}`)} className="list-item-subtle">
-                      <div className="w-11 h-11 rounded-md bg-muted flex items-center justify-center overflow-hidden shrink-0">
+                    <button key={p.id} onClick={() => navigate(`/product/${p.id}`)} className="list-row w-full">
+                      <div className="w-10 h-10 rounded-sm bg-muted flex items-center justify-center overflow-hidden shrink-0">
                         {p.images?.[0] ? <img src={p.images[0]} alt="" className="w-full h-full object-cover" /> : <Package className="w-4 h-4 text-muted-foreground/30" />}
                       </div>
                       <div className="flex-1 min-w-0">

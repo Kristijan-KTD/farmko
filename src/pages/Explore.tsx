@@ -86,7 +86,7 @@ const Explore = () => {
       <PageHeader title="Explore" />
 
       {/* Search */}
-      <div className="flex items-center gap-2 mb-1.5">
+      <div className="flex items-center gap-2 mb-2">
         <div className="flex-1 min-w-0 flex items-center gap-2 bg-secondary rounded-md px-3 h-10 border border-border">
           <Search className="w-4 h-4 text-muted-foreground shrink-0" />
           <input
@@ -105,7 +105,7 @@ const Explore = () => {
       </div>
 
       {/* Category Chips */}
-      <div className="flex overflow-x-auto gap-1.5 mb-1.5 pb-0.5 no-scrollbar">
+      <div className="flex overflow-x-auto gap-1.5 mb-2 pb-0.5 no-scrollbar">
         {CATEGORIES.slice(0, 8).map((cat) => {
           const isActive = activeCategory === (cat.key === "all" ? null : cat.key);
           const isAll = cat.key === "all" && !activeCategory;
@@ -128,10 +128,10 @@ const Explore = () => {
 
       {/* Results count */}
       {!loading && !error && filtered.length > 0 && (
-        <p className="text-[11px] text-muted-foreground mb-1">{sorted.length} result{sorted.length !== 1 ? "s" : ""}</p>
+        <p className="text-tertiary-label mb-1.5">{sorted.length} result{sorted.length !== 1 ? "s" : ""}</p>
       )}
 
-      {/* Product List — dense, compact */}
+      {/* Product List — flat list, no cards */}
       <div className="flex-1 pb-20 overflow-y-auto overflow-x-hidden">
         {loading ? (
           <ExploreSkeleton />
@@ -153,7 +153,7 @@ const Explore = () => {
             <p className="text-muted-foreground text-xs">Try adjusting your search or filters</p>
           </div>
         ) : (
-          <div className="divide-y divide-border">
+          <div className="divide-y divide-border/60">
             {sorted.map((product) => (
               <ExploreProductRow key={product.id} product={product} onClick={() => handleProductClick(product)} />
             ))}
@@ -166,13 +166,13 @@ const Explore = () => {
   );
 };
 
-// ── Explore Product Row (compact, dense, scannable) ─────────────
+// ── Explore Product Row (flat list row — no card, no shadow) ────
 
 const ExploreProductRow = ({ product, onClick }: { product: EnrichedProduct; onClick: () => void }) => {
   const badge = getPlanBadge(product.farmerPlan);
   return (
-    <button onClick={onClick} className="w-full flex items-center gap-3 px-1 py-2.5 hover:bg-accent/40 transition-colors text-left active:scale-[0.98]">
-      <div className="w-11 h-11 rounded-md bg-muted flex items-center justify-center overflow-hidden shrink-0">
+    <button onClick={onClick} className="list-row w-full active:scale-[0.98]">
+      <div className="w-10 h-10 rounded-sm bg-muted flex items-center justify-center overflow-hidden shrink-0">
         {product.images?.[0] ? (
           <img src={product.images[0]} alt={product.title} className="w-full h-full object-cover" />
         ) : (
@@ -181,12 +181,12 @@ const ExploreProductRow = ({ product, onClick }: { product: EnrichedProduct; onC
       </div>
       <div className="flex-1 min-w-0">
         <div className="flex items-center gap-1">
-          <h3 className="text-[13px] font-semibold text-foreground truncate">{product.title}</h3>
+          <h3 className="text-[13px] font-medium text-foreground truncate">{product.title}</h3>
           {badge && (
             <span className={`text-[8px] font-bold px-1.5 py-0.5 rounded-full shrink-0 ${badge.color}`}>{badge.label}</span>
           )}
         </div>
-        <p className="text-[11px] text-muted-foreground truncate mt-0.5 flex items-center gap-1">
+        <p className="text-tertiary-label truncate mt-0.5 flex items-center gap-1">
           {product.farmer?.name || "Unknown"}
           {product.farmer?.verified && <CheckCircle className="w-2.5 h-2.5 text-blue-500 shrink-0" />}
         </p>
@@ -194,7 +194,7 @@ const ExploreProductRow = ({ product, onClick }: { product: EnrichedProduct; onC
       <div className="text-right shrink-0 space-y-0.5">
         <span className="text-xs font-bold text-primary block">${product.price.toFixed(2)}</span>
         {product.distance != null && (
-          <span className="text-[9px] text-muted-foreground flex items-center gap-0.5 justify-end">
+          <span className="text-tertiary-label flex items-center gap-0.5 justify-end">
             <MapPin className="w-2.5 h-2.5" />
             {formatDistance(product.distance)}
           </span>
@@ -207,17 +207,17 @@ const ExploreProductRow = ({ product, onClick }: { product: EnrichedProduct; onC
 // ── Skeleton ─────────────────────────────────────────────────────
 
 const ExploreSkeleton = () => (
-  <div className="divide-y divide-border">
-    {Array.from({ length: 12 }).map((_, i) => (
+  <div className="divide-y divide-border/60">
+    {Array.from({ length: 14 }).map((_, i) => (
       <div key={i} className="flex items-center gap-3 px-1 py-2.5 animate-pulse">
-        <div className="w-11 h-11 rounded-md bg-muted shrink-0" />
+        <div className="w-10 h-10 rounded-sm bg-muted shrink-0" />
         <div className="flex-1 space-y-1.5">
           <div className="h-3.5 bg-muted rounded w-3/4" />
-          <div className="h-3 bg-muted rounded w-1/2" />
+          <div className="h-2.5 bg-muted rounded w-1/2" />
         </div>
         <div className="space-y-1.5">
           <div className="h-3 bg-muted rounded w-10" />
-          <div className="h-2.5 bg-muted rounded w-8 ml-auto" />
+          <div className="h-2 bg-muted rounded w-8 ml-auto" />
         </div>
       </div>
     ))}

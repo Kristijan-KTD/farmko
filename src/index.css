@@ -139,6 +139,21 @@
   box-shadow: var(--shadow-card-hover);
 }
 
+/* Flat list row — no card, no shadow, pure scan */
+.list-row {
+  @apply flex items-center gap-3 w-full text-left transition-colors duration-100;
+  padding: 10px 4px;
+}
+.list-row:hover,
+.list-row:active {
+  background: hsl(var(--secondary) / 0.5);
+}
+
+/* Section hierarchy levels */
+.section-l1 { margin-top: 32px; }
+.section-l2 { margin-top: 24px; }
+.section-l3 { margin-top: 16px; }
+
 /* Consistent section spacing — 24px between sections */
 .section-gap {
   @apply space-y-6;
@@ -156,9 +171,21 @@
 
 /* Tap feedback */
 @media (hover: none) {
-  .card-interactive:active {
+  .card-interactive:active,
+  .list-row:active {
     transform: scale(0.985);
   }
+}
+
+/* Typography roles — strict hierarchy */
+.text-primary-title {
+  @apply text-sm font-semibold text-foreground leading-tight;
+}
+.text-secondary-meta {
+  @apply text-[11px] text-muted-foreground;
+}
+.text-tertiary-label {
+  @apply text-[10px] text-muted-foreground;
 }
 
 /* Section title — primary */

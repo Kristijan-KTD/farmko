@@ -237,18 +237,18 @@ const FarmerDetail = () => {
         {products.length > 0 && (
           <section>
             <h3 className="section-label mb-2.5">Products</h3>
-            <div className="space-y-1">
+            <div className="divide-y divide-border/60">
               {products.map((p) => (
-                <button key={p.id} onClick={() => handleProductClick(p)} className="list-item-subtle active:scale-[0.98]">
-                  <div className="w-12 h-12 bg-muted rounded-md flex items-center justify-center overflow-hidden shrink-0">
+                <button key={p.id} onClick={() => handleProductClick(p)} className="list-row w-full active:scale-[0.98]">
+                  <div className="w-10 h-10 bg-muted rounded-sm flex items-center justify-center overflow-hidden shrink-0">
                     {p.images?.[0] ? (
                       <img src={p.images[0]} alt="" className="w-full h-full object-cover" />
                     ) : (
-                      <Package className="w-5 h-5 text-muted-foreground/40" />
+                      <Package className="w-4 h-4 text-muted-foreground/40" />
                     )}
                   </div>
                   <div className="flex-1 min-w-0">
-                    <p className="text-sm font-medium text-foreground truncate">{p.title}</p>
+                    <p className="text-[13px] font-medium text-foreground truncate">{p.title}</p>
                     <p className="text-xs font-bold text-primary">${p.price.toFixed(2)}</p>
                   </div>
                 </button>
