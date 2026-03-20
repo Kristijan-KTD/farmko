@@ -284,7 +284,7 @@ const ProductDetail = () => {
     <MobileLayout>
       <PageHeader title="Product Details" />
 
-      <div className="flex-1 section-gap pb-6">
+      <div className="flex-1 section-gap pb-6 space-y-6">
         {/* Image Gallery */}
         <div className="relative aspect-square bg-muted rounded-lg flex items-center justify-center overflow-hidden shadow-card">
           {product.images && product.images.length > 0 ? (
