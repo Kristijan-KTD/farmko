@@ -81,7 +81,8 @@ const Instafarm = () => {
   const [monthlyPostCount, setMonthlyPostCount] = useState(0);
   const [showUpgrade, setShowUpgrade] = useState(false);
   const [upgradeMessage, setUpgradeMessage] = useState({ title: "", description: "" });
-  const [priceWarning, setPriceWarning] = useState(false);
+  const [captionAnalysis, setCaptionAnalysis] = useState<CaptionAnalysis>({ score: 0, intent: "informational", reasons: [] });
+  const [dismissedWarning, setDismissedWarning] = useState(false);
   const fileRef = useRef<HTMLInputElement>(null);
   const { toast } = useToast();
   const { user } = useAuth();
