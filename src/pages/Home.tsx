@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { User, Plus, Package, MessageCircle, Eye, Heart, Search, Bell, Store, Crown, Loader2 } from "lucide-react";
+import { User, Plus, Package, MessageCircle, Eye, Heart, Loader2 } from "lucide-react";
 import MobileLayout from "@/components/layout/MobileLayout";
 import TopBar from "@/components/layout/TopBar";
 import BottomNav from "@/components/layout/BottomNav";
