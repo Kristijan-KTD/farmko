@@ -214,28 +214,28 @@ const FeedSectionHeader = ({
 const FeedProductCard = ({ product, onClick }: { product: EnrichedProduct; onClick: () => void }) => {
   const badge = getPlanBadge(product.farmerPlan);
   return (
-    <button onClick={onClick} className="card-interactive flex flex-col shrink-0 w-[180px] min-w-[180px] snap-start overflow-hidden text-left">
-      <div className="aspect-[3/2] bg-muted relative overflow-hidden rounded-t-[16px]">
+    <button onClick={onClick} className="card-interactive flex flex-col shrink-0 w-[164px] min-w-[164px] snap-start overflow-hidden text-left">
+      <div className="aspect-[3/2] bg-muted relative overflow-hidden" style={{ borderRadius: 'var(--radius-lg) var(--radius-lg) 0 0' }}>
         {product.images?.[0] ? (
           <img src={product.images[0]} alt={product.title} className="absolute inset-0 w-full h-full object-cover" />
         ) : (
           <div className="absolute inset-0 flex items-center justify-center">
-            <Package className="w-9 h-9 text-muted-foreground/20" />
+            <Package className="w-8 h-8 text-muted-foreground/20" />
           </div>
         )}
         {badge && (
-          <div className={`absolute top-2.5 right-2.5 px-2 py-0.5 rounded-lg text-[9px] font-bold ${badge.color}`}>
+          <div className={`absolute top-2 right-2 px-1.5 py-0.5 rounded-md text-[9px] font-bold ${badge.color}`}>
             {badge.label}
           </div>
         )}
       </div>
-      <div className="p-3.5 space-y-1">
-        <h3 className="text-sm font-semibold text-foreground truncate">{product.title}</h3>
+      <div className="p-3 space-y-1">
+        <h3 className="text-[13px] font-semibold text-foreground truncate">{product.title}</h3>
         <div className="flex items-center justify-between">
-          <span className="text-sm font-bold text-primary">${product.price.toFixed(2)}</span>
+          <span className="text-[13px] font-bold text-primary">${product.price.toFixed(2)}</span>
           {product.distance != null && (
             <span className="text-[10px] text-muted-foreground flex items-center gap-0.5">
-              <MapPin className="w-3 h-3" />
+              <MapPin className="w-2.5 h-2.5" />
               {formatDistance(product.distance)}
             </span>
           )}
