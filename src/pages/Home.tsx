@@ -120,13 +120,7 @@ const Home = () => {
         {/* FARMER DASHBOARD */}
         {user?.role === "farmer" && (
           <>
-            {/* Section 1: Primary CTA */}
-            <Button onClick={() => navigate("/post-item")} className="w-full rounded-md h-11 font-semibold gap-2 text-sm">
-              <Plus className="w-4.5 h-4.5" style={{ width: 18, height: 18 }} />
-              Post New Product
-            </Button>
-
-            {/* Section 2: Performance Summary */}
+            {/* Section 1: Performance Summary */}
             <div className="space-y-2.5">
               <h3 className="section-label">Performance</h3>
               {loading ? (
@@ -158,7 +152,13 @@ const Home = () => {
               )}
             </div>
 
-            {/* Section 3: Quick Management */}
+            {/* Section 2: Post New Product CTA */}
+            <Button onClick={() => navigate("/post-item")} className="w-full rounded-md h-11 font-semibold gap-2 text-sm">
+              <Plus className="w-4.5 h-4.5" style={{ width: 18, height: 18 }} />
+              Post New Product
+            </Button>
+
+            {/* Section 3: My Store */}
             {storePreview.length > 0 && (
               <div className="space-y-2.5">
                 <div className="flex items-center justify-between">
@@ -180,24 +180,6 @@ const Home = () => {
                 </div>
               </div>
             )}
-
-            {/* Section 4: Quick Links */}
-            <div className="space-y-2.5">
-              <h3 className="section-label">Quick Access</h3>
-              <HorizontalScroll className="gap-2.5 pb-1" snap={false}>
-                {[
-                  { icon: Store, label: "My Store", path: "/my-store" },
-                  { icon: Crown, label: "Plans", path: "/plans" },
-                  { icon: Bell, label: "Notifications", path: "/notifications" },
-                  { icon: Search, label: "Explore", path: "/explore" },
-                ].map(({ icon: Icon, label, path }) => (
-                  <button key={path} onClick={() => navigate(path)} className="list-item-subtle gap-2 px-4 py-2.5 shrink-0">
-                    <Icon className="w-4 h-4 text-muted-foreground" />
-                    <span className="text-xs font-medium text-foreground whitespace-nowrap">{label}</span>
-                  </button>
-                ))}
-              </HorizontalScroll>
-            </div>
           </>
         )}
 
