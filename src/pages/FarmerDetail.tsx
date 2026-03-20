@@ -237,7 +237,7 @@ const FarmerDetail = () => {
         {products.length > 0 && (
           <section>
             <h3 className="section-label mb-2.5">Products</h3>
-            <div className="space-y-2">
+            <div className="space-y-1">
               {products.map((p) => (
                 <button key={p.id} onClick={() => handleProductClick(p)} className="list-item-subtle active:scale-[0.98]">
                   <div className="w-12 h-12 bg-muted rounded-md flex items-center justify-center overflow-hidden shrink-0">
