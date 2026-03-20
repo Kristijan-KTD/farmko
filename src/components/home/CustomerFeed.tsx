@@ -105,13 +105,13 @@ const CustomerFeed = () => {
   }
 
   return (
-    <div className="space-y-10 pb-24">
+    <div className="space-y-8 pb-24">
       {/* SECTION 1 – Greeting */}
-      <section className="space-y-1.5">
-        <h1 className="text-xl font-bold text-foreground leading-tight">
+      <section className="space-y-1">
+        <h1 className="text-lg font-bold text-foreground leading-tight">
           {getGreeting()}{user?.name ? `, ${user.name.split(" ")[0]}` : ""} 👋
         </h1>
-        <p className="text-[13px] text-muted-foreground">Discover what's fresh and local today</p>
+        <p className="section-subtitle">Discover what's fresh and local today</p>
       </section>
 
       {/* SECTION 2 – Trending Near You */}
@@ -123,7 +123,7 @@ const CustomerFeed = () => {
             subtitle="Popular this week"
             onSeeAll={() => navigate("/explore")}
           />
-          <HorizontalScroll className="gap-4 pb-1">
+          <HorizontalScroll className="gap-3 pb-1">
             {nearbyProducts.map((product) => (
               <FeedProductCard key={product.id} product={product} onClick={() => handleProductClick(product)} />
             ))}
@@ -143,7 +143,7 @@ const CustomerFeed = () => {
             subtitle="Fresh today"
             onSeeAll={() => navigate("/explore/recommended")}
           />
-          <HorizontalScroll className="gap-4 pb-1">
+          <HorizontalScroll className="gap-3 pb-1">
             {recommended.map((product) => (
               <FeedProductCard key={product.id} product={product} onClick={() => handleProductClick(product)} />
             ))}
@@ -160,7 +160,7 @@ const CustomerFeed = () => {
             subtitle="Meet your local growers"
             onSeeAll={() => navigate("/find-farmer")}
           />
-          <HorizontalScroll className="gap-4 pb-1">
+          <HorizontalScroll className="gap-3 pb-1">
             {farmers.map((farmer) => (
               <FarmerCard key={farmer.id} farmer={farmer} onClick={() => navigate(`/farmer/${farmer.id}`)} />
             ))}
