@@ -222,16 +222,16 @@ const ExploreProductRow = ({ product, onClick }: { product: EnrichedProduct; onC
 
 const ExploreSkeleton = () => (
   <div className="divide-y divide-border/60">
-    {Array.from({ length: 14 }).map((_, i) => (
-      <div key={i} className="flex items-center gap-3 px-1 py-2.5 animate-pulse">
-        <div className="w-10 h-10 rounded-sm bg-muted shrink-0" />
-        <div className="flex-1 space-y-1.5">
-          <div className="h-3.5 bg-muted rounded w-3/4" />
-          <div className="h-2.5 bg-muted rounded w-1/2" />
+    {Array.from({ length: 6 }).map((_, i) => (
+      <div key={i} className="flex items-center gap-3 px-1 py-3 animate-pulse">
+        <div className="w-[52px] h-[52px] rounded-md bg-muted shrink-0" />
+        <div className="flex-1 space-y-2">
+          <div className="h-4 bg-muted rounded w-3/4" />
+          <div className="h-3 bg-muted rounded w-1/2" />
         </div>
-        <div className="space-y-1.5">
-          <div className="h-3 bg-muted rounded w-10" />
-          <div className="h-2 bg-muted rounded w-8 ml-auto" />
+        <div className="space-y-2">
+          <div className="h-4 bg-muted rounded w-12" />
+          <div className="h-3 bg-muted rounded w-8 ml-auto" />
         </div>
       </div>
     ))}
