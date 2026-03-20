@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Star, MapPin, Package, User, MessageCircle, Loader2, Heart, ChevronLeft, ChevronRight, AlertTriangle, CheckCircle, Truck, Clock } from "lucide-react";
+import { Star, MapPin, Package, User, MessageCircle, Loader2, Heart, ChevronLeft, ChevronRight, AlertTriangle, CheckCircle, Truck, Clock, Camera } from "lucide-react";
 import MobileLayout from "@/components/layout/MobileLayout";
 import PageHeader from "@/components/layout/PageHeader";
 import { Button } from "@/components/ui/button";
@@ -10,6 +10,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAnalyticsTracking } from "@/hooks/useAnalyticsTracking";
 import HorizontalScroll from "@/components/HorizontalScroll";
 import { getPlanBadge } from "@/services/planService";
+import InstafarmCard from "@/components/instafarm/InstafarmCard";
+import { useInstafarmPosts } from "@/hooks/useInstafarmPosts";
 
 interface Review {
   id: string;
@@ -440,6 +442,9 @@ const ProductDetail = () => {
           </button>
         )}
 
+        {/* From This Farm - Instafarm */}
+        {product.farmer && <FromThisFarmSection farmerId={product.farmer_id} />}
+
         {/* More From This Farmer */}
         {moreFromFarmer.length > 0 && (
           <section>
@@ -526,6 +531,28 @@ const ProductDetail = () => {
         </div>
       </div>
     </MobileLayout>
+  );
+};
+
+const FromThisFarmSection = ({ farmerId }: { farmerId: string }) => {
+  const { posts, loading } = useInstafarmPosts({ farmerId, limit: 4 });
+
+  if (loading || posts.length === 0) return null;
+
+  return (
+    <section>
+      <div className="flex items-center gap-2 mb-3">
+        <div className="w-6 h-6 rounded-md bg-primary/10 flex items-center justify-center">
+          <Camera className="w-3.5 h-3.5 text-primary" />
+        </div>
+        <h3 className="text-sm font-semibold text-foreground">From this farm</h3>
+      </div>
+      <div className="grid grid-cols-2 gap-2.5">
+        {posts.map((post) => (
+          <InstafarmCard key={post.id} post={post} variant="standard" />
+        ))}
+      </div>
+    </section>
   );
 };
 

@@ -1,9 +1,11 @@
 import { useState, useEffect } from "react";
-import { Search, Package, Clock, Sparkles, AlertTriangle, MapPin, CheckCircle } from "lucide-react";
+import { Search, Package, Clock, Sparkles, AlertTriangle, MapPin, CheckCircle, Camera } from "lucide-react";
 import MobileLayout from "@/components/layout/MobileLayout";
 import PageHeader from "@/components/layout/PageHeader";
 import BottomNav from "@/components/layout/BottomNav";
 import HorizontalScroll from "@/components/HorizontalScroll";
+import InstafarmCard from "@/components/instafarm/InstafarmCard";
+import { useInstafarmPosts } from "@/hooks/useInstafarmPosts";
 import ExploreFilter, { type FilterState } from "@/components/explore/ExploreFilter";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
@@ -187,6 +189,9 @@ const Explore = () => {
               </HorizontalScroll>
             </section>
 
+            {/* From Farms Near You - Instafarm */}
+            <InstafarmExploreSection />
+
             {/* Recommended */}
             <section>
                <div className="flex items-center justify-between mb-3.5">
@@ -293,6 +298,31 @@ const RecommendedCard = ({ product, onClick }: {product: EnrichedProduct;onClick
       </div>
     </button>);
 
+};
+
+const InstafarmExploreSection = () => {
+  const { posts, loading } = useInstafarmPosts({ limit: 8 });
+
+  if (loading || posts.length === 0) return null;
+
+  return (
+    <section>
+      <div className="flex items-center justify-between mb-3.5">
+        <div className="flex items-center gap-2">
+          <div className="w-6 h-6 rounded-md bg-primary/10 flex items-center justify-center">
+            <Camera className="w-3.5 h-3.5 text-primary" />
+          </div>
+          <h2 className="text-sm font-bold text-foreground">From farms near you</h2>
+        </div>
+        <button onClick={() => window.location.href = "/instafarm"} className="text-xs font-semibold text-primary">See all</button>
+      </div>
+      <HorizontalScroll className="gap-3 pb-1">
+        {posts.map((post) => (
+          <InstafarmCard key={post.id} post={post} variant="compact" />
+        ))}
+      </HorizontalScroll>
+    </section>
+  );
 };
 
 const LoadingSkeleton = () =>

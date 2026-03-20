@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef, useCallback } from "react";
-import { Plus, Heart, MessageCircle, Grid, Image as ImageIcon, MoreHorizontal, Loader2, Camera, AlertTriangle, Package, ExternalLink } from "lucide-react";
+import { Plus, Heart, MessageCircle, Grid, Image as ImageIcon, Loader2, Camera, AlertTriangle, Package, ExternalLink } from "lucide-react";
 import MobileLayout from "@/components/layout/MobileLayout";
 import PageHeader from "@/components/layout/PageHeader";
 import BottomNav from "@/components/layout/BottomNav";
@@ -397,7 +397,7 @@ const Instafarm = () => {
             {posts.map((post) => (
               <div key={post.id} className="space-y-2">
                 <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2">
+                  <button onClick={() => navigate(`/farmer/${post.farmer_id}`)} className="flex items-center gap-2">
                     <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center overflow-hidden">
                       {post.farmer?.avatar_url ? (
                         <img src={post.farmer.avatar_url} alt="" className="w-full h-full object-cover" />
@@ -409,41 +409,46 @@ const Instafarm = () => {
                       <p className="text-sm font-semibold text-foreground">{post.farmer?.name ?? "Unknown"}</p>
                       <p className="text-[10px] text-muted-foreground">{timeAgo(post.created_at)}</p>
                     </div>
-                  </div>
-                  <button className="text-muted-foreground"><MoreHorizontal className="w-5 h-5" /></button>
+                  </button>
                 </div>
 
                 <div className="aspect-square bg-muted rounded-md overflow-hidden">
                   <img src={post.image_url} alt="" className="w-full h-full object-cover" />
                 </div>
 
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-4">
-                    <button onClick={() => toggleLike(post.id)} className={`transition-colors ${post.user_liked ? "text-red-500" : "text-muted-foreground"}`}>
-                      <Heart className={`w-6 h-6 ${post.user_liked ? "fill-red-500" : ""}`} />
-                    </button>
-                    <button onClick={() => openComments(post)} className="text-muted-foreground">
-                      <MessageCircle className="w-6 h-6" />
-                    </button>
-                  </div>
-                </div>
-
-                <p className="text-sm font-semibold text-foreground">{post.likes_count} likes</p>
+                {/* Caption first — story focus */}
                 {post.caption && (
-                  <p className="text-sm text-foreground">
+                  <p className="text-sm text-foreground leading-relaxed">
                     <span className="font-semibold">{post.farmer?.name ?? "Unknown"} </span>
                     {post.caption}
                   </p>
                 )}
 
-                {/* Tagged Product */}
+                {/* Tagged Product — prominent */}
                 {post.tagged_product && <ProductTag product={post.tagged_product} />}
 
-                {post.comments_count > 0 && (
-                  <button onClick={() => openComments(post)} className="text-xs text-muted-foreground">
-                    View all {post.comments_count} comments
+                {/* Subtle social actions */}
+                <div className="flex items-center justify-between pt-1">
+                  <div className="flex items-center gap-3">
+                    <button onClick={() => toggleLike(post.id)} className={`flex items-center gap-1 text-xs ${post.user_liked ? "text-red-500" : "text-muted-foreground"}`}>
+                      <Heart className={`w-4 h-4 ${post.user_liked ? "fill-red-500" : ""}`} />
+                      {post.likes_count > 0 && <span>{post.likes_count}</span>}
+                    </button>
+                    <button onClick={() => openComments(post)} className="flex items-center gap-1 text-xs text-muted-foreground">
+                      <MessageCircle className="w-4 h-4" />
+                      {post.comments_count > 0 && <span>{post.comments_count}</span>}
+                    </button>
+                  </div>
+                  <button
+                    onClick={() => {
+                      if (post.tagged_product) navigate(`/product/${post.tagged_product.id}`);
+                      else navigate(`/farmer/${post.farmer_id}`);
+                    }}
+                    className="text-xs font-semibold text-primary"
+                  >
+                    {post.tagged_product ? "View Product →" : "View Farmer →"}
                   </button>
-                )}
+                </div>
               </div>
             ))}
           </div>
