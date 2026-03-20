@@ -294,10 +294,18 @@ const Instafarm = () => {
 
   const handleCaptionChange = (value: string) => {
     setCaption(value);
-    // Detect price patterns when no product is linked
+    setDismissedWarning(false);
     const productId = selectedProductId && selectedProductId !== "none" ? selectedProductId : null;
-    setPriceWarning(!productId && detectsPriceInCaption(value));
+    const analysis = analyzeCaption(value);
+    // If product is linked, treat as safe
+    setCaptionAnalysis(productId ? { score: 0, intent: "informational", reasons: [] } : analysis);
   };
+
+  const hasProductLinked = selectedProductId && selectedProductId !== "none";
+  const intentMessage = !hasProductLinked ? getIntentMessage(captionAnalysis.intent) : null;
+  const showSoftWarning = intentMessage?.severity === "warning" && !dismissedWarning;
+  const showHardBlock = intentMessage?.severity === "error";
+  const isBlocked = showHardBlock && !hasProductLinked;
 
   const handleUploadPost = async () => {
     if (!uploadFile || !user || uploading) return;
