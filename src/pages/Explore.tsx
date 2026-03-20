@@ -1,9 +1,11 @@
 import { useState, useEffect } from "react";
-import { Search, Package, Clock, Sparkles, AlertTriangle, MapPin, CheckCircle } from "lucide-react";
+import { Search, Package, Clock, Sparkles, AlertTriangle, MapPin, CheckCircle, Camera } from "lucide-react";
 import MobileLayout from "@/components/layout/MobileLayout";
 import PageHeader from "@/components/layout/PageHeader";
 import BottomNav from "@/components/layout/BottomNav";
 import HorizontalScroll from "@/components/HorizontalScroll";
+import InstafarmCard from "@/components/instafarm/InstafarmCard";
+import { useInstafarmPosts } from "@/hooks/useInstafarmPosts";
 import ExploreFilter, { type FilterState } from "@/components/explore/ExploreFilter";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
