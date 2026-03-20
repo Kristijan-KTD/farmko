@@ -66,6 +66,9 @@ const Explore = () => {
 
   const activeCategory = selectedCategory || filters.category;
 
+  // Reset visible count when filters/search change
+  useEffect(() => { setVisibleCount(PAGE_SIZE); }, [search, activeCategory, filters.sortBy, filters.distance]);
+
   const filtered = products.filter((p) => {
     const matchesSearch = !search || p.title.toLowerCase().includes(search.toLowerCase()) || p.farmer?.name?.toLowerCase().includes(search.toLowerCase());
     const matchesCategory = !activeCategory || p.category === activeCategory;
