@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { User, MapPin, Package, MessageCircle, Loader2, Star, AlertTriangle, Calendar, ShoppingBag, CheckCircle } from "lucide-react";
+import { User, MapPin, Package, MessageCircle, Loader2, Star, AlertTriangle, Calendar, ShoppingBag, CheckCircle, Camera } from "lucide-react";
 import MobileLayout from "@/components/layout/MobileLayout";
 import PageHeader from "@/components/layout/PageHeader";
 import { Button } from "@/components/ui/button";
@@ -10,6 +10,8 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useAnalyticsTracking } from "@/hooks/useAnalyticsTracking";
 import { useToast } from "@/hooks/use-toast";
 import { getPlanBadge } from "@/services/planService";
+import InstafarmCard from "@/components/instafarm/InstafarmCard";
+import { useInstafarmPosts } from "@/hooks/useInstafarmPosts";
 
 interface FarmerProfile {
   id: string;
