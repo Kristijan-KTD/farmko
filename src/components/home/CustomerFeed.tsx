@@ -29,7 +29,6 @@ const CustomerFeed = () => {
   const [loading, setLoading] = useState(true);
   const [userLocation, setUserLocation] = useState<{ lat: number; lng: number } | null>(null);
 
-  // Geolocation
   useEffect(() => {
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(
@@ -39,7 +38,6 @@ const CustomerFeed = () => {
     }
   }, []);
 
-  // Fetch products + farmers
   useEffect(() => {
     let mounted = true;
     const load = async () => {
@@ -93,10 +91,10 @@ const CustomerFeed = () => {
   };
 
   const nearbyProducts = userLocation
-    ? [...products].filter((p) => p.distance != null).sort((a, b) => (a.distance ?? Infinity) - (b.distance ?? Infinity)).slice(0, 5)
+    ? [...products].filter((p) => p.distance != null).sort((a, b) => (a.distance ?? Infinity) - (b.distance ?? Infinity)).slice(0, 4)
     : [];
 
-  const recommended = getRecommendedProducts(products, 5);
+  const recommended = getRecommendedProducts(products, 4);
 
   if (loading) {
     return (
@@ -107,19 +105,19 @@ const CustomerFeed = () => {
   }
 
   return (
-    <div className="space-y-8 pb-24">
+    <div className="space-y-10 pb-24">
       {/* SECTION 1 – Greeting */}
-      <section className="space-y-2">
+      <section className="space-y-1.5">
         <h1 className="text-xl font-bold text-foreground leading-tight">
           {getGreeting()}{user?.name ? `, ${user.name.split(" ")[0]}` : ""} 👋
         </h1>
-        <p className="text-sm text-muted-foreground">Discover what's fresh and local today</p>
+        <p className="text-[13px] text-muted-foreground">Discover what's fresh and local today</p>
       </section>
 
-      {/* SECTION 2 – Trending Near You (Products) */}
+      {/* SECTION 2 – Trending Near You */}
       {nearbyProducts.length > 0 && (
         <section>
-          <CuratedSectionHeader
+          <FeedSectionHeader
             icon={TrendingUp}
             title="Trending near you"
             subtitle="Popular this week"
@@ -127,36 +125,36 @@ const CustomerFeed = () => {
           />
           <HorizontalScroll className="gap-4 pb-1">
             {nearbyProducts.map((product) => (
-              <HomeProductCard key={product.id} product={product} onClick={() => handleProductClick(product)} />
+              <FeedProductCard key={product.id} product={product} onClick={() => handleProductClick(product)} />
             ))}
           </HorizontalScroll>
         </section>
       )}
 
-      {/* SECTION 3 – Fresh from Farms (Instafarm) — prominent */}
+      {/* SECTION 3 – Fresh from Farms (Instafarm) */}
       <FreshFromFarmsSection userLocation={userLocation} />
 
-      {/* SECTION 4 – Freshly Added (Recommended) */}
+      {/* SECTION 4 – Picked for You (horizontal scroll) */}
       {recommended.length > 0 && (
         <section>
-          <CuratedSectionHeader
-            icon={Leaf}
-            title="Freshly added"
-            subtitle="Just listed by local farmers"
+          <FeedSectionHeader
+            icon={Sparkles}
+            title="Picked for you"
+            subtitle="Fresh today"
             onSeeAll={() => navigate("/explore/recommended")}
           />
-          <div className="space-y-3">
+          <HorizontalScroll className="gap-4 pb-1">
             {recommended.map((product) => (
-              <HomeRecommendedItem key={product.id} product={product} onClick={() => handleProductClick(product)} />
+              <FeedProductCard key={product.id} product={product} onClick={() => handleProductClick(product)} />
             ))}
-          </div>
+          </HorizontalScroll>
         </section>
       )}
 
       {/* SECTION 5 – Farmers Near You */}
       {farmers.length > 0 && (
         <section>
-          <CuratedSectionHeader
+          <FeedSectionHeader
             icon={User}
             title="Farmers near you"
             subtitle="Meet your local growers"
@@ -182,9 +180,9 @@ function getGreeting(): string {
   return "Good evening";
 }
 
-// ── Curated Section Header (Home-specific, with subtitle) ──────
+// ── Section Header ──────────────────────────────────────────────
 
-const CuratedSectionHeader = ({
+const FeedSectionHeader = ({
   icon: Icon,
   title,
   subtitle,
@@ -211,9 +209,9 @@ const CuratedSectionHeader = ({
   </div>
 );
 
-// ── Home Product Card (larger, more visual than Explore) ────────
+// ── Feed Product Card (visual, spacious) ────────────────────────
 
-const HomeProductCard = ({ product, onClick }: { product: EnrichedProduct; onClick: () => void }) => {
+const FeedProductCard = ({ product, onClick }: { product: EnrichedProduct; onClick: () => void }) => {
   const badge = getPlanBadge(product.farmerPlan);
   return (
     <button onClick={onClick} className="card-interactive flex flex-col shrink-0 w-[180px] min-w-[180px] snap-start overflow-hidden text-left">
@@ -231,13 +229,9 @@ const HomeProductCard = ({ product, onClick }: { product: EnrichedProduct; onCli
           </div>
         )}
       </div>
-      <div className="p-3.5 space-y-1.5">
+      <div className="p-3.5 space-y-1">
         <h3 className="text-sm font-semibold text-foreground truncate">{product.title}</h3>
-        <div className="flex items-center gap-1">
-          <p className="text-[11px] text-muted-foreground truncate">{product.farmer?.name || "Unknown"}</p>
-          {product.farmer?.verified && <CheckCircle className="w-3 h-3 text-blue-500 shrink-0" />}
-        </div>
-        <div className="flex items-center justify-between pt-1">
+        <div className="flex items-center justify-between">
           <span className="text-sm font-bold text-primary">${product.price.toFixed(2)}</span>
           {product.distance != null && (
             <span className="text-[10px] text-muted-foreground flex items-center gap-0.5">
@@ -251,42 +245,7 @@ const HomeProductCard = ({ product, onClick }: { product: EnrichedProduct; onCli
   );
 };
 
-// ── Recommended Item (Home-specific, more spacious) ─────────────
-
-const HomeRecommendedItem = ({ product, onClick }: { product: EnrichedProduct; onClick: () => void }) => {
-  const badge = getPlanBadge(product.farmerPlan);
-  return (
-    <button onClick={onClick} className="w-full flex items-center gap-4 p-3.5 rounded-2xl bg-card border border-border hover:border-primary/20 transition-colors text-left active:scale-[0.98]">
-      <div className="w-16 h-16 rounded-xl bg-muted flex items-center justify-center overflow-hidden shrink-0">
-        {product.images?.[0] ? (
-          <img src={product.images[0]} alt={product.title} className="w-full h-full object-cover" />
-        ) : (
-          <Package className="w-5 h-5 text-muted-foreground/20" />
-        )}
-      </div>
-      <div className="flex-1 min-w-0">
-        <div className="flex items-center gap-1.5">
-          <h3 className="text-sm font-semibold text-foreground truncate">{product.title}</h3>
-          {badge && (
-            <span className={`text-[9px] font-bold px-1.5 py-0.5 rounded-full shrink-0 ${badge.color}`}>{badge.label}</span>
-          )}
-        </div>
-        <p className="text-[11px] text-muted-foreground truncate mt-1">by {product.farmer?.name || "Unknown"}</p>
-        <div className="flex items-center gap-2.5 mt-1.5">
-          <span className="text-sm font-bold text-primary">${product.price.toFixed(2)}</span>
-          {product.distance != null && (
-            <span className="text-[10px] text-muted-foreground flex items-center gap-0.5">
-              <MapPin className="w-3 h-3" />
-              {formatDistance(product.distance)}
-            </span>
-          )}
-        </div>
-      </div>
-    </button>
-  );
-};
-
-// ── Fresh from Farms (Instafarm — prominent on Home) ────────────
+// ── Fresh from Farms ────────────────────────────────────────────
 
 const FreshFromFarmsSection = ({ userLocation }: { userLocation: { lat: number; lng: number } | null }) => {
   const { posts, loading, isFallback } = useInstafarmPosts({ limit: 4, userLocation, maxDistance: 100 });
@@ -296,7 +255,7 @@ const FreshFromFarmsSection = ({ userLocation }: { userLocation: { lat: number; 
 
   return (
     <section>
-      <CuratedSectionHeader
+      <FeedSectionHeader
         icon={Camera}
         title="Fresh from farms"
         subtitle="Stories from local growers"
@@ -314,7 +273,7 @@ const FreshFromFarmsSection = ({ userLocation }: { userLocation: { lat: number; 
   );
 };
 
-// ── Farmer Card (Home-specific, more spacious) ──────────────────
+// ── Farmer Card ─────────────────────────────────────────────────
 
 const FarmerCard = ({ farmer, onClick }: { farmer: NearbyFarmer; onClick: () => void }) => (
   <button onClick={onClick} className="card-interactive flex flex-col items-center shrink-0 w-[130px] min-w-[130px] snap-start p-5 text-center">

@@ -1,12 +1,12 @@
 import { useState, useEffect } from "react";
-import { Search, Package, Clock, AlertTriangle, MapPin, CheckCircle } from "lucide-react";
+import { Search, Package, AlertTriangle, MapPin, CheckCircle } from "lucide-react";
 import MobileLayout from "@/components/layout/MobileLayout";
 import PageHeader from "@/components/layout/PageHeader";
 import BottomNav from "@/components/layout/BottomNav";
 import ExploreFilter, { type FilterState } from "@/components/explore/ExploreFilter";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
-import { fetchEnrichedProducts, getNewestProducts, getRecommendedProducts, trackListingClick, type EnrichedProduct } from "@/services/productService";
+import { fetchEnrichedProducts, trackListingClick, type EnrichedProduct } from "@/services/productService";
 import { getPlanBadge } from "@/services/planService";
 import { CATEGORIES } from "@/lib/categories";
 import { haversineKm, formatDistance } from "@/lib/distance";
@@ -85,9 +85,9 @@ const Explore = () => {
     <MobileLayout>
       <PageHeader title="Explore" />
 
-      {/* Search — primary focus */}
-      <div className="flex items-center gap-2 mb-3">
-        <div className="flex-1 min-w-0 flex items-center gap-2.5 bg-secondary rounded-md px-4 py-2.5 border border-border">
+      {/* Search */}
+      <div className="flex items-center gap-2 mb-2">
+        <div className="flex-1 min-w-0 flex items-center gap-2 bg-secondary rounded-md px-3 py-2 border border-border">
           <Search className="w-4 h-4 text-muted-foreground shrink-0" />
           <input
             type="text"
@@ -104,8 +104,8 @@ const Explore = () => {
         />
       </div>
 
-      {/* Category Chips — compact */}
-      <div className="flex overflow-x-auto gap-1.5 mb-3 pb-1 no-scrollbar">
+      {/* Category Chips */}
+      <div className="flex overflow-x-auto gap-1.5 mb-2 pb-0.5 no-scrollbar">
         {CATEGORIES.slice(0, 8).map((cat) => {
           const isActive = activeCategory === (cat.key === "all" ? null : cat.key);
           const isAll = cat.key === "all" && !activeCategory;
@@ -113,7 +113,7 @@ const Explore = () => {
             <button
               key={cat.key}
               onClick={() => { setSelectedCategory(cat.key === "all" ? null : cat.key); setFilters((f) => ({ ...f, category: null })); }}
-              className={`flex items-center gap-1 px-3 py-1.5 rounded-full text-[11px] font-medium shrink-0 transition-all duration-200 ${
+              className={`flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-medium shrink-0 transition-all duration-200 ${
                 isActive || isAll
                   ? "bg-primary text-primary-foreground shadow-sm"
                   : "bg-card text-muted-foreground border border-border hover:border-primary/30"
@@ -128,17 +128,17 @@ const Explore = () => {
 
       {/* Results count */}
       {!loading && !error && filtered.length > 0 && (
-        <p className="text-[11px] text-muted-foreground mb-2">{sorted.length} product{sorted.length !== 1 ? "s" : ""} found</p>
+        <p className="text-[11px] text-muted-foreground mb-1.5">{sorted.length} result{sorted.length !== 1 ? "s" : ""}</p>
       )}
 
-      {/* Product List — dense, efficient, vertical */}
+      {/* Product List — dense, compact */}
       <div className="flex-1 pb-20 overflow-y-auto overflow-x-hidden">
         {loading ? (
           <ExploreSkeleton />
         ) : error ? (
           <div className="flex flex-col items-center justify-center py-16">
-            <div className="w-14 h-14 rounded-full bg-destructive/8 flex items-center justify-center mb-3">
-              <AlertTriangle className="w-6 h-6 text-destructive/60" />
+            <div className="w-12 h-12 rounded-full bg-destructive/8 flex items-center justify-center mb-3">
+              <AlertTriangle className="w-5 h-5 text-destructive/60" />
             </div>
             <p className="text-foreground font-medium mb-1 text-sm">Something went wrong</p>
             <p className="text-muted-foreground text-xs mb-3">Failed to load products</p>
@@ -146,14 +146,14 @@ const Explore = () => {
           </div>
         ) : filtered.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-16">
-            <div className="w-14 h-14 rounded-full bg-muted flex items-center justify-center mb-3">
-              <Package className="w-6 h-6 text-muted-foreground/40" />
+            <div className="w-12 h-12 rounded-full bg-muted flex items-center justify-center mb-3">
+              <Package className="w-5 h-5 text-muted-foreground/40" />
             </div>
             <p className="text-foreground font-medium mb-1 text-sm">No products found</p>
             <p className="text-muted-foreground text-xs">Try adjusting your search or filters</p>
           </div>
         ) : (
-          <div className="space-y-1.5">
+          <div className="divide-y divide-border">
             {sorted.map((product) => (
               <ExploreProductRow key={product.id} product={product} onClick={() => handleProductClick(product)} />
             ))}
@@ -166,21 +166,21 @@ const Explore = () => {
   );
 };
 
-// ── Explore Product Row (dense, compact, scannable) ─────────────
+// ── Explore Product Row (compact, dense, scannable) ─────────────
 
 const ExploreProductRow = ({ product, onClick }: { product: EnrichedProduct; onClick: () => void }) => {
   const badge = getPlanBadge(product.farmerPlan);
   return (
-    <button onClick={onClick} className="w-full flex items-center gap-3 px-2 py-2 rounded-xl hover:bg-accent/50 transition-colors text-left active:scale-[0.98]">
-      <div className="w-14 h-14 rounded-lg bg-muted flex items-center justify-center overflow-hidden shrink-0">
+    <button onClick={onClick} className="w-full flex items-center gap-2.5 px-1 py-2 hover:bg-accent/40 transition-colors text-left active:scale-[0.98]">
+      <div className="w-11 h-11 rounded-lg bg-muted flex items-center justify-center overflow-hidden shrink-0">
         {product.images?.[0] ? (
           <img src={product.images[0]} alt={product.title} className="w-full h-full object-cover" />
         ) : (
-          <Package className="w-5 h-5 text-muted-foreground/20" />
+          <Package className="w-4 h-4 text-muted-foreground/20" />
         )}
       </div>
       <div className="flex-1 min-w-0">
-        <div className="flex items-center gap-1.5">
+        <div className="flex items-center gap-1">
           <h3 className="text-[13px] font-semibold text-foreground truncate">{product.title}</h3>
           {badge && (
             <span className={`text-[8px] font-bold px-1.5 py-0.5 rounded-full shrink-0 ${badge.color}`}>{badge.label}</span>
@@ -192,7 +192,7 @@ const ExploreProductRow = ({ product, onClick }: { product: EnrichedProduct; onC
         </div>
       </div>
       <div className="text-right shrink-0">
-        <span className="text-xs font-bold text-primary block">${product.price.toFixed(2)}</span>
+        <span className="text-xs font-bold text-primary">${product.price.toFixed(2)}</span>
         {product.distance != null && (
           <span className="text-[9px] text-muted-foreground flex items-center gap-0.5 justify-end mt-0.5">
             <MapPin className="w-2.5 h-2.5" />
@@ -207,17 +207,17 @@ const ExploreProductRow = ({ product, onClick }: { product: EnrichedProduct; onC
 // ── Skeleton ─────────────────────────────────────────────────────
 
 const ExploreSkeleton = () => (
-  <div className="space-y-1.5">
-    {Array.from({ length: 8 }).map((_, i) => (
-      <div key={i} className="flex items-center gap-3 px-2 py-2 animate-pulse">
-        <div className="w-14 h-14 rounded-lg bg-muted shrink-0" />
-        <div className="flex-1 space-y-2">
+  <div className="divide-y divide-border">
+    {Array.from({ length: 12 }).map((_, i) => (
+      <div key={i} className="flex items-center gap-2.5 px-1 py-2 animate-pulse">
+        <div className="w-11 h-11 rounded-lg bg-muted shrink-0" />
+        <div className="flex-1 space-y-1.5">
           <div className="h-3.5 bg-muted rounded w-3/4" />
           <div className="h-3 bg-muted rounded w-1/2" />
         </div>
-        <div className="space-y-1.5">
-          <div className="h-3 bg-muted rounded w-12" />
-          <div className="h-2.5 bg-muted rounded w-10 ml-auto" />
+        <div className="space-y-1">
+          <div className="h-3 bg-muted rounded w-10" />
+          <div className="h-2.5 bg-muted rounded w-8 ml-auto" />
         </div>
       </div>
     ))}
