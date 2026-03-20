@@ -216,7 +216,10 @@ const FarmerDetail = () => {
           </div>
         </div>
 
-        {/* Farm Photos */}
+        {/* Instafarm Posts */}
+        {id && <FarmerInstafarmSection farmerId={id} />}
+
+        {/* Farm Photos (legacy - only show if no instafarm) */}
         {photos.length > 0 && (
           <section>
             <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-3">Farm Photos</h3>
