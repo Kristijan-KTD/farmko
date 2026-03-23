@@ -1,5 +1,5 @@
-import { useState, useEffect } from "react";
-import { MapPin, User, MessageCircle, Loader2, Package, Star } from "lucide-react";
+import { useState, useEffect, useRef } from "react";
+import { MapPin, User, MessageCircle, Loader2, Package, Star, SlidersHorizontal, Navigation } from "lucide-react";
 import MobileLayout from "@/components/layout/MobileLayout";
 import PageHeader from "@/components/layout/PageHeader";
 import BottomNav from "@/components/layout/BottomNav";
@@ -15,6 +15,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { MapContainer, TileLayer, Marker, Popup, useMap } from "react-leaflet";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
@@ -41,8 +42,7 @@ interface RadarProduct {
   longitude: number | null;
 }
 
-type FilterType = "all" | "farmer" | "customer";
-type ViewMode = "farmers" | "products";
+type ViewMode = "all" | "farmers" | "products";
 type RadiusOption = 5 | 10 | 25 | 50;
 
 const farmerIcon = new L.DivIcon({
@@ -79,19 +79,31 @@ const youIcon = new L.DivIcon({
   iconAnchor: [10, 10],
 });
 
-function FlyToLocation({ lat, lng }: { lat: number; lng: number }) {
+function FlyToLocation({ lat, lng, zoom }: { lat: number; lng: number; zoom?: number }) {
   const map = useMap();
   useEffect(() => {
-    map.flyTo([lat, lng], 12, { duration: 1.5 });
-  }, [lat, lng, map]);
+    map.flyTo([lat, lng], zoom ?? 12, { duration: 1.5 });
+  }, [lat, lng, zoom, map]);
   return null;
 }
+
+const RADIUS_OPTIONS: { value: RadiusOption; label: string }[] = [
+  { value: 5, label: "5 km" },
+  { value: 10, label: "10 km" },
+  { value: 25, label: "25 km" },
+  { value: 50, label: "50 km" },
+];
+
+const VIEW_OPTIONS: { value: ViewMode; label: string }[] = [
+  { value: "all", label: "All" },
+  { value: "farmers", label: "Farmers" },
+  { value: "products", label: "Products" },
+];
 
 const Radar = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
-  const [filter, setFilter] = useState<FilterType>("all");
-  const [viewMode, setViewMode] = useState<ViewMode>("farmers");
+  const [viewMode, setViewMode] = useState<ViewMode>("all");
   const [radius, setRadius] = useState<RadiusOption>(50);
   const [selectedPin, setSelectedPin] = useState<RadarUser | null>(null);
   const [selectedProduct, setSelectedProduct] = useState<RadarProduct | null>(null);
@@ -99,6 +111,10 @@ const Radar = () => {
   const [products, setProducts] = useState<RadarProduct[]>([]);
   const [loading, setLoading] = useState(true);
   const [myLocation, setMyLocation] = useState<{ lat: number; lng: number } | null>(null);
+  const [filterOpen, setFilterOpen] = useState(false);
+  const [localView, setLocalView] = useState<ViewMode>("all");
+  const [localRadius, setLocalRadius] = useState<RadiusOption>(50);
+  const [flyTarget, setFlyTarget] = useState<{ lat: number; lng: number; zoom?: number } | null>(null);
 
   useEffect(() => {
     if (navigator.geolocation) {
@@ -149,7 +165,8 @@ const Radar = () => {
   }, [user]);
 
   const filteredUsers = users.filter(p => {
-    if (filter !== "all" && p.role !== filter) return false;
+    if (viewMode === "products") return false;
+    if (viewMode === "farmers" && p.role !== "farmer") return false;
     if (myLocation && p.latitude && p.longitude) {
       const dist = haversineKm(myLocation.lat, myLocation.lng, p.latitude, p.longitude);
       if (dist > radius) return false;
@@ -158,6 +175,7 @@ const Radar = () => {
   });
 
   const filteredProducts = products.filter(p => {
+    if (viewMode === "farmers") return false;
     if (!myLocation || !p.latitude || !p.longitude) return true;
     return haversineKm(myLocation.lat, myLocation.lng, p.latitude, p.longitude) <= radius;
   });
@@ -183,59 +201,143 @@ const Radar = () => {
     }
   };
 
+  const handleFindMyLocation = () => {
+    if (myLocation) {
+      setFlyTarget({ lat: myLocation.lat, lng: myLocation.lng, zoom: 15 });
+      // Reset after animation
+      setTimeout(() => setFlyTarget(null), 2000);
+    } else if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        (pos) => {
+          const loc = { lat: pos.coords.latitude, lng: pos.coords.longitude };
+          setMyLocation(loc);
+          setFlyTarget({ ...loc, zoom: 15 });
+          setTimeout(() => setFlyTarget(null), 2000);
+        }
+      );
+    }
+  };
+
+  const handleOpenFilter = (isOpen: boolean) => {
+    if (isOpen) {
+      setLocalView(viewMode);
+      setLocalRadius(radius);
+    }
+    setFilterOpen(isOpen);
+  };
+
+  const handleApplyFilter = () => {
+    setViewMode(localView);
+    setRadius(localRadius);
+    setFilterOpen(false);
+  };
+
+  const handleResetFilter = () => {
+    setLocalView("all");
+    setLocalRadius(50);
+    setViewMode("all");
+    setRadius(50);
+    setFilterOpen(false);
+  };
+
   const defaultCenter: [number, number] = myLocation ? [myLocation.lat, myLocation.lng] : [14.5995, 120.9842];
-  const markerCount = viewMode === "farmers" ? filteredUsers.length : filteredProducts.length;
+  const markerCount = filteredUsers.length + filteredProducts.length;
+
+  const activeFilterCount = [
+    viewMode !== "all" ? viewMode : null,
+    radius !== 50 ? radius : null,
+  ].filter(Boolean).length;
 
   return (
     <MobileLayout noPadding>
-      <div className="px-6">
+      <div className="px-6 flex items-center justify-between">
         <PageHeader title="Radar" />
-      </div>
-
-      {/* Controls */}
-      <div className="flex gap-2 px-6 pb-2 flex-wrap">
-        {/* View mode toggle */}
-        <div className="flex rounded-full border border-border overflow-hidden">
-          {(["farmers", "products"] as ViewMode[]).map(m => (
-            <button
-              key={m}
-              onClick={() => setViewMode(m)}
-              className={`px-3 py-1 text-xs font-medium capitalize transition-colors ${viewMode === m ? "bg-primary text-primary-foreground" : "text-muted-foreground"}`}
-            >
-              {m}
+        <Sheet open={filterOpen} onOpenChange={handleOpenFilter}>
+          <SheetTrigger asChild>
+            <button className="flex items-center gap-1.5 px-3.5 py-2 rounded-full bg-card text-sm font-medium text-foreground border border-border hover:border-primary/30 transition-colors active:scale-[0.97] relative">
+              <SlidersHorizontal className="w-4 h-4" />
+              <span>Filter</span>
+              {activeFilterCount > 0 && (
+                <span className="absolute -top-1.5 -right-1.5 w-[18px] h-[18px] rounded-full bg-primary text-primary-foreground text-[10px] flex items-center justify-center font-bold">
+                  {activeFilterCount}
+                </span>
+              )}
             </button>
-          ))}
-        </div>
+          </SheetTrigger>
+          <SheetContent side="bottom" className="rounded-t-2xl px-4 pb-8 pt-3 max-h-[70vh]">
+            <div className="flex justify-center mb-3">
+              <div className="w-10 h-1 rounded-full bg-border" />
+            </div>
+            <SheetHeader className="pb-1">
+              <div className="flex items-center justify-between">
+                <SheetTitle className="text-base font-semibold text-foreground">Filters</SheetTitle>
+                {activeFilterCount > 0 && (
+                  <button onClick={handleResetFilter} className="text-xs text-muted-foreground hover:text-foreground transition-colors">
+                    Clear all
+                  </button>
+                )}
+              </div>
+            </SheetHeader>
 
-        {/* Radius filter */}
-        <select
-          value={radius}
-          onChange={e => setRadius(Number(e.target.value) as RadiusOption)}
-          className="px-2 py-1 rounded-full text-xs border border-border bg-background text-foreground"
-        >
-          {([5, 10, 25, 50] as RadiusOption[]).map(r => (
-            <option key={r} value={r}>{r} km</option>
-          ))}
-        </select>
+            <div className="space-y-6 pt-4">
+              {/* Show */}
+              <div>
+                <div className="flex items-center gap-2 mb-3">
+                  <User className="w-4 h-4 text-muted-foreground" />
+                  <h3 className="text-sm font-semibold text-foreground">Show</h3>
+                </div>
+                <div className="flex flex-wrap gap-2">
+                  {VIEW_OPTIONS.map((opt) => (
+                    <button
+                      key={opt.value}
+                      onClick={() => setLocalView(opt.value)}
+                      className={`px-4 py-2 rounded-xl text-[13px] font-medium transition-all duration-150 active:scale-[0.97] ${
+                        localView === opt.value
+                          ? "bg-primary text-primary-foreground shadow-sm"
+                          : "bg-secondary text-foreground hover:bg-accent border border-border"
+                      }`}
+                    >
+                      {opt.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Distance */}
+              <div>
+                <div className="flex items-center gap-2 mb-3">
+                  <MapPin className="w-4 h-4 text-muted-foreground" />
+                  <h3 className="text-sm font-semibold text-foreground">Distance</h3>
+                </div>
+                <div className="flex flex-wrap gap-2">
+                  {RADIUS_OPTIONS.map((opt) => (
+                    <button
+                      key={opt.value}
+                      onClick={() => setLocalRadius(opt.value)}
+                      className={`px-4 py-2 rounded-xl text-[13px] font-medium transition-all duration-150 active:scale-[0.97] ${
+                        localRadius === opt.value
+                          ? "bg-primary text-primary-foreground shadow-sm"
+                          : "bg-secondary text-foreground hover:bg-accent border border-border"
+                      }`}
+                    >
+                      {opt.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            <div className="pt-6">
+              <Button onClick={handleApplyFilter} className="w-full h-12 rounded-xl text-sm font-semibold">
+                Apply Filters
+              </Button>
+            </div>
+          </SheetContent>
+        </Sheet>
       </div>
-
-      {/* Farmer filter chips (only in farmers mode) */}
-      {viewMode === "farmers" && (
-        <div className="flex gap-2 px-6 pb-3">
-          {(["all", "farmer", "customer"] as FilterType[]).map(f => (
-            <button
-              key={f}
-              onClick={() => setFilter(f)}
-              className={`px-4 py-1.5 rounded-full text-xs font-medium transition-colors capitalize ${filter === f ? "bg-primary text-primary-foreground" : "bg-secondary text-foreground"}`}
-            >
-              {f === "all" ? "All" : f === "farmer" ? "Farmers" : "Customers"}
-            </button>
-          ))}
-        </div>
-      )}
 
       {/* Map */}
-      <div className="flex-1 relative pb-20" style={{ minHeight: "calc(100vh - 260px)" }}>
+      <div className="flex-1 relative pb-20" style={{ minHeight: "calc(100vh - 180px)" }}>
         {loading ? (
           <div className="absolute inset-0 flex items-center justify-center bg-secondary">
             <Loader2 className="w-8 h-8 animate-spin text-primary" />
@@ -253,11 +355,13 @@ const Radar = () => {
               </>
             )}
 
-            {viewMode === "farmers" && filteredUsers.map(pin => (
+            {flyTarget && <FlyToLocation lat={flyTarget.lat} lng={flyTarget.lng} zoom={flyTarget.zoom} />}
+
+            {filteredUsers.map(pin => (
               <Marker key={pin.id} position={[pin.latitude!, pin.longitude!]} icon={pin.role === "farmer" ? farmerIcon : customerIcon} eventHandlers={{ click: () => setSelectedPin(pin) }} />
             ))}
 
-            {viewMode === "products" && filteredProducts.map(pin => (
+            {filteredProducts.map(pin => (
               <Marker key={pin.id} position={[pin.latitude!, pin.longitude!]} icon={productIcon} eventHandlers={{ click: () => setSelectedProduct(pin) }} />
             ))}
           </MapContainer>
@@ -265,18 +369,13 @@ const Radar = () => {
 
         {/* Legend */}
         <div className="absolute left-4 top-4 bg-card/90 backdrop-blur-sm rounded-lg p-2 border border-border z-[1000]">
-          {viewMode === "farmers" ? (
-            <>
-              <div className="flex items-center gap-2 mb-1">
-                <div className="w-3 h-3 bg-primary rounded-full" />
-                <span className="text-[10px] text-foreground">Farmers</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <div className="w-3 h-3 bg-destructive rounded-full" />
-                <span className="text-[10px] text-foreground">Customers</span>
-              </div>
-            </>
-          ) : (
+          {(viewMode === "all" || viewMode === "farmers") && (
+            <div className="flex items-center gap-2 mb-1">
+              <div className="w-3 h-3 bg-primary rounded-full" />
+              <span className="text-[10px] text-foreground">Farmers</span>
+            </div>
+          )}
+          {(viewMode === "all" || viewMode === "products") && (
             <div className="flex items-center gap-2">
               <div className="w-3 h-3 bg-orange-500 rounded" />
               <span className="text-[10px] text-foreground">Products</span>
@@ -284,16 +383,20 @@ const Radar = () => {
           )}
         </div>
 
-        {/* Bottom card */}
-        <div className="absolute bottom-4 left-1/2 -translate-x-1/2 bg-card rounded-xl shadow-lg p-3 flex items-center gap-3 border border-border w-[calc(100%-2rem)] z-[1000]">
+        {/* Bottom card - clickable to find location */}
+        <button
+          onClick={handleFindMyLocation}
+          className="absolute bottom-4 left-1/2 -translate-x-1/2 bg-card rounded-xl shadow-lg p-3 flex items-center gap-3 border border-border w-[calc(100%-2rem)] z-[1000] text-left active:scale-[0.98] transition-transform"
+        >
           <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
-            <MapPin className="w-5 h-5 text-primary" />
+            <Navigation className="w-5 h-5 text-primary" />
           </div>
           <div className="flex-1">
             <p className="text-sm font-semibold text-foreground">{user?.name || "You"}</p>
-            <p className="text-xs text-muted-foreground">{markerCount} {viewMode} on map · {radius}km radius</p>
+            <p className="text-xs text-muted-foreground">{markerCount} results on map · {radius}km radius</p>
           </div>
-        </div>
+          <MapPin className="w-4 h-4 text-muted-foreground" />
+        </button>
       </div>
 
       {/* Farmer detail dialog */}
