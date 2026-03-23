@@ -71,6 +71,7 @@ const Notifications = () => {
     if (!notif.read) {
       await supabase.from("notifications").update({ read: true }).eq("id", notif.id);
       setNotifications(prev => prev.map(n => n.id === notif.id ? { ...n, read: true } : n));
+      refreshUnread();
     }
     if (notif.type === "message" && notif.reference_id) navigate(`/chat/${notif.reference_id}`);
     else if (notif.type === "product" && notif.reference_id) navigate(`/product/${notif.reference_id}`);
@@ -79,6 +80,7 @@ const Notifications = () => {
   const markAllRead = async () => {
     await supabase.from("notifications").update({ read: true }).eq("user_id", user?.id).eq("read", false);
     setNotifications(prev => prev.map(n => ({ ...n, read: true })));
+    refreshUnread();
     toast({ title: "All notifications marked as read" });
   };
 
