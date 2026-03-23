@@ -89,11 +89,11 @@ const EditProfile = () => {
   };
 
   const fields = [
-    { icon: User, label: "Full Name", value: name, onChange: setName },
+    { icon: User, label: "Full Name", value: name, onChange: (v: string) => { if (v.length <= 30) setName(v); }, maxLength: 30, showCount: true },
     { icon: Mail, label: "Email Address", value: user?.email || "", onChange: () => {}, disabled: true },
     { icon: Phone, label: "Phone Number", value: phone, onChange: setPhone },
     { icon: MapPin, label: "Location", value: location, onChange: setLocation },
-    { icon: FileText, label: "Bio", value: bio, onChange: setBio },
+    { icon: FileText, label: "Bio", value: bio, onChange: (v: string) => { if (v.length <= 300) setBio(v); }, maxLength: 300, showCount: true },
   ];
 
   return (
