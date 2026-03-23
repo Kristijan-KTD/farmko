@@ -31,6 +31,7 @@ const Notifications = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
   const { user } = useAuth();
+  const { refresh: refreshUnread } = useUnreadNotifications();
 
   useEffect(() => {
     if (!user) return;
