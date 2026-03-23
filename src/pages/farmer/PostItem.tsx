@@ -22,6 +22,17 @@ const PostItem = () => {
   const [showUpgrade, setShowUpgrade] = useState(false);
   const [activeCount, setActiveCount] = useState(0);
   const [countLoading, setCountLoading] = useState(true);
+  const UNIT_OPTIONS = [
+    { key: "lbs", label: "lbs" },
+    { key: "g", label: "g" },
+    { key: "oz", label: "oz" },
+    { key: "kg", label: "kg" },
+    { key: "l", label: "l" },
+    { key: "ml", label: "ml" },
+    { key: "dozen", label: "dozen" },
+    { key: "piece", label: "piece" },
+  ];
+
   const [form, setForm] = useState({
     name: "",
     description: "",
