@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Trash2, Edit2, Package, Plus, Check, Loader2, AlertTriangle, Eye, Heart, MessageCircle, ArrowUpDown } from "lucide-react";
+import { Trash2, Package, Plus, Check, Loader2, AlertTriangle, Eye, Heart, MessageCircle, ArrowUpDown } from "lucide-react";
 import MobileLayout from "@/components/layout/MobileLayout";
 import PageHeader from "@/components/layout/PageHeader";
 import BottomNav from "@/components/layout/BottomNav";
