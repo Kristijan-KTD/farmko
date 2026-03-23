@@ -88,7 +88,19 @@ const PostItem = () => {
   const validateStep1 = () => {
     const newErrors: Record<string, string> = {};
     if (!form.name.trim()) newErrors.name = "Title is required";
+    if (form.name.length > 30) newErrors.name = "Max 30 characters";
+    if (!form.category) newErrors.category = "Category is required";
     if (!form.price || parseFloat(form.price) <= 0) newErrors.price = "Enter a valid price";
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
+  const validateStep2 = () => {
+    const newErrors: Record<string, string> = {};
+    if (!form.quantity || parseInt(form.quantity) <= 0) newErrors.quantity = "Enter a valid quantity";
+    if (!form.unit) newErrors.unit = "Select a unit";
+    if (form.description.length > 300) newErrors.description = "Max 300 characters";
+    if (images.length === 0) newErrors.images = "Add at least one photo";
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
