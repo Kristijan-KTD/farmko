@@ -329,7 +329,10 @@ const PostItem = () => {
               className="w-full bg-transparent text-sm outline-none placeholder:text-muted-foreground"
             />
           </div>
-          {errors.name && <p className="text-[11px] text-destructive mt-1">{errors.name}</p>}
+          <div className="flex justify-between items-center mt-1">
+            {errors.name ? <p className="text-[11px] text-destructive">{errors.name}</p> : <span />}
+            <p className="text-[10px] text-muted-foreground">{form.name.length}/30</p>
+          </div>
         </div>
 
         {/* Category */}
