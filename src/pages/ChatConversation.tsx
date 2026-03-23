@@ -27,6 +27,7 @@ const ChatConversation = () => {
   const [error, setError] = useState(false);
   const [sending, setSending] = useState(false);
   const bottomRef = useRef<HTMLDivElement>(null);
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
 
   const lastActiveLabel = (dateStr: string | null | undefined) => {
     if (!dateStr) return null;
