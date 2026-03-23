@@ -169,7 +169,7 @@ const ChatConversation = () => {
 
   return (
     <MobileLayout noPadding>
-      <div className="px-3 lg:px-6">
+      <div className="px-3 lg:px-6 sticky top-0 z-10 bg-background">
         <PageHeader title={
           <div className="flex items-center gap-2.5">
             {otherUser && (
