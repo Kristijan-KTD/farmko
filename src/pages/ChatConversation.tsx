@@ -256,7 +256,7 @@ const ChatConversation = () => {
       </div>
 
       <div className="p-3 border-t border-border bg-background">
-        <div className="flex items-end gap-2.5 bg-secondary rounded-md px-4 py-2.5 border border-border">
+        <div className="flex items-end gap-2.5 bg-secondary rounded-md px-4 py-2.5 border border-border min-w-0 overflow-hidden">
           <textarea
             ref={textareaRef}
             rows={1}
@@ -273,8 +273,8 @@ const ChatConversation = () => {
                 handleSend();
               }
             }}
-            className="flex-1 bg-transparent text-sm outline-none placeholder:text-muted-foreground resize-none overflow-y-auto leading-5"
-            style={{ maxHeight: "120px" }}
+            className="flex-1 bg-transparent text-sm outline-none placeholder:text-muted-foreground resize-none overflow-y-auto leading-5 break-words"
+            style={{ maxHeight: "120px", overflowWrap: "break-word", wordBreak: "break-word", whiteSpace: "pre-wrap", minWidth: 0 }}
           />
           <button
             onClick={handleSend}
