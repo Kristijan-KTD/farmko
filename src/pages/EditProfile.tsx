@@ -36,8 +36,8 @@ const EditProfile = () => {
   const handlePhotoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
-      if (file.size > 5 * 1024 * 1024) {
-        toast({ title: "File too large", description: "Please select an image under 5MB", variant: "destructive" });
+      if (file.size > 8 * 1024 * 1024) {
+        toast({ title: "File too large", description: "Please select an image under 8MB", variant: "destructive" });
         return;
       }
       setAvatarFile(file);
