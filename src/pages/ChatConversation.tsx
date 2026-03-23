@@ -256,7 +256,7 @@ const ChatConversation = () => {
       </div>
 
       <div className="p-3 border-t border-border bg-background">
-        <div className="flex items-end gap-2.5 bg-secondary rounded-md px-4 py-2.5 border border-border">
+        <div className="flex items-end gap-2.5 bg-secondary rounded-md px-4 py-2.5 border border-border min-w-0 overflow-hidden">
           <textarea
             ref={textareaRef}
             rows={1}
