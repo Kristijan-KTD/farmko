@@ -205,30 +205,42 @@ const PostItem = () => {
 
           {/* Quantity */}
           <div>
-            <label className="text-xs text-muted-foreground mb-1 block font-semibold">Available Quantity</label>
-            <div className="border-b border-input pb-2">
+            <label className="text-xs text-muted-foreground mb-1 block font-semibold">Available Quantity *</label>
+            <div className={`border-b pb-2 ${errors.quantity ? "border-destructive" : "border-input"}`}>
               <input
                 type="number"
                 placeholder="e.g. 30"
                 value={form.quantity}
-                onChange={(e) => setForm({ ...form, quantity: e.target.value })}
+                onChange={(e) => { setForm({ ...form, quantity: e.target.value }); setErrors(prev => ({ ...prev, quantity: "" })); }}
                 className="w-full bg-transparent text-sm outline-none placeholder:text-muted-foreground"
               />
             </div>
+            {errors.quantity && <p className="text-[11px] text-destructive mt-1">{errors.quantity}</p>}
           </div>
 
-          {/* Unit */}
+          {/* Unit of Measure - capsule style */}
           <div>
-            <label className="text-xs text-muted-foreground mb-1 block font-semibold">Unit of Measure</label>
-            <div className="border-b border-input pb-2">
-              <input
-                type="text"
-                placeholder="e.g. dozen, kg, lb"
-                value={form.unit}
-                onChange={(e) => setForm({ ...form, unit: e.target.value })}
-                className="w-full bg-transparent text-sm outline-none placeholder:text-muted-foreground"
-              />
+            <label className="text-xs text-muted-foreground mb-2 block font-semibold">Unit of Measure *</label>
+            <div className="flex flex-wrap gap-2">
+              {UNIT_OPTIONS.map((u) => {
+                const isActive = form.unit === u.key;
+                return (
+                  <button
+                    key={u.key}
+                    type="button"
+                    onClick={() => { setForm({ ...form, unit: isActive ? "" : u.key }); setErrors(prev => ({ ...prev, unit: "" })); }}
+                    className={`flex items-center px-3.5 py-2 rounded-full border text-xs transition-all ${
+                      isActive
+                        ? "bg-primary text-primary-foreground border-primary"
+                        : "bg-card border-border text-muted-foreground hover:border-primary/50"
+                    }`}
+                  >
+                    {u.label}
+                  </button>
+                );
+              })}
             </div>
+            {errors.unit && <p className="text-[11px] text-destructive mt-1">{errors.unit}</p>}
           </div>
 
           {/* Description */}
@@ -237,9 +249,11 @@ const PostItem = () => {
             <textarea
               placeholder="Describe your product..."
               value={form.description}
-              onChange={(e) => setForm({ ...form, description: e.target.value })}
+              onChange={(e) => { if (e.target.value.length <= 300) setForm({ ...form, description: e.target.value }); }}
               className="w-full bg-secondary rounded-lg p-3 text-sm outline-none resize-none h-20 placeholder:text-muted-foreground"
             />
+            <p className="text-[10px] text-muted-foreground mt-1 text-right">{form.description.length}/300</p>
+            {errors.description && <p className="text-[11px] text-destructive mt-1">{errors.description}</p>}
           </div>
 
           {/* Images */}
