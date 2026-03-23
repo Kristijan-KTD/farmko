@@ -273,8 +273,8 @@ const ChatConversation = () => {
                 handleSend();
               }
             }}
-            className="flex-1 bg-transparent text-sm outline-none placeholder:text-muted-foreground resize-none overflow-y-auto leading-5"
-            style={{ maxHeight: "120px" }}
+            className="flex-1 bg-transparent text-sm outline-none placeholder:text-muted-foreground resize-none overflow-y-auto leading-5 break-words"
+            style={{ maxHeight: "120px", overflowWrap: "break-word", wordBreak: "break-word", whiteSpace: "pre-wrap", minWidth: 0 }}
           />
           <button
             onClick={handleSend}
