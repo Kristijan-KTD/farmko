@@ -73,7 +73,14 @@ const PostItem = () => {
 
   const handleImageSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(e.target.files || []);
-    const newImages = files.slice(0, 6 - images.length).map((file) => ({
+    const validFiles = files.filter(file => {
+      if (file.size > 8 * 1024 * 1024) {
+        toast({ title: "File too large", description: `${file.name} exceeds 8MB limit`, variant: "destructive" });
+        return false;
+      }
+      return true;
+    });
+    const newImages = validFiles.slice(0, 6 - images.length).map((file) => ({
       file,
       preview: URL.createObjectURL(file)
     }));

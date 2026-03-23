@@ -167,7 +167,7 @@ const EditProfile = () => {
       </div>
 
       <div className="pb-8 pt-4">
-        <Button onClick={handleSave} disabled={isLoading} className="w-full rounded-full h-12 text-base font-semibold">
+        <Button onClick={handleSave} disabled={isLoading} className="w-full rounded-md h-12 text-base font-semibold">
           {isLoading ? "Saving..." : "Save"}
         </Button>
       </div>

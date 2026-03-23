@@ -398,11 +398,6 @@ const ProductDetail = () => {
             <MessageCircle className="w-4.5 h-4.5" style={{ width: 18, height: 18 }} />
             Contact Farmer
           </Button>
-          {user && (
-            <Button variant="outline" onClick={handleToggleFavorite} className="rounded-md h-11 px-3.5 border-border">
-              <Heart className={`w-5 h-5 ${isFavorited ? "fill-red-500 text-red-500" : ""}`} />
-            </Button>
-          )}
         </div>
 
         {/* Farmer Card */}
