@@ -324,6 +324,7 @@ const PostItem = () => {
               type="text"
               placeholder="e.g. Fresh Organic Eggs"
               value={form.name}
+              maxLength={30}
               onChange={(e) => { setForm({ ...form, name: e.target.value }); setErrors(prev => ({ ...prev, name: "" })); }}
               className="w-full bg-transparent text-sm outline-none placeholder:text-muted-foreground"
             />
