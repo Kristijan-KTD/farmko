@@ -121,6 +121,7 @@ const PostItem = () => {
       setShowUpgrade(true);
       return;
     }
+    if (!validateStep2()) return;
 
     setIsLoading(true);
     const uploadedUrls: string[] = [];
