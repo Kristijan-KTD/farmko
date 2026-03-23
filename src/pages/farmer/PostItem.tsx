@@ -258,7 +258,8 @@ const PostItem = () => {
 
           {/* Images */}
           <div>
-            <label className="text-xs text-muted-foreground mb-2 block font-semibold">Photos (up to 6)</label>
+            <label className="text-xs text-muted-foreground mb-2 block font-semibold">Photos (up to 6) *</label>
+            {errors.images && <p className="text-[11px] text-destructive mb-2">{errors.images}</p>}
             <input ref={fileRef} type="file" accept="image/*" multiple className="hidden" onChange={handleImageSelect} />
             <div className="grid grid-cols-3 gap-2">
               {images.map((img, i) => (
