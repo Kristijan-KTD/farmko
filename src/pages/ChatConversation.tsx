@@ -258,6 +258,7 @@ const ChatConversation = () => {
       <div className="p-3 border-t border-border bg-background">
         <div className="flex items-end gap-2.5 bg-secondary rounded-md px-4 py-2.5 border border-border">
           <textarea
+            ref={textareaRef}
             rows={1}
             placeholder="Type a message..."
             value={message}
