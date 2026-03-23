@@ -254,19 +254,29 @@ const ChatConversation = () => {
       </div>
 
       <div className="p-3 border-t border-border bg-background">
-        <div className="flex items-center gap-2.5 bg-secondary rounded-md px-4 py-2.5 border border-border">
-          <input
-            type="text"
+        <div className="flex items-end gap-2.5 bg-secondary rounded-md px-4 py-2.5 border border-border">
+          <textarea
+            rows={1}
             placeholder="Type a message..."
             value={message}
-            onChange={(e) => setMessage(e.target.value)}
-            onKeyDown={(e) => e.key === "Enter" && !e.shiftKey && handleSend()}
-            className="flex-1 bg-transparent text-sm outline-none placeholder:text-muted-foreground"
+            onChange={(e) => {
+              setMessage(e.target.value);
+              e.target.style.height = "auto";
+              e.target.style.height = Math.min(e.target.scrollHeight, 120) + "px";
+            }}
+            onKeyDown={(e) => {
+              if (e.key === "Enter" && !e.shiftKey) {
+                e.preventDefault();
+                handleSend();
+              }
+            }}
+            className="flex-1 bg-transparent text-sm outline-none placeholder:text-muted-foreground resize-none overflow-y-auto leading-5"
+            style={{ maxHeight: "120px" }}
           />
           <button
             onClick={handleSend}
             disabled={!message.trim() || sending}
-            className="w-9 h-9 bg-primary rounded-md disabled:opacity-40 transition-all flex items-center justify-center hover:shadow-card-hover active:scale-95"
+            className="w-9 h-9 shrink-0 bg-primary rounded-md disabled:opacity-40 transition-all flex items-center justify-center hover:shadow-card-hover active:scale-95"
           >
             <Send className="w-4 h-4 text-primary-foreground" />
           </button>
