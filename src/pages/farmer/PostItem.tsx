@@ -347,7 +347,7 @@ const PostItem = () => {
                 <button
                   key={cat.key}
                   type="button"
-                  onClick={() => setForm({ ...form, category: isActive ? "" : cat.key })}
+                  onClick={() => { setForm({ ...form, category: isActive ? "" : cat.key }); setErrors(prev => ({ ...prev, category: "" })); }}
                   className={`flex items-center gap-1.5 px-3.5 py-2 rounded-full border text-xs transition-all ${
                     isActive
                       ? "bg-primary text-primary-foreground border-primary"
