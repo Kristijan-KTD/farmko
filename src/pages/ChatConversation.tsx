@@ -128,6 +128,7 @@ const ChatConversation = () => {
 
     setSending(true);
     setMessage("");
+    if (textareaRef.current) textareaRef.current.style.height = "auto";
 
     const tempMsg: Message = {
       id: `temp-${Date.now()}`,
