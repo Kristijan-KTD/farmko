@@ -236,12 +236,12 @@ const ChatConversation = () => {
                   </div>
                 )}
                 <div
-                  className={`max-w-[75%] px-4 py-2.5 text-sm ${
+                  className={`max-w-[75%] px-4 py-2.5 text-sm overflow-hidden ${
                     isSent
                       ? "bg-primary text-primary-foreground rounded-lg rounded-br-sm"
                       : "bg-card border border-border text-foreground rounded-lg rounded-bl-sm"
                   } ${msg._pending ? "opacity-60" : ""}`}
-                  style={{ boxShadow: isSent ? 'none' : 'var(--shadow-card)' }}
+                  style={{ boxShadow: isSent ? 'none' : 'var(--shadow-card)', overflowWrap: 'break-word', wordBreak: 'break-word' }}
                 >
                   <p className="leading-relaxed">{msg.text}</p>
                   <p className={`text-[10px] mt-1 ${isSent ? "text-primary-foreground/70" : "text-muted-foreground"}`}>
