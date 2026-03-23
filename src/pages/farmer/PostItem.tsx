@@ -333,7 +333,8 @@ const PostItem = () => {
 
         {/* Category */}
         <div>
-          <label className="text-xs text-muted-foreground mb-2 block font-semibold">Category</label>
+          <label className="text-xs text-muted-foreground mb-2 block font-semibold">Category *</label>
+          {errors.category && <p className="text-[11px] text-destructive mb-1">{errors.category}</p>}
           <div className="flex flex-wrap gap-2">
           {CATEGORIES.filter(c => c.key !== "all").map((cat) => {
               const Icon = cat.icon;
