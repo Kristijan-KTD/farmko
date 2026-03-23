@@ -22,6 +22,17 @@ const PostItem = () => {
   const [showUpgrade, setShowUpgrade] = useState(false);
   const [activeCount, setActiveCount] = useState(0);
   const [countLoading, setCountLoading] = useState(true);
+  const UNIT_OPTIONS = [
+    { key: "lbs", label: "lbs" },
+    { key: "g", label: "g" },
+    { key: "oz", label: "oz" },
+    { key: "kg", label: "kg" },
+    { key: "l", label: "l" },
+    { key: "ml", label: "ml" },
+    { key: "dozen", label: "dozen" },
+    { key: "piece", label: "piece" },
+  ];
+
   const [form, setForm] = useState({
     name: "",
     description: "",
@@ -62,7 +73,14 @@ const PostItem = () => {
 
   const handleImageSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(e.target.files || []);
-    const newImages = files.slice(0, 6 - images.length).map((file) => ({
+    const validFiles = files.filter(file => {
+      if (file.size > 8 * 1024 * 1024) {
+        toast({ title: "File too large", description: `${file.name} exceeds 8MB limit`, variant: "destructive" });
+        return false;
+      }
+      return true;
+    });
+    const newImages = validFiles.slice(0, 6 - images.length).map((file) => ({
       file,
       preview: URL.createObjectURL(file)
     }));
@@ -77,7 +95,19 @@ const PostItem = () => {
   const validateStep1 = () => {
     const newErrors: Record<string, string> = {};
     if (!form.name.trim()) newErrors.name = "Title is required";
+    if (form.name.length > 30) newErrors.name = "Max 30 characters";
+    if (!form.category) newErrors.category = "Category is required";
     if (!form.price || parseFloat(form.price) <= 0) newErrors.price = "Enter a valid price";
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
+  const validateStep2 = () => {
+    const newErrors: Record<string, string> = {};
+    if (!form.quantity || parseInt(form.quantity) <= 0) newErrors.quantity = "Enter a valid quantity";
+    if (!form.unit) newErrors.unit = "Select a unit";
+    if (form.description.length > 300) newErrors.description = "Max 300 characters";
+    if (images.length === 0) newErrors.images = "Add at least one photo";
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
@@ -98,6 +128,7 @@ const PostItem = () => {
       setShowUpgrade(true);
       return;
     }
+    if (!validateStep2()) return;
 
     setIsLoading(true);
     const uploadedUrls: string[] = [];
@@ -181,30 +212,42 @@ const PostItem = () => {
 
           {/* Quantity */}
           <div>
-            <label className="text-xs text-muted-foreground mb-1 block font-semibold">Available Quantity</label>
-            <div className="border-b border-input pb-2">
+            <label className="text-xs text-muted-foreground mb-1 block font-semibold">Available Quantity *</label>
+            <div className={`border-b pb-2 ${errors.quantity ? "border-destructive" : "border-input"}`}>
               <input
                 type="number"
                 placeholder="e.g. 30"
                 value={form.quantity}
-                onChange={(e) => setForm({ ...form, quantity: e.target.value })}
+                onChange={(e) => { setForm({ ...form, quantity: e.target.value }); setErrors(prev => ({ ...prev, quantity: "" })); }}
                 className="w-full bg-transparent text-sm outline-none placeholder:text-muted-foreground"
               />
             </div>
+            {errors.quantity && <p className="text-[11px] text-destructive mt-1">{errors.quantity}</p>}
           </div>
 
-          {/* Unit */}
+          {/* Unit of Measure - capsule style */}
           <div>
-            <label className="text-xs text-muted-foreground mb-1 block font-semibold">Unit of Measure</label>
-            <div className="border-b border-input pb-2">
-              <input
-                type="text"
-                placeholder="e.g. dozen, kg, lb"
-                value={form.unit}
-                onChange={(e) => setForm({ ...form, unit: e.target.value })}
-                className="w-full bg-transparent text-sm outline-none placeholder:text-muted-foreground"
-              />
+            <label className="text-xs text-muted-foreground mb-2 block font-semibold">Unit of Measure *</label>
+            <div className="flex flex-wrap gap-2">
+              {UNIT_OPTIONS.map((u) => {
+                const isActive = form.unit === u.key;
+                return (
+                  <button
+                    key={u.key}
+                    type="button"
+                    onClick={() => { setForm({ ...form, unit: isActive ? "" : u.key }); setErrors(prev => ({ ...prev, unit: "" })); }}
+                    className={`flex items-center px-3.5 py-2 rounded-full border text-xs transition-all ${
+                      isActive
+                        ? "bg-primary text-primary-foreground border-primary"
+                        : "bg-card border-border text-muted-foreground hover:border-primary/50"
+                    }`}
+                  >
+                    {u.label}
+                  </button>
+                );
+              })}
             </div>
+            {errors.unit && <p className="text-[11px] text-destructive mt-1">{errors.unit}</p>}
           </div>
 
           {/* Description */}
@@ -213,14 +256,17 @@ const PostItem = () => {
             <textarea
               placeholder="Describe your product..."
               value={form.description}
-              onChange={(e) => setForm({ ...form, description: e.target.value })}
+              onChange={(e) => { if (e.target.value.length <= 300) setForm({ ...form, description: e.target.value }); }}
               className="w-full bg-secondary rounded-lg p-3 text-sm outline-none resize-none h-20 placeholder:text-muted-foreground"
             />
+            <p className="text-[10px] text-muted-foreground mt-1 text-right">{form.description.length}/300</p>
+            {errors.description && <p className="text-[11px] text-destructive mt-1">{errors.description}</p>}
           </div>
 
           {/* Images */}
           <div>
-            <label className="text-xs text-muted-foreground mb-2 block font-semibold">Photos (up to 6)</label>
+            <label className="text-xs text-muted-foreground mb-2 block font-semibold">Photos (up to 6) *</label>
+            {errors.images && <p className="text-[11px] text-destructive mb-2">{errors.images}</p>}
             <input ref={fileRef} type="file" accept="image/*" multiple className="hidden" onChange={handleImageSelect} />
             <div className="grid grid-cols-3 gap-2">
               {images.map((img, i) => (
@@ -285,25 +331,30 @@ const PostItem = () => {
               type="text"
               placeholder="e.g. Fresh Organic Eggs"
               value={form.name}
+              maxLength={30}
               onChange={(e) => { setForm({ ...form, name: e.target.value }); setErrors(prev => ({ ...prev, name: "" })); }}
               className="w-full bg-transparent text-sm outline-none placeholder:text-muted-foreground"
             />
           </div>
-          {errors.name && <p className="text-[11px] text-destructive mt-1">{errors.name}</p>}
+          <div className="flex justify-between items-center mt-1">
+            {errors.name ? <p className="text-[11px] text-destructive">{errors.name}</p> : <span />}
+            <p className="text-[10px] text-muted-foreground">{form.name.length}/30</p>
+          </div>
         </div>
 
         {/* Category */}
         <div>
-          <label className="text-xs text-muted-foreground mb-2 block font-semibold">Category</label>
+          <label className="text-xs text-muted-foreground mb-2 block font-semibold">Category *</label>
+          {errors.category && <p className="text-[11px] text-destructive mb-1">{errors.category}</p>}
           <div className="flex flex-wrap gap-2">
-            {CATEGORIES.map((cat) => {
+          {CATEGORIES.filter(c => c.key !== "all").map((cat) => {
               const Icon = cat.icon;
               const isActive = form.category === cat.key;
               return (
                 <button
                   key={cat.key}
                   type="button"
-                  onClick={() => setForm({ ...form, category: isActive ? "" : cat.key })}
+                  onClick={() => { setForm({ ...form, category: isActive ? "" : cat.key }); setErrors(prev => ({ ...prev, category: "" })); }}
                   className={`flex items-center gap-1.5 px-3.5 py-2 rounded-full border text-xs transition-all ${
                     isActive
                       ? "bg-primary text-primary-foreground border-primary"

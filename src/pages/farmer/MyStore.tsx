@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Trash2, Edit2, Package, Plus, Check, Loader2, AlertTriangle, Eye, Heart, MessageCircle, ArrowUpDown } from "lucide-react";
+import { Trash2, Package, Plus, Check, Loader2, AlertTriangle, Eye, Heart, MessageCircle, ArrowUpDown } from "lucide-react";
 import MobileLayout from "@/components/layout/MobileLayout";
 import PageHeader from "@/components/layout/PageHeader";
 import BottomNav from "@/components/layout/BottomNav";
@@ -237,9 +237,6 @@ const MyStore = () => {
                     )}
                   </div>
                   <div className="flex gap-1" onClick={(e) => e.stopPropagation()}>
-                    <button onClick={(e) => { e.stopPropagation(); openEdit(product); }} className="p-2.5 text-muted-foreground hover:text-foreground rounded-md hover:bg-secondary transition-colors">
-                      <Edit2 className="w-4 h-4" />
-                    </button>
                     <button onClick={(e) => { e.stopPropagation(); setDeleteId(product.id); }} className="p-2.5 text-muted-foreground hover:text-destructive rounded-md hover:bg-destructive/10 transition-colors">
                       <Trash2 className="w-4 h-4" />
                     </button>

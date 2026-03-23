@@ -36,8 +36,8 @@ const EditProfile = () => {
   const handlePhotoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
-      if (file.size > 5 * 1024 * 1024) {
-        toast({ title: "File too large", description: "Please select an image under 5MB", variant: "destructive" });
+      if (file.size > 8 * 1024 * 1024) {
+        toast({ title: "File too large", description: "Please select an image under 8MB", variant: "destructive" });
         return;
       }
       setAvatarFile(file);
@@ -89,11 +89,11 @@ const EditProfile = () => {
   };
 
   const fields = [
-    { icon: User, label: "Full Name", value: name, onChange: setName },
+    { icon: User, label: "Full Name", value: name, onChange: (v: string) => { if (v.length <= 30) setName(v); }, maxLength: 30, showCount: true },
     { icon: Mail, label: "Email Address", value: user?.email || "", onChange: () => {}, disabled: true },
     { icon: Phone, label: "Phone Number", value: phone, onChange: setPhone },
     { icon: MapPin, label: "Location", value: location, onChange: setLocation },
-    { icon: FileText, label: "Bio", value: bio, onChange: setBio },
+    { icon: FileText, label: "Bio", value: bio, onChange: (v: string) => { if (v.length <= 300) setBio(v); }, maxLength: 300, showCount: true },
   ];
 
   return (
@@ -127,17 +127,33 @@ const EditProfile = () => {
         </div>
 
         <div className="space-y-5">
-          {fields.map(({ icon: Icon, label, value, onChange, disabled }) => (
-            <div key={label} className="flex items-center gap-3 border-b border-input pb-3">
-              <Icon className="w-5 h-5 text-muted-foreground" />
-              <input
-                type="text"
-                placeholder={label}
-                value={value}
-                onChange={(e) => onChange(e.target.value)}
-                disabled={disabled}
-                className={`flex-1 bg-transparent text-sm outline-none placeholder:text-muted-foreground ${disabled ? "text-muted-foreground" : ""}`}
-              />
+          {fields.map(({ icon: Icon, label, value, onChange, disabled, maxLength, showCount }) => (
+            <div key={label}>
+              <div className="flex items-center gap-3 border-b border-input pb-3">
+                <Icon className="w-5 h-5 text-muted-foreground" />
+                {label === "Bio" ? (
+                  <textarea
+                    placeholder={label}
+                    value={value}
+                    onChange={(e) => onChange(e.target.value)}
+                    maxLength={maxLength}
+                    className="flex-1 bg-transparent text-sm outline-none placeholder:text-muted-foreground resize-none h-16"
+                  />
+                ) : (
+                  <input
+                    type="text"
+                    placeholder={label}
+                    value={value}
+                    onChange={(e) => onChange(e.target.value)}
+                    disabled={disabled}
+                    maxLength={maxLength}
+                    className={`flex-1 bg-transparent text-sm outline-none placeholder:text-muted-foreground ${disabled ? "text-muted-foreground" : ""}`}
+                  />
+                )}
+              </div>
+              {showCount && maxLength && (
+                <p className="text-[10px] text-muted-foreground text-right mt-1">{value.length}/{maxLength}</p>
+              )}
             </div>
           ))}
 
@@ -151,7 +167,7 @@ const EditProfile = () => {
       </div>
 
       <div className="pb-8 pt-4">
-        <Button onClick={handleSave} disabled={isLoading} className="w-full rounded-full h-12 text-base font-semibold">
+        <Button onClick={handleSave} disabled={isLoading} className="w-full rounded-md h-12 text-base font-semibold">
           {isLoading ? "Saving..." : "Save"}
         </Button>
       </div>
