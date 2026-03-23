@@ -127,17 +127,33 @@ const EditProfile = () => {
         </div>
 
         <div className="space-y-5">
-          {fields.map(({ icon: Icon, label, value, onChange, disabled }) => (
-            <div key={label} className="flex items-center gap-3 border-b border-input pb-3">
-              <Icon className="w-5 h-5 text-muted-foreground" />
-              <input
-                type="text"
-                placeholder={label}
-                value={value}
-                onChange={(e) => onChange(e.target.value)}
-                disabled={disabled}
-                className={`flex-1 bg-transparent text-sm outline-none placeholder:text-muted-foreground ${disabled ? "text-muted-foreground" : ""}`}
-              />
+          {fields.map(({ icon: Icon, label, value, onChange, disabled, maxLength, showCount }) => (
+            <div key={label}>
+              <div className="flex items-center gap-3 border-b border-input pb-3">
+                <Icon className="w-5 h-5 text-muted-foreground" />
+                {label === "Bio" ? (
+                  <textarea
+                    placeholder={label}
+                    value={value}
+                    onChange={(e) => onChange(e.target.value)}
+                    maxLength={maxLength}
+                    className="flex-1 bg-transparent text-sm outline-none placeholder:text-muted-foreground resize-none h-16"
+                  />
+                ) : (
+                  <input
+                    type="text"
+                    placeholder={label}
+                    value={value}
+                    onChange={(e) => onChange(e.target.value)}
+                    disabled={disabled}
+                    maxLength={maxLength}
+                    className={`flex-1 bg-transparent text-sm outline-none placeholder:text-muted-foreground ${disabled ? "text-muted-foreground" : ""}`}
+                  />
+                )}
+              </div>
+              {showCount && maxLength && (
+                <p className="text-[10px] text-muted-foreground text-right mt-1">{value.length}/{maxLength}</p>
+              )}
             </div>
           ))}
 
