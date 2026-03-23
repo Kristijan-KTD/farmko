@@ -335,7 +335,7 @@ const PostItem = () => {
         <div>
           <label className="text-xs text-muted-foreground mb-2 block font-semibold">Category</label>
           <div className="flex flex-wrap gap-2">
-            {CATEGORIES.map((cat) => {
+          {CATEGORIES.filter(c => c.key !== "all").map((cat) => {
               const Icon = cat.icon;
               const isActive = form.category === cat.key;
               return (
