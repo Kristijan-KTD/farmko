@@ -114,7 +114,7 @@ const SideMenu = ({ isOpen, onClose, isDesktop = false, collapsed = false, onTog
       {groups.map((group) => (
         <div key={group.label}>
           {!collapsed && (
-            <p className="text-[10px] uppercase tracking-wider text-primary-foreground/40 font-semibold px-3 pt-3 pb-1">
+            <p className="text-[10px] uppercase tracking-wider font-semibold px-3 pt-3 pb-1 opacity-100 text-[#dde3e0]/[0.83]">
               {group.label}
             </p>
           )}
