@@ -9,7 +9,7 @@ export const PLANS = {
     name: "Starter",
     price: 0,
     listingLimit: 3 as number | null,
-    features: ["Up to 3 active listings", "Basic farmer profile", "Photo uploads", "Visible in search", "Customer messaging", "Farm location map"],
+    features: ["Up to 3 active listings", "1 photo per listing", "Basic farmer profile", "Visible in search", "Customer messaging", "Farm location map"],
     limitations: ["No analytics", "No featured placement", "No promoted listings"],
   },
   growth: {
@@ -18,7 +18,7 @@ export const PLANS = {
     priceId: "price_1T8miqCsFOwH9CIqJHpjiL2o",
     productId: "prod_U70kdowQgNhm1Q",
     listingLimit: 20 as number | null,
-    features: ["Up to 20 active listings", "Enhanced farmer profile", "Farm story section", "Multiple photos per listing", "Basic analytics", "Higher search ranking", "Customers can favorite products"],
+    features: ["Up to 20 active listings", "Up to 3 photos per listing", "Enhanced farmer profile", "Farm story section", "Basic analytics", "Higher search ranking", "Customers can favorite products"],
     limitations: [],
   },
   pro: {
@@ -27,7 +27,7 @@ export const PLANS = {
     priceId: "price_1T8mjBCsFOwH9CIqdEB6GVzZ",
     productId: "prod_U70kEspnycdHnj",
     listingLimit: null as number | null,
-    features: ["Unlimited listings", "Featured farmer badge", "Top search ranking", "Full analytics dashboard", "Custom farm banner", "Featured in promotions", "Early access to new features"],
+    features: ["Unlimited listings", "Up to 6 photos per listing", "Featured farmer badge", "Top search ranking", "Full analytics dashboard", "Custom farm banner", "Featured in promotions", "Early access to new features"],
     limitations: [],
   },
 } as const;

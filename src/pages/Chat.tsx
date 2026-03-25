@@ -131,12 +131,12 @@ const Chat = () => {
             <Button variant="outline" size="sm" onClick={() => window.location.reload()} className="rounded-md text-xs">Retry</Button>
           </div>
         ) : conversations.length === 0 ? (
-          <div className="flex flex-col items-center justify-center py-16">
-            <div className="w-16 h-16 rounded-full bg-muted flex items-center justify-center mb-3">
-              <MessageCircle className="w-7 h-7 text-muted-foreground/30" />
+          <div className="flex-1 flex flex-col items-center justify-center py-16">
+            <div className="w-20 h-20 rounded-full bg-muted flex items-center justify-center mb-4">
+              <MessageCircle className="w-9 h-9 text-muted-foreground/30" />
             </div>
-            <p className="text-foreground font-medium text-sm mb-1">No conversations yet</p>
-            <p className="text-xs text-muted-foreground text-center max-w-[220px]">Start a conversation with a farmer or customer to get going.</p>
+            <p className="text-foreground font-medium mb-1">No conversations yet</p>
+            <p className="text-sm text-muted-foreground text-center max-w-[240px]">Start a conversation with a farmer or customer to get going.</p>
           </div>
         ) : (
           <div className="divide-y divide-border/60">

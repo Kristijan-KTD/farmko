@@ -80,7 +80,8 @@ const PostItem = () => {
       }
       return true;
     });
-    const newImages = validFiles.slice(0, 6 - images.length).map((file) => ({
+    const maxImages = plan === "pro" ? 6 : plan === "growth" ? 3 : 1;
+    const newImages = validFiles.slice(0, maxImages - images.length).map((file) => ({
       file,
       preview: URL.createObjectURL(file)
     }));
@@ -265,24 +266,28 @@ const PostItem = () => {
 
           {/* Images */}
           <div>
-            <label className="text-xs text-muted-foreground mb-2 block font-semibold">Photos (up to 6) *</label>
-            {errors.images && <p className="text-[11px] text-destructive mb-2">{errors.images}</p>}
-            <input ref={fileRef} type="file" accept="image/*" multiple className="hidden" onChange={handleImageSelect} />
-            <div className="grid grid-cols-3 gap-2">
-              {images.map((img, i) => (
-                <div key={i} className="aspect-square rounded-md overflow-hidden relative shadow-card">
-                  <img src={img.preview} alt="" className="w-full h-full object-cover" />
-                  <button onClick={() => removeImage(i)} className="absolute top-1 right-1 w-5 h-5 bg-black/60 rounded-full flex items-center justify-center">
-                    <X className="w-3 h-3 text-white" />
-                  </button>
+            {(() => { const maxImg = plan === "pro" ? 6 : plan === "growth" ? 3 : 1; return (
+              <>
+                <label className="text-xs text-muted-foreground mb-2 block font-semibold">Photos (up to {maxImg}) *</label>
+                {errors.images && <p className="text-[11px] text-destructive mb-2">{errors.images}</p>}
+                <input ref={fileRef} type="file" accept="image/*" multiple className="hidden" onChange={handleImageSelect} />
+                <div className="grid grid-cols-3 gap-2">
+                  {images.map((img, i) => (
+                    <div key={i} className="aspect-square rounded-md overflow-hidden relative shadow-card">
+                      <img src={img.preview} alt="" className="w-full h-full object-cover" />
+                      <button onClick={() => removeImage(i)} className="absolute top-1 right-1 w-5 h-5 bg-black/60 rounded-full flex items-center justify-center">
+                        <X className="w-3 h-3 text-white" />
+                      </button>
+                    </div>
+                  ))}
+                  {images.length < maxImg && (
+                    <button onClick={() => fileRef.current?.click()} className="aspect-square bg-muted rounded-md flex items-center justify-center border-2 border-dashed border-border hover:border-primary/30 transition-colors">
+                      <ImagePlus className="w-6 h-6 text-muted-foreground" />
+                    </button>
+                  )}
                 </div>
-              ))}
-              {images.length < 6 && (
-                <button onClick={() => fileRef.current?.click()} className="aspect-square bg-muted rounded-md flex items-center justify-center border-2 border-dashed border-border hover:border-primary/30 transition-colors">
-                  <ImagePlus className="w-6 h-6 text-muted-foreground" />
-                </button>
-              )}
-            </div>
+              </>
+            ); })()}
           </div>
         </div>
         <div className="pb-8 pt-4">
