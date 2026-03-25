@@ -130,7 +130,7 @@ const EditProfile = () => {
           {fields.map(({ icon: Icon, label, value, onChange, disabled, maxLength, showCount }) => (
             <div key={label}>
               <div className="flex items-start gap-3 border-b border-input pb-3">
-                <Icon className="w-5 h-5 text-muted-foreground" />
+                <Icon className="w-5 h-5 text-muted-foreground mt-0.5 shrink-0" />
                 {label === "Bio" ? (
                   <textarea
                     placeholder={label}
