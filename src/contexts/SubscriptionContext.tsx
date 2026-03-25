@@ -18,7 +18,7 @@ export const PLANS = {
     priceId: "price_1T8miqCsFOwH9CIqJHpjiL2o",
     productId: "prod_U70kdowQgNhm1Q",
     listingLimit: 20 as number | null,
-    features: ["Up to 20 active listings", "Enhanced farmer profile", "Farm story section", "Multiple photos per listing", "Basic analytics", "Higher search ranking", "Customers can favorite products"],
+    features: ["Up to 20 active listings", "Up to 3 photos per listing", "Enhanced farmer profile", "Farm story section", "Basic analytics", "Higher search ranking", "Customers can favorite products"],
     limitations: [],
   },
   pro: {
