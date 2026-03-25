@@ -44,6 +44,7 @@ const SideMenu = ({ isOpen, onClose, isDesktop = false, collapsed = false, onTog
       label: "Social",
       items: [
         { icon: Camera, label: "Instafarm", path: "/instafarm" },
+        { icon: Heart, label: "Saved", path: "/favorites" },
         { icon: MessageCircle, label: "Chat", path: "/chat" },
         { icon: Bell, label: "Notifications", path: "/notifications" },
       ],
