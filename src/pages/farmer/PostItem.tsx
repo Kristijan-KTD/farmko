@@ -80,7 +80,8 @@ const PostItem = () => {
       }
       return true;
     });
-    const newImages = validFiles.slice(0, 6 - images.length).map((file) => ({
+    const maxImages = plan === "pro" ? 6 : plan === "growth" ? 3 : 1;
+    const newImages = validFiles.slice(0, maxImages - images.length).map((file) => ({
       file,
       preview: URL.createObjectURL(file)
     }));
