@@ -213,7 +213,7 @@ const SideMenu = ({ isOpen, onClose, isDesktop = false, collapsed = false, onTog
             <X className="w-6 h-6" />
           </button>
 
-          <div className="flex-1 flex flex-col overflow-y-auto min-h-0 pb-4">
+          <div className="flex-1 flex flex-col overflow-y-auto min-h-0 pb-4 sidebar-scroll">
             {renderGroups(groups)}
 
             <div className="border-t border-primary-foreground/20 mt-3 pt-2">
