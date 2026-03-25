@@ -9,7 +9,7 @@ export const PLANS = {
     name: "Starter",
     price: 0,
     listingLimit: 3 as number | null,
-    features: ["Up to 3 active listings", "Basic farmer profile", "Photo uploads", "Visible in search", "Customer messaging", "Farm location map"],
+    features: ["Up to 3 active listings", "1 photo per listing", "Basic farmer profile", "Visible in search", "Customer messaging", "Farm location map"],
     limitations: ["No analytics", "No featured placement", "No promoted listings"],
   },
   growth: {
