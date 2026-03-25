@@ -170,7 +170,7 @@ const SideMenu = ({ isOpen, onClose, isDesktop = false, collapsed = false, onTog
           </div>
         )}
 
-        <div className="flex-1 flex flex-col px-2 overflow-y-auto">
+        <div className="flex-1 flex flex-col px-2 overflow-y-auto sidebar-scroll">
           {renderGroups(groups)}
         </div>
 
