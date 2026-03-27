@@ -31,6 +31,8 @@ interface ProductData {
   images: string[] | null;
   farmer_id: string;
   category: string | null;
+  pickup_available?: boolean;
+  delivery_available?: boolean;
   farmer: { id: string; name: string; location: string | null; avatar_url: string | null; verified?: boolean; last_seen_at?: string | null } | null;
 }
 
