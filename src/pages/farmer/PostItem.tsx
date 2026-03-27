@@ -156,8 +156,10 @@ const PostItem = () => {
         price: parseFloat(form.price) || 0,
         stock: parseInt(form.quantity) || 0,
         unit: form.unit || "piece",
-        images: uploadedUrls
-      });
+        images: uploadedUrls,
+        pickup_available: form.pickupAvailable,
+        delivery_available: form.deliveryAvailable,
+      } as any);
 
       if (error) {
         for (const path of uploadedPaths) {
