@@ -393,12 +393,14 @@ const ProductDetail = () => {
         </div>
 
         {/* Action Buttons */}
-        <div className="flex gap-2.5">
-          <Button onClick={handleContactFarmer} className="flex-1 rounded-md h-11 font-semibold gap-2 text-sm shadow-card">
-            <MessageCircle className="w-4.5 h-4.5" style={{ width: 18, height: 18 }} />
-            Contact Farmer
-          </Button>
-        </div>
+        {user && user.id !== product.farmer_id && (
+          <div className="flex gap-2.5">
+            <Button onClick={handleContactFarmer} className="flex-1 rounded-md h-11 font-semibold gap-2 text-sm shadow-card">
+              <MessageCircle className="w-4.5 h-4.5" style={{ width: 18, height: 18 }} />
+              Contact Farmer
+            </Button>
+          </div>
+        )}
 
         {/* Farmer Card */}
         {product.farmer && (
