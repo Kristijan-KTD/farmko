@@ -105,6 +105,7 @@ const VIEW_OPTIONS: { value: ViewMode; label: string }[] = [
 const Radar = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
+  const isMobile = useIsMobile();
   const [viewMode, setViewMode] = useState<ViewMode>("all");
   const [radius, setRadius] = useState<RadiusOption>(50);
   const [selectedPin, setSelectedPin] = useState<RadarUser | null>(null);
