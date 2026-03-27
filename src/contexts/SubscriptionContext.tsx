@@ -42,7 +42,7 @@ interface SubscriptionState {
   canCreateListing: (currentCount: number) => boolean;
   canCreatePost: (currentMonthCount: number) => boolean;
   canTagProducts: boolean;
-  hasFeature: (feature: "analytics" | "featured_badge" | "farm_story" | "farm_banner" | "favorites") => boolean;
+  hasFeature: (feature: "analytics" | "featured_badge" | "farm_story" | "favorites") => boolean;
   refreshSubscription: () => Promise<void>;
 }
 
