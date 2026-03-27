@@ -266,6 +266,37 @@ const PostItem = () => {
             {errors.description && <p className="text-[11px] text-destructive mt-1">{errors.description}</p>}
           </div>
 
+          {/* Availability Options */}
+          <div>
+            <label className="text-xs text-muted-foreground mb-2 block font-semibold">Availability</label>
+            <div className="flex flex-wrap gap-2">
+              <button
+                type="button"
+                onClick={() => setForm({ ...form, pickupAvailable: !form.pickupAvailable })}
+                className={`flex items-center gap-1.5 px-3.5 py-2 rounded-full border text-xs transition-all ${
+                  form.pickupAvailable
+                    ? "bg-primary text-primary-foreground border-primary"
+                    : "bg-card border-border text-muted-foreground hover:border-primary/50"
+                }`}
+              >
+                <PickupIcon className="w-3.5 h-3.5" />
+                Pickup Available
+              </button>
+              <button
+                type="button"
+                onClick={() => setForm({ ...form, deliveryAvailable: !form.deliveryAvailable })}
+                className={`flex items-center gap-1.5 px-3.5 py-2 rounded-full border text-xs transition-all ${
+                  form.deliveryAvailable
+                    ? "bg-primary text-primary-foreground border-primary"
+                    : "bg-card border-border text-muted-foreground hover:border-primary/50"
+                }`}
+              >
+                <Truck className="w-3.5 h-3.5" />
+                Delivery Available
+              </button>
+            </div>
+          </div>
+
           {/* Images */}
           <div>
             {(() => { const maxImg = plan === "pro" ? 6 : plan === "growth" ? 3 : 1; return (
