@@ -39,7 +39,9 @@ const PostItem = () => {
     category: "",
     price: "",
     quantity: "",
-    unit: ""
+    unit: "",
+    pickupAvailable: false,
+    deliveryAvailable: false,
   });
   const [images, setImages] = useState<{ file: File; preview: string }[]>([]);
   const [errors, setErrors] = useState<Record<string, string>>({});
