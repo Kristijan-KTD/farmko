@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { forwardRef, type ComponentPropsWithoutRef, useState } from "react";
 import { SlidersHorizontal, ArrowDownUp, MapPin } from "lucide-react";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
@@ -31,17 +31,30 @@ const DISTANCE_OPTIONS = [
   { value: 50, label: "50 km" },
 ];
 
-const FilterTriggerButton = ({ activeCount, onClick }: { activeCount: number; onClick?: () => void }) => (
-  <button onClick={onClick} className="flex items-center gap-1.5 px-3.5 py-2 rounded-full bg-card text-sm font-medium text-foreground border border-border hover:border-primary/30 transition-colors active:scale-[0.97] relative">
-    <SlidersHorizontal className="w-4 h-4" />
-    <span>Filter</span>
-    {activeCount > 0 && (
-      <span className="absolute -top-1.5 -right-1.5 w-[18px] h-[18px] rounded-full bg-primary text-primary-foreground text-[10px] flex items-center justify-center font-bold">
-        {activeCount}
-      </span>
-    )}
-  </button>
+type FilterTriggerButtonProps = ComponentPropsWithoutRef<"button"> & {
+  activeCount: number;
+};
+
+const FilterTriggerButton = forwardRef<HTMLButtonElement, FilterTriggerButtonProps>(
+  ({ activeCount, ...props }, ref) => (
+    <button
+      ref={ref}
+      type="button"
+      {...props}
+      className="flex items-center gap-1.5 px-3.5 py-2 rounded-full bg-card text-sm font-medium text-foreground border border-border hover:border-primary/30 transition-colors active:scale-[0.97] relative"
+    >
+      <SlidersHorizontal className="w-4 h-4" />
+      <span>Filter</span>
+      {activeCount > 0 && (
+        <span className="absolute -top-1.5 -right-1.5 w-[18px] h-[18px] rounded-full bg-primary text-primary-foreground text-[10px] flex items-center justify-center font-bold">
+          {activeCount}
+        </span>
+      )}
+    </button>
+  ),
 );
+
+FilterTriggerButton.displayName = "FilterTriggerButton";
 
 const FilterBody = ({
   local,
