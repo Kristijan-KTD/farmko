@@ -255,88 +255,44 @@ const Radar = () => {
     <MobileLayout noPadding>
       <div className="px-6 flex items-center justify-between">
         <PageHeader title="Radar" />
-        <Sheet open={filterOpen} onOpenChange={handleOpenFilter}>
-          <SheetTrigger asChild>
-            <button className="flex items-center gap-1.5 px-3.5 py-2 rounded-full bg-card text-sm font-medium text-foreground border border-border hover:border-primary/30 transition-colors active:scale-[0.97] relative">
-              <SlidersHorizontal className="w-4 h-4" />
-              <span>Filter</span>
-              {activeFilterCount > 0 && (
-                <span className="absolute -top-1.5 -right-1.5 w-[18px] h-[18px] rounded-full bg-primary text-primary-foreground text-[10px] flex items-center justify-center font-bold">
-                  {activeFilterCount}
-                </span>
-              )}
-            </button>
-          </SheetTrigger>
-          <SheetContent side="bottom" className="rounded-t-2xl px-4 pb-8 pt-3 max-h-[70vh]">
-            <div className="flex justify-center mb-3">
-              <div className="w-10 h-1 rounded-full bg-border" />
-            </div>
-            <SheetHeader className="pb-1">
-              <div className="flex items-center justify-between">
-                <SheetTitle className="text-base font-semibold text-foreground">Filters</SheetTitle>
-                {activeFilterCount > 0 && (
-                  <button onClick={handleResetFilter} className="text-xs text-muted-foreground hover:text-foreground transition-colors">
-                    Clear all
-                  </button>
-                )}
+        {isMobile ? (
+          <Sheet open={filterOpen} onOpenChange={handleOpenFilter}>
+            <SheetTrigger asChild>
+              <RadarFilterTrigger activeFilterCount={activeFilterCount} />
+            </SheetTrigger>
+            <SheetContent side="bottom" className="rounded-t-2xl px-4 pb-8 pt-3 max-h-[70vh]">
+              <div className="flex justify-center mb-3">
+                <div className="w-10 h-1 rounded-full bg-border" />
               </div>
-            </SheetHeader>
-
-            <div className="space-y-6 pt-4">
-              {/* Show */}
-              <div>
-                <div className="flex items-center gap-2 mb-3">
-                  <User className="w-4 h-4 text-muted-foreground" />
-                  <h3 className="text-sm font-semibold text-foreground">Show</h3>
-                </div>
-                <div className="flex flex-wrap gap-2">
-                  {VIEW_OPTIONS.map((opt) => (
-                    <button
-                      key={opt.value}
-                      onClick={() => setLocalView(opt.value)}
-                      className={`px-4 py-2 rounded-xl text-[13px] font-medium transition-all duration-150 active:scale-[0.97] ${
-                        localView === opt.value
-                          ? "bg-primary text-primary-foreground shadow-sm"
-                          : "bg-secondary text-foreground hover:bg-accent border border-border"
-                      }`}
-                    >
-                      {opt.label}
-                    </button>
-                  ))}
-                </div>
-              </div>
-
-              {/* Distance */}
-              <div>
-                <div className="flex items-center gap-2 mb-3">
-                  <MapPin className="w-4 h-4 text-muted-foreground" />
-                  <h3 className="text-sm font-semibold text-foreground">Distance</h3>
-                </div>
-                <div className="flex flex-wrap gap-2">
-                  {RADIUS_OPTIONS.map((opt) => (
-                    <button
-                      key={opt.value}
-                      onClick={() => setLocalRadius(opt.value)}
-                      className={`px-4 py-2 rounded-xl text-[13px] font-medium transition-all duration-150 active:scale-[0.97] ${
-                        localRadius === opt.value
-                          ? "bg-primary text-primary-foreground shadow-sm"
-                          : "bg-secondary text-foreground hover:bg-accent border border-border"
-                      }`}
-                    >
-                      {opt.label}
-                    </button>
-                  ))}
-                </div>
-              </div>
-            </div>
-
-            <div className="pt-6">
-              <Button onClick={handleApplyFilter} className="w-full h-12 rounded-xl text-sm font-semibold">
-                Apply Filters
-              </Button>
-            </div>
-          </SheetContent>
-        </Sheet>
+              <RadarFilterBody
+                localView={localView}
+                setLocalView={setLocalView}
+                localRadius={localRadius}
+                setLocalRadius={setLocalRadius}
+                activeFilterCount={activeFilterCount}
+                onApply={handleApplyFilter}
+                onReset={handleResetFilter}
+              />
+            </SheetContent>
+          </Sheet>
+        ) : (
+          <Popover open={filterOpen} onOpenChange={handleOpenFilter}>
+            <PopoverTrigger asChild>
+              <RadarFilterTrigger activeFilterCount={activeFilterCount} />
+            </PopoverTrigger>
+            <PopoverContent align="end" className="w-80 p-5">
+              <RadarFilterBody
+                localView={localView}
+                setLocalView={setLocalView}
+                localRadius={localRadius}
+                setLocalRadius={setLocalRadius}
+                activeFilterCount={activeFilterCount}
+                onApply={handleApplyFilter}
+                onReset={handleResetFilter}
+              />
+            </PopoverContent>
+          </Popover>
+        )}
       </div>
 
       {/* Map */}
