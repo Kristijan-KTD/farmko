@@ -376,22 +376,28 @@ const ProductDetail = () => {
           </div>
 
           {/* Pickup / Delivery Info */}
-          <div className="flex gap-2.5 mt-1">
-             <div className="flex-1 p-3 rounded-md bg-secondary/80 flex items-center gap-2.5 border border-border">
-              <Truck className="w-4 h-4 text-primary shrink-0" />
-              <div>
-                <p className="text-[11px] font-semibold text-foreground">Pickup Available</p>
-                <p className="text-[10px] text-muted-foreground">Contact farmer for details</p>
-              </div>
+          {((product as any).pickup_available || (product as any).delivery_available) && (
+            <div className="flex gap-2.5 mt-1">
+              {(product as any).pickup_available && (
+                <div className="flex-1 p-3 rounded-md bg-secondary/80 flex items-center gap-2.5 border border-border">
+                  <Truck className="w-4 h-4 text-primary shrink-0" />
+                  <div>
+                    <p className="text-[11px] font-semibold text-foreground">Pickup Available</p>
+                    <p className="text-[10px] text-muted-foreground">Contact farmer for details</p>
+                  </div>
+                </div>
+              )}
+              {(product as any).delivery_available && (
+                <div className="flex-1 p-3 rounded-md bg-secondary/80 flex items-center gap-2.5 border border-border">
+                  <Truck className="w-4 h-4 text-primary shrink-0" />
+                  <div>
+                    <p className="text-[11px] font-semibold text-foreground">Delivery Available</p>
+                    <p className="text-[10px] text-muted-foreground">Contact farmer for details</p>
+                  </div>
+                </div>
+              )}
             </div>
-            <div className="flex-1 p-3 rounded-md bg-secondary/80 flex items-center gap-2.5 border border-border">
-              <Truck className="w-4 h-4 text-primary shrink-0" />
-              <div>
-                <p className="text-[11px] font-semibold text-foreground">Delivery Available</p>
-                <p className="text-[10px] text-muted-foreground">Contact farmer for details</p>
-              </div>
-            </div>
-          </div>
+          )}
         </div>
 
         {/* Action Buttons */}
