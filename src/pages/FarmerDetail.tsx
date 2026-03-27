@@ -189,23 +189,23 @@ const FarmerDetail = () => {
           {farmer.bio && <p className="text-sm text-muted-foreground mt-2 text-center px-4">{farmer.bio}</p>}
 
           {/* Trust Stats */}
-          <div className="flex gap-6 mt-5 pt-5 border-t border-border">
-            <div className="text-center">
+          <div className="flex justify-center gap-8 mt-5 pt-5 border-t border-border">
+            <div className="flex flex-col items-center">
               <div className="flex items-center gap-1">
                 <ShoppingBag className="w-3.5 h-3.5 text-primary" />
                 <p className="font-bold text-foreground">{products.length}</p>
               </div>
               <p className="text-xs text-muted-foreground">Products</p>
             </div>
-            <div className="text-center">
+            <div className="flex flex-col items-center">
               <div className="flex items-center gap-1">
                 <Star className="w-3.5 h-3.5 fill-yellow-400 text-yellow-400" />
                 <p className="font-bold text-foreground">{avgRating > 0 ? avgRating.toFixed(1) : "—"}</p>
               </div>
-              <p className="text-xs text-muted-foreground">{reviewCount} reviews</p>
+              <p className="text-xs text-muted-foreground">{reviewCount} Reviews</p>
             </div>
             {joinedDate && (
-              <div className="text-center">
+              <div className="flex flex-col items-center">
                 <div className="flex items-center gap-1">
                   <Calendar className="w-3.5 h-3.5 text-muted-foreground" />
                   <p className="font-bold text-foreground text-sm">{joinedDate}</p>

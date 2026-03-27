@@ -188,14 +188,13 @@ export const SubscriptionProvider = ({ children }: { children: ReactNode }) => {
     return currentMonthCount < postLimit;
   }, [plan, postLimit, isLoading]);
 
-  const hasFeature = useCallback((feature: "analytics" | "featured_badge" | "farm_story" | "farm_banner" | "favorites") => {
+  const hasFeature = useCallback((feature: "analytics" | "featured_badge" | "farm_story" | "favorites") => {
     switch (feature) {
       case "analytics":
       case "farm_story":
       case "favorites":
         return plan === "growth" || plan === "pro";
       case "featured_badge":
-      case "farm_banner":
         return plan === "pro";
       default:
         return false;
