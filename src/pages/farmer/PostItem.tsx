@@ -194,7 +194,7 @@ const PostItem = () => {
           <Button onClick={() => navigate("/my-store")} className="w-full rounded-md h-12 text-base font-semibold shadow-card">
             Go to My Store
           </Button>
-          <Button variant="outline" onClick={() => { setStep(1); setForm({ name: "", description: "", category: "", price: "", quantity: "", unit: "" }); setImages([]); }} className="w-full rounded-md h-12 text-base">
+          <Button variant="outline" onClick={() => { setStep(1); setForm({ name: "", description: "", category: "", price: "", quantity: "", unit: "", pickupAvailable: false, deliveryAvailable: false }); setImages([]); }} className="w-full rounded-md h-12 text-base">
             Post Another
           </Button>
         </div>
