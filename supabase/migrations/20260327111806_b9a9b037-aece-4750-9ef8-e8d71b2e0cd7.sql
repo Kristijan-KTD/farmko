@@ -1,0 +1,2 @@
+ALTER TABLE public.products ADD COLUMN IF NOT EXISTS pickup_available boolean NOT NULL DEFAULT false;
+ALTER TABLE public.products ADD COLUMN IF NOT EXISTS delivery_available boolean NOT NULL DEFAULT false;

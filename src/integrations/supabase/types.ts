@@ -533,10 +533,12 @@ export type Database = {
         Row: {
           category: string | null
           created_at: string
+          delivery_available: boolean
           description: string | null
           farmer_id: string
           id: string
           images: string[] | null
+          pickup_available: boolean
           price: number
           status: string
           stock: number | null
@@ -547,10 +549,12 @@ export type Database = {
         Insert: {
           category?: string | null
           created_at?: string
+          delivery_available?: boolean
           description?: string | null
           farmer_id: string
           id?: string
           images?: string[] | null
+          pickup_available?: boolean
           price?: number
           status?: string
           stock?: number | null
@@ -561,10 +565,12 @@ export type Database = {
         Update: {
           category?: string | null
           created_at?: string
+          delivery_available?: boolean
           description?: string | null
           farmer_id?: string
           id?: string
           images?: string[] | null
+          pickup_available?: boolean
           price?: number
           status?: string
           stock?: number | null
