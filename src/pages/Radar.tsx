@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, forwardRef, type ComponentPropsWithoutRef } from "react";
 import { MapPin, User, MessageCircle, Loader2, Package, Star, SlidersHorizontal, Navigation } from "lucide-react";
 import MobileLayout from "@/components/layout/MobileLayout";
 import PageHeader from "@/components/layout/PageHeader";
@@ -102,17 +102,30 @@ const VIEW_OPTIONS: { value: ViewMode; label: string }[] = [
   { value: "products", label: "Products" },
 ];
 
-const RadarFilterTrigger = ({ activeFilterCount }: { activeFilterCount: number }) => (
-  <button className="flex items-center gap-1.5 px-3.5 py-2 rounded-full bg-card text-sm font-medium text-foreground border border-border hover:border-primary/30 transition-colors active:scale-[0.97] relative">
-    <SlidersHorizontal className="w-4 h-4" />
-    <span>Filter</span>
-    {activeFilterCount > 0 && (
-      <span className="absolute -top-1.5 -right-1.5 w-[18px] h-[18px] rounded-full bg-primary text-primary-foreground text-[10px] flex items-center justify-center font-bold">
-        {activeFilterCount}
-      </span>
-    )}
-  </button>
+type RadarFilterTriggerProps = ComponentPropsWithoutRef<"button"> & {
+  activeFilterCount: number;
+};
+
+const RadarFilterTrigger = forwardRef<HTMLButtonElement, RadarFilterTriggerProps>(
+  ({ activeFilterCount, ...props }, ref) => (
+    <button
+      ref={ref}
+      type="button"
+      {...props}
+      className="flex items-center gap-1.5 px-3.5 py-2 rounded-full bg-card text-sm font-medium text-foreground border border-border hover:border-primary/30 transition-colors active:scale-[0.97] relative"
+    >
+      <SlidersHorizontal className="w-4 h-4" />
+      <span>Filter</span>
+      {activeFilterCount > 0 && (
+        <span className="absolute -top-1.5 -right-1.5 w-[18px] h-[18px] rounded-full bg-primary text-primary-foreground text-[10px] flex items-center justify-center font-bold">
+          {activeFilterCount}
+        </span>
+      )}
+    </button>
+  ),
 );
+
+RadarFilterTrigger.displayName = "RadarFilterTrigger";
 
 const RadarFilterBody = ({
   localView, setLocalView, localRadius, setLocalRadius, activeFilterCount, onApply, onReset,
