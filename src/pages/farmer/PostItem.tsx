@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from "react";
-import { Check, ImagePlus, X, Loader2, ChevronRight } from "lucide-react";
+import { Check, ImagePlus, X, Loader2, ChevronRight, Truck, MapPin as PickupIcon } from "lucide-react";
 import MobileLayout from "@/components/layout/MobileLayout";
 import PageHeader from "@/components/layout/PageHeader";
 import { Button } from "@/components/ui/button";
@@ -39,7 +39,9 @@ const PostItem = () => {
     category: "",
     price: "",
     quantity: "",
-    unit: ""
+    unit: "",
+    pickupAvailable: false,
+    deliveryAvailable: false,
   });
   const [images, setImages] = useState<{ file: File; preview: string }[]>([]);
   const [errors, setErrors] = useState<Record<string, string>>({});
@@ -154,8 +156,10 @@ const PostItem = () => {
         price: parseFloat(form.price) || 0,
         stock: parseInt(form.quantity) || 0,
         unit: form.unit || "piece",
-        images: uploadedUrls
-      });
+        images: uploadedUrls,
+        pickup_available: form.pickupAvailable,
+        delivery_available: form.deliveryAvailable,
+      } as any);
 
       if (error) {
         for (const path of uploadedPaths) {
@@ -192,7 +196,7 @@ const PostItem = () => {
           <Button onClick={() => navigate("/my-store")} className="w-full rounded-md h-12 text-base font-semibold shadow-card">
             Go to My Store
           </Button>
-          <Button variant="outline" onClick={() => { setStep(1); setForm({ name: "", description: "", category: "", price: "", quantity: "", unit: "" }); setImages([]); }} className="w-full rounded-md h-12 text-base">
+          <Button variant="outline" onClick={() => { setStep(1); setForm({ name: "", description: "", category: "", price: "", quantity: "", unit: "", pickupAvailable: false, deliveryAvailable: false }); setImages([]); }} className="w-full rounded-md h-12 text-base">
             Post Another
           </Button>
         </div>
@@ -262,6 +266,37 @@ const PostItem = () => {
             />
             <p className="text-[10px] text-muted-foreground mt-1 text-right">{form.description.length}/300</p>
             {errors.description && <p className="text-[11px] text-destructive mt-1">{errors.description}</p>}
+          </div>
+
+          {/* Availability Options */}
+          <div>
+            <label className="text-xs text-muted-foreground mb-2 block font-semibold">Availability</label>
+            <div className="flex flex-wrap gap-2">
+              <button
+                type="button"
+                onClick={() => setForm({ ...form, pickupAvailable: !form.pickupAvailable })}
+                className={`flex items-center gap-1.5 px-3.5 py-2 rounded-full border text-xs transition-all ${
+                  form.pickupAvailable
+                    ? "bg-primary text-primary-foreground border-primary"
+                    : "bg-card border-border text-muted-foreground hover:border-primary/50"
+                }`}
+              >
+                <PickupIcon className="w-3.5 h-3.5" />
+                Pickup Available
+              </button>
+              <button
+                type="button"
+                onClick={() => setForm({ ...form, deliveryAvailable: !form.deliveryAvailable })}
+                className={`flex items-center gap-1.5 px-3.5 py-2 rounded-full border text-xs transition-all ${
+                  form.deliveryAvailable
+                    ? "bg-primary text-primary-foreground border-primary"
+                    : "bg-card border-border text-muted-foreground hover:border-primary/50"
+                }`}
+              >
+                <Truck className="w-3.5 h-3.5" />
+                Delivery Available
+              </button>
+            </div>
           </div>
 
           {/* Images */}

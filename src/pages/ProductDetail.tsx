@@ -31,6 +31,8 @@ interface ProductData {
   images: string[] | null;
   farmer_id: string;
   category: string | null;
+  pickup_available?: boolean;
+  delivery_available?: boolean;
   farmer: { id: string; name: string; location: string | null; avatar_url: string | null; verified?: boolean; last_seen_at?: string | null } | null;
 }
 
@@ -73,7 +75,7 @@ const ProductDetail = () => {
       try {
         const { data: prod, error: prodError } = await supabase
           .from("products")
-          .select("id, title, description, price, unit, stock, images, farmer_id, category, farmer:profiles!products_farmer_id_fkey(id, name, location, avatar_url, verified, last_seen_at)")
+          .select("id, title, description, price, unit, stock, images, farmer_id, category, pickup_available, delivery_available, farmer:profiles!products_farmer_id_fkey(id, name, location, avatar_url, verified, last_seen_at)")
           .eq("id", id)
           .maybeSingle();
 
@@ -374,31 +376,39 @@ const ProductDetail = () => {
           </div>
 
           {/* Pickup / Delivery Info */}
-          <div className="flex gap-2.5 mt-1">
-             <div className="flex-1 p-3 rounded-md bg-secondary/80 flex items-center gap-2.5 border border-border">
-              <Truck className="w-4 h-4 text-primary shrink-0" />
-              <div>
-                <p className="text-[11px] font-semibold text-foreground">Pickup Available</p>
-                <p className="text-[10px] text-muted-foreground">Contact farmer for details</p>
-              </div>
+          {((product as any).pickup_available || (product as any).delivery_available) && (
+            <div className="flex gap-2.5 mt-1">
+              {(product as any).pickup_available && (
+                <div className="flex-1 p-3 rounded-md bg-secondary/80 flex items-center gap-2.5 border border-border">
+                  <Truck className="w-4 h-4 text-primary shrink-0" />
+                  <div>
+                    <p className="text-[11px] font-semibold text-foreground">Pickup Available</p>
+                    <p className="text-[10px] text-muted-foreground">Contact farmer for details</p>
+                  </div>
+                </div>
+              )}
+              {(product as any).delivery_available && (
+                <div className="flex-1 p-3 rounded-md bg-secondary/80 flex items-center gap-2.5 border border-border">
+                  <Truck className="w-4 h-4 text-primary shrink-0" />
+                  <div>
+                    <p className="text-[11px] font-semibold text-foreground">Delivery Available</p>
+                    <p className="text-[10px] text-muted-foreground">Contact farmer for details</p>
+                  </div>
+                </div>
+              )}
             </div>
-            <div className="flex-1 p-3 rounded-md bg-secondary/80 flex items-center gap-2.5 border border-border">
-              <Clock className="w-4 h-4 text-primary shrink-0" />
-              <div>
-                <p className="text-[11px] font-semibold text-foreground">Fresh Daily</p>
-                <p className="text-[10px] text-muted-foreground">Check availability</p>
-              </div>
-            </div>
-          </div>
+          )}
         </div>
 
         {/* Action Buttons */}
-        <div className="flex gap-2.5">
-          <Button onClick={handleContactFarmer} className="flex-1 rounded-md h-11 font-semibold gap-2 text-sm shadow-card">
-            <MessageCircle className="w-4.5 h-4.5" style={{ width: 18, height: 18 }} />
-            Contact Farmer
-          </Button>
-        </div>
+        {user && user.id !== product.farmer_id && (
+          <div className="flex gap-2.5">
+            <Button onClick={handleContactFarmer} className="flex-1 rounded-md h-11 font-semibold gap-2 text-sm shadow-card">
+              <MessageCircle className="w-4.5 h-4.5" style={{ width: 18, height: 18 }} />
+              Contact Farmer
+            </Button>
+          </div>
+        )}
 
         {/* Farmer Card */}
         {product.farmer && (

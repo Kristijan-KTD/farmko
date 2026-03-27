@@ -27,7 +27,7 @@ export const PLANS = {
     priceId: "price_1T8mjBCsFOwH9CIqdEB6GVzZ",
     productId: "prod_U70kEspnycdHnj",
     listingLimit: null as number | null,
-    features: ["Unlimited listings", "Up to 6 photos per listing", "Featured farmer badge", "Top search ranking", "Full analytics dashboard", "Custom farm banner", "Featured in promotions", "Early access to new features"],
+    features: ["Unlimited listings", "Up to 6 photos per listing", "Featured farmer badge", "Top search ranking", "Full analytics dashboard", "Featured in promotions", "Early access to new features"],
     limitations: [],
   },
 } as const;
@@ -42,7 +42,7 @@ interface SubscriptionState {
   canCreateListing: (currentCount: number) => boolean;
   canCreatePost: (currentMonthCount: number) => boolean;
   canTagProducts: boolean;
-  hasFeature: (feature: "analytics" | "featured_badge" | "farm_story" | "farm_banner" | "favorites") => boolean;
+  hasFeature: (feature: "analytics" | "featured_badge" | "farm_story" | "favorites") => boolean;
   refreshSubscription: () => Promise<void>;
 }
 
@@ -188,14 +188,13 @@ export const SubscriptionProvider = ({ children }: { children: ReactNode }) => {
     return currentMonthCount < postLimit;
   }, [plan, postLimit, isLoading]);
 
-  const hasFeature = useCallback((feature: "analytics" | "featured_badge" | "farm_story" | "farm_banner" | "favorites") => {
+  const hasFeature = useCallback((feature: "analytics" | "featured_badge" | "farm_story" | "favorites") => {
     switch (feature) {
       case "analytics":
       case "farm_story":
       case "favorites":
         return plan === "growth" || plan === "pro";
       case "featured_badge":
-      case "farm_banner":
         return plan === "pro";
       default:
         return false;
