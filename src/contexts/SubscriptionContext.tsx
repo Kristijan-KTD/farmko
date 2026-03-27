@@ -27,7 +27,7 @@ export const PLANS = {
     priceId: "price_1T8mjBCsFOwH9CIqdEB6GVzZ",
     productId: "prod_U70kEspnycdHnj",
     listingLimit: null as number | null,
-    features: ["Unlimited listings", "Up to 6 photos per listing", "Featured farmer badge", "Top search ranking", "Full analytics dashboard", "Custom farm banner", "Featured in promotions", "Early access to new features"],
+    features: ["Unlimited listings", "Up to 6 photos per listing", "Featured farmer badge", "Top search ranking", "Full analytics dashboard", "Featured in promotions", "Early access to new features"],
     limitations: [],
   },
 } as const;
