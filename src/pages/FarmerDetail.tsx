@@ -258,12 +258,14 @@ const FarmerDetail = () => {
         )}
       </div>
 
-      <div className="pb-6 pt-3">
-        <Button onClick={handleContact} className="w-full rounded-md h-11 text-sm font-semibold gap-2">
-          <MessageCircle className="w-4.5 h-4.5" style={{ width: 18, height: 18 }} />
-          Contact Farmer
-        </Button>
-      </div>
+      {user && user.id !== farmer.id && (
+        <div className="pb-6 pt-3">
+          <Button onClick={handleContact} className="w-full rounded-md h-11 text-sm font-semibold gap-2">
+            <MessageCircle className="w-4.5 h-4.5" style={{ width: 18, height: 18 }} />
+            Contact Farmer
+          </Button>
+        </div>
+      )}
     </MobileLayout>
   );
 };
