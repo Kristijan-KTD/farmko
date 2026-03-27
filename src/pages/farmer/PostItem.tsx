@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from "react";
-import { Check, ImagePlus, X, Loader2, ChevronRight } from "lucide-react";
+import { Check, ImagePlus, X, Loader2, ChevronRight, Truck, MapPin as PickupIcon } from "lucide-react";
 import MobileLayout from "@/components/layout/MobileLayout";
 import PageHeader from "@/components/layout/PageHeader";
 import { Button } from "@/components/ui/button";
