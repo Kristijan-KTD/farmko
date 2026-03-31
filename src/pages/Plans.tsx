@@ -119,7 +119,7 @@ const Plans = () => {
                 <Button
                   onClick={() => handleSubscribe(tier)}
                   disabled={!!loading}
-                  className={`w-full rounded-full h-11 font-semibold ${
+                  className={`w-full rounded-md h-11 font-semibold ${
                     tier === "pro" ? "bg-yellow-500 hover:bg-yellow-600 text-white" : ""
                   }`}
                 >
