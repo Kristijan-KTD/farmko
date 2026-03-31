@@ -368,11 +368,6 @@ const ProductDetail = () => {
             <span className="inline-flex items-center gap-1 text-[11px] font-medium text-muted-foreground bg-secondary px-2 py-1 rounded-full">
               💬 Usually responds within 1 hour
             </span>
-            <span className={`inline-flex items-center gap-1 text-[11px] font-medium px-2 py-1 rounded-full ${
-              (product.stock ?? 0) > 0 ? "text-primary bg-primary/10" : "text-destructive bg-destructive/10"
-            }`}>
-              {(product.stock ?? 0) > 0 ? "✓ In Stock" : "Sold Out"}
-            </span>
           </div>
 
           {/* Pickup / Delivery Info */}
