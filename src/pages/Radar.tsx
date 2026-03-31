@@ -399,36 +399,40 @@ const Radar = () => {
           </MapContainer>
         )}
 
-        {/* Legend */}
-        <div className="absolute left-4 top-4 bg-card/90 backdrop-blur-sm rounded-lg p-2 border border-border z-[1000]">
-          {(viewMode === "all" || viewMode === "farmers") && (
-            <div className="flex items-center gap-2 mb-1">
-              <div className="w-3 h-3 bg-primary rounded-full" />
-              <span className="text-[10px] text-foreground">Farmers</span>
-            </div>
-          )}
-          {(viewMode === "all" || viewMode === "products") && (
-            <div className="flex items-center gap-2">
-              <div className="w-3 h-3 bg-orange-500 rounded" />
-              <span className="text-[10px] text-foreground">Products</span>
-            </div>
-          )}
-        </div>
+        {/* Legend - hidden when filter is open */}
+        {!filterOpen && (
+          <div className="absolute left-4 top-4 bg-card/90 backdrop-blur-sm rounded-lg p-2 border border-border z-[1000]">
+            {(viewMode === "all" || viewMode === "farmers") && (
+              <div className="flex items-center gap-2 mb-1">
+                <div className="w-3 h-3 bg-primary rounded-full" />
+                <span className="text-[10px] text-foreground">Farmers</span>
+              </div>
+            )}
+            {(viewMode === "all" || viewMode === "products") && (
+              <div className="flex items-center gap-2">
+                <div className="w-3 h-3 bg-orange-500 rounded" />
+                <span className="text-[10px] text-foreground">Products</span>
+              </div>
+            )}
+          </div>
+        )}
 
-        {/* Bottom card - clickable to find location */}
-        <button
-          onClick={handleFindMyLocation}
-          className="absolute bottom-4 left-1/2 -translate-x-1/2 bg-card rounded-xl shadow-lg p-3 flex items-center gap-3 border border-border w-[calc(100%-2rem)] z-[1000] text-left active:scale-[0.98] transition-transform"
-        >
-          <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
-            <Navigation className="w-5 h-5 text-primary" />
-          </div>
-          <div className="flex-1">
-            <p className="text-sm font-semibold text-foreground">{user?.name || "You"}</p>
-            <p className="text-xs text-muted-foreground">{markerCount} results on map · {radius}km radius</p>
-          </div>
-          <MapPin className="w-4 h-4 text-muted-foreground" />
-        </button>
+        {/* Bottom card - hidden when filter is open */}
+        {!filterOpen && (
+          <button
+            onClick={handleFindMyLocation}
+            className="absolute bottom-4 left-1/2 -translate-x-1/2 bg-card rounded-xl shadow-lg p-3 flex items-center gap-3 border border-border w-[calc(100%-2rem)] z-[1000] text-left active:scale-[0.98] transition-transform"
+          >
+            <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
+              <Navigation className="w-5 h-5 text-primary" />
+            </div>
+            <div className="flex-1">
+              <p className="text-sm font-semibold text-foreground">{user?.name || "You"}</p>
+              <p className="text-xs text-muted-foreground">{markerCount} results on map · {radius}km radius</p>
+            </div>
+            <MapPin className="w-4 h-4 text-muted-foreground" />
+          </button>
+        )}
       </div>
 
       {/* Farmer detail dialog */}

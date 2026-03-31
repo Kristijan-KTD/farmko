@@ -407,11 +407,8 @@ const ProductDetail = () => {
 
         {/* Farmer Card */}
         {product.farmer && (
-          <button
-            onClick={() => navigate(`/farmer/${product.farmer!.id}`)}
-            className="card-interactive w-full flex items-center gap-3.5 p-4 text-left"
-          >
-            <div className="w-12 h-12 rounded-full bg-muted flex items-center justify-center overflow-hidden relative">
+          <div className="card-interactive w-full flex items-center gap-3.5 p-4">
+            <div className="w-12 h-12 rounded-full bg-muted flex items-center justify-center overflow-hidden relative shrink-0">
               {product.farmer.avatar_url ? (
                 <img src={product.farmer.avatar_url} alt="" className="w-full h-full object-cover" />
               ) : (
@@ -431,15 +428,19 @@ const ProductDetail = () => {
                   </span>
                 )}
               </div>
-              <div className="flex items-center gap-2 text-xs text-muted-foreground mt-0.5">
-                {product.farmer.location && (
-                  <span className="flex items-center gap-0.5"><MapPin className="w-3 h-3" />{product.farmer.location}</span>
-                )}
-                <span>{farmerProductCount} products</span>
-                <span>{farmerReviewCount} reviews</span>
-              </div>
+              {product.farmer.location && (
+                <p className="text-xs text-muted-foreground mt-0.5">{product.farmer.location}</p>
+              )}
             </div>
-          </button>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => navigate(`/farmer/${product.farmer!.id}`)}
+              className="rounded-md text-xs h-8 px-3 shrink-0"
+            >
+              Visit Profile
+            </Button>
+          </div>
         )}
 
         {/* From This Farm - Instafarm */}
