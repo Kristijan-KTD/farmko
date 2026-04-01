@@ -160,7 +160,7 @@ const Explore = () => {
           </div>
         ) : (
           <>
-            <div className="divide-y divide-border/60">
+            <div className="space-y-2.5">
               {sorted.slice(0, visibleCount).map((product) => (
                 <ExploreProductRow key={product.id} product={product} onClick={() => handleProductClick(product)} />
               ))}
@@ -187,36 +187,36 @@ const Explore = () => {
 const ExploreProductRow = ({ product, onClick }: { product: EnrichedProduct; onClick: () => void }) => {
   const badge = getPlanBadge(product.farmerPlan);
   return (
-    <button onClick={onClick} className="flex items-center gap-3 w-full text-left py-3 px-1 transition-colors active:scale-[0.98]">
-      <div className="w-[52px] h-[52px] rounded-md bg-muted flex items-center justify-center overflow-hidden shrink-0">
+    <div className="card-interactive flex items-center gap-3 p-3.5">
+      <button onClick={onClick} className="w-16 h-16 rounded-md bg-muted flex items-center justify-center overflow-hidden shrink-0">
         {product.images?.[0] ? (
           <img src={product.images[0]} alt={product.title} className="w-full h-full object-cover" />
         ) : (
-          <Package className="w-5 h-5 text-muted-foreground/20" />
+          <Package className="w-6 h-6 text-muted-foreground/30" />
         )}
-      </div>
-      <div className="flex-1 min-w-0">
+      </button>
+      <button onClick={onClick} className="flex-1 min-w-0 text-left">
         <div className="flex items-center gap-1">
-          <h3 className="text-sm font-medium text-foreground truncate">{product.title}</h3>
+          <h3 className="text-sm font-semibold text-foreground truncate">{product.title}</h3>
           {badge && (
             <span className={`text-[9px] font-bold px-1.5 py-0.5 rounded-full shrink-0 ${badge.color}`}>{badge.label}</span>
           )}
         </div>
-        <p className="text-tertiary-label truncate mt-0.5 flex items-center gap-1 text-[11px]">
+        <p className="text-[11px] text-muted-foreground truncate mt-0.5 flex items-center gap-1">
           {product.farmer?.name || "Unknown"}
           {product.farmer?.verified && <CheckCircle className="w-3 h-3 text-blue-500 shrink-0" />}
         </p>
-      </div>
-      <div className="text-right shrink-0 space-y-0.5">
-        <span className="text-sm font-bold text-primary block">${product.price.toFixed(2)}</span>
+        <span className="text-xs font-bold text-primary mt-0.5 block">${product.price.toFixed(2)}/{product.unit}</span>
+      </button>
+      <div className="text-right shrink-0">
         {product.distance != null && (
-          <span className="text-tertiary-label flex items-center gap-0.5 justify-end text-[11px]">
+          <span className="text-[11px] text-muted-foreground flex items-center gap-0.5 justify-end">
             <MapPin className="w-3 h-3" />
             {formatDistance(product.distance)}
           </span>
         )}
       </div>
-    </button>
+    </div>
   );
 };
 

@@ -237,21 +237,24 @@ const FarmerDetail = () => {
         {products.length > 0 && (
           <section>
             <h3 className="section-label mb-2.5">Products</h3>
-            <div className="divide-y divide-border/60">
+            <div className="space-y-2.5">
               {products.map((p) => (
-                <button key={p.id} onClick={() => handleProductClick(p)} className="list-row w-full active:scale-[0.98]">
-                  <div className="w-10 h-10 bg-muted rounded-sm flex items-center justify-center overflow-hidden shrink-0">
+                <div key={p.id} className="card-interactive flex items-center gap-3 p-3.5">
+                  <button
+                    onClick={() => handleProductClick(p)}
+                    className="w-16 h-16 rounded-md bg-muted flex items-center justify-center overflow-hidden shrink-0"
+                  >
                     {p.images?.[0] ? (
                       <img src={p.images[0]} alt="" className="w-full h-full object-cover" />
                     ) : (
-                      <Package className="w-4 h-4 text-muted-foreground/40" />
+                      <Package className="w-6 h-6 text-muted-foreground/30" />
                     )}
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <p className="text-[13px] font-medium text-foreground truncate">{p.title}</p>
-                    <p className="text-xs font-bold text-primary">${p.price.toFixed(2)}</p>
-                  </div>
-                </button>
+                  </button>
+                  <button onClick={() => handleProductClick(p)} className="flex-1 min-w-0 text-left">
+                    <h3 className="text-sm font-semibold text-foreground truncate">{p.title}</h3>
+                    <span className="text-xs font-bold text-primary mt-0.5 block">${p.price.toFixed(2)}</span>
+                  </button>
+                </div>
               ))}
             </div>
           </section>
