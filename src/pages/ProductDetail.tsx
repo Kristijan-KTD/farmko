@@ -155,6 +155,8 @@ const ProductDetail = () => {
     }
   };
 
+  const hasUserReviewed = user ? reviews.some(r => r.reviewer?.name === user.name) : false;
+
   const handleSubmitReview = async () => {
     if (userRating === 0) {
       toast({ title: "Please select a rating", variant: "destructive" });
@@ -172,7 +174,14 @@ const ProductDetail = () => {
         comment: reviewText || null,
       }).select("id, rating, comment, created_at").single();
 
-      if (error) throw error;
+      if (error) {
+        if (error.code === '23505') {
+          toast({ title: "You already reviewed this product", variant: "destructive" });
+          setSubmitting(false);
+          return;
+        }
+        throw error;
+      }
       if (data) {
         setReviews([{ ...data, reviewer: { name: user.name, avatar_url: user.avatar_url || null } }, ...reviews]);
         setUserRating(0);
