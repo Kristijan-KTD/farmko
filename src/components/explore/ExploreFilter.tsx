@@ -127,7 +127,7 @@ const FilterBody = ({
       </div>
     </div>
 
-    <Button onClick={onApply} className="w-full h-12 rounded-xl text-sm font-semibold">
+    <Button onClick={onApply} className="w-full h-12 rounded-md text-sm font-semibold">
       Apply Filters
     </Button>
   </div>
