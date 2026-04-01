@@ -123,7 +123,7 @@ const Login = () => {
         <Button
           onClick={handleLogin}
           disabled={isLoading}
-          className="w-full rounded-full h-12 text-base font-semibold"
+          className="w-full rounded-md h-12 text-base font-semibold"
         >
           {isLoading ? "Logging in..." : "Continue"}
         </Button>

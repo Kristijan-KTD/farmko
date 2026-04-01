@@ -173,7 +173,7 @@ const Register = () => {
       </div>
 
       <div className="pb-8 space-y-4 max-w-md mx-auto w-full">
-        <Button onClick={handleRegister} disabled={isLoading} className="w-full rounded-full h-12 text-base font-semibold">
+        <Button onClick={handleRegister} disabled={isLoading} className="w-full rounded-md h-12 text-base font-semibold">
           {isLoading ? "Creating account..." : "Continue"}
         </Button>
         <p className="text-center text-sm text-muted-foreground">
