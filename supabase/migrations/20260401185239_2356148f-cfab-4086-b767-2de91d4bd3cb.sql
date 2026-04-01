@@ -1,0 +1,1 @@
+CREATE UNIQUE INDEX idx_reviews_one_per_product ON public.reviews (reviewer_id, product_id) WHERE product_id IS NOT NULL;
