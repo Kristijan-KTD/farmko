@@ -203,19 +203,18 @@ const MyStore = () => {
             {sortedProducts.map((product) => {
               const stats = productStats.get(product.id);
               return (
-                <button
-                  key={product.id}
-                  onClick={() => navigate(`/product/${product.id}`)}
-                  className="list-item-subtle w-full p-3.5"
-                >
-                  <div className="w-16 h-16 bg-muted rounded-md flex items-center justify-center flex-shrink-0 overflow-hidden">
+                <div key={product.id} className="card-interactive flex items-center gap-3 p-3.5">
+                  <button
+                    onClick={() => navigate(`/product/${product.id}`)}
+                    className="w-16 h-16 rounded-md bg-muted flex items-center justify-center overflow-hidden shrink-0"
+                  >
                     {product.images?.[0] ? (
                       <img src={product.images[0]} alt="" className="w-full h-full object-cover" />
                     ) : (
                       <Package className="w-6 h-6 text-muted-foreground/30" />
                     )}
-                  </div>
-                  <div className="flex-1 min-w-0">
+                  </button>
+                  <button onClick={() => navigate(`/product/${product.id}`)} className="flex-1 min-w-0 text-left">
                     <div className="flex items-center gap-2">
                       <h3 className="text-sm font-semibold text-foreground truncate">{product.title}</h3>
                       <span className={`text-[9px] px-2 py-0.5 rounded-lg font-medium ${
@@ -235,13 +234,13 @@ const MyStore = () => {
                         <span className="text-[10px] text-muted-foreground flex items-center gap-1"><MessageCircle className="w-3 h-3" />{stats.contacts}</span>
                       </div>
                     )}
-                  </div>
-                  <div className="flex gap-1" onClick={(e) => e.stopPropagation()}>
-                    <button onClick={(e) => { e.stopPropagation(); setDeleteId(product.id); }} className="p-2.5 text-muted-foreground hover:text-destructive rounded-md hover:bg-destructive/10 transition-colors">
+                  </button>
+                  <div className="flex gap-1">
+                    <button onClick={() => setDeleteId(product.id)} className="p-2.5 text-muted-foreground hover:text-destructive rounded-md hover:bg-destructive/10 transition-colors">
                       <Trash2 className="w-4 h-4" />
                     </button>
                   </div>
-                </button>
+                </div>
               );
             })}
           </div>

@@ -160,7 +160,7 @@ const Explore = () => {
           </div>
         ) : (
           <>
-            <div className="divide-y divide-border/60">
+            <div className="space-y-2.5">
               {sorted.slice(0, visibleCount).map((product) => (
                 <ExploreProductRow key={product.id} product={product} onClick={() => handleProductClick(product)} />
               ))}

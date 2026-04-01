@@ -476,7 +476,7 @@ const ProductDetail = () => {
         )}
 
         {/* Write Review */}
-        {user && user.id !== product.farmer_id && (
+        {user && user.id !== product.farmer_id && !hasUserReviewed && (
           <div className="space-y-3">
             <h3 className="section-title">Write a Review</h3>
             <div className="flex items-center gap-1">
