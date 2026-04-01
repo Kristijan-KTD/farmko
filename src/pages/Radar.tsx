@@ -421,7 +421,7 @@ const Radar = () => {
         {!filterOpen && (
           <button
             onClick={handleFindMyLocation}
-            className="absolute bottom-4 left-1/2 -translate-x-1/2 bg-card rounded-xl shadow-lg p-3 flex items-center gap-3 border border-border w-[calc(100%-2rem)] z-[1000] text-left active:scale-[0.98] transition-transform"
+            className="absolute bottom-24 lg:bottom-4 left-1/2 -translate-x-1/2 bg-card rounded-xl shadow-lg p-3 flex items-center gap-3 border border-border w-[calc(100%-2rem)] z-[1000] text-left active:scale-[0.98] transition-transform"
           >
             <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
               <Navigation className="w-5 h-5 text-primary" />
