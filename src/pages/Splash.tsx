@@ -29,7 +29,7 @@ const Splash = () => {
       
       <div className="flex flex-col items-center gap-4 z-10">
         <div className="w-20 h-20 flex items-center justify-center">
-          <img src={farmkoLogo} alt="Farmko logo" className="w-20 h-20 object-contain" />
+          <img src={farmkoLogo} alt="Farmko logo" className="w-20 h-20 object-contain" fetchPriority="high" />
         </div>
         
         <div className="flex gap-2 mt-6">
