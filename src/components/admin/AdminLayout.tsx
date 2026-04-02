@@ -1,6 +1,6 @@
 import { ReactNode } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
-import { LayoutDashboard, Users, CreditCard, Crown, ArrowLeft } from "lucide-react";
+import { LayoutDashboard, Users, CreditCard, ShoppingBag, Camera, ArrowLeft } from "lucide-react";
 
 interface AdminLayoutProps {
   children: ReactNode;
@@ -9,8 +9,11 @@ interface AdminLayoutProps {
 
 const navItems = [
   { icon: LayoutDashboard, label: "Dashboard", path: "/admin" },
+  { icon: Users, label: "Users", path: "/admin/users" },
   { icon: CreditCard, label: "Subscriptions", path: "/admin/subscriptions" },
   { icon: Users, label: "Farmers", path: "/admin/farmers" },
+  { icon: ShoppingBag, label: "Products", path: "/admin/products" },
+  { icon: Camera, label: "Content", path: "/admin/content" },
 ];
 
 const AdminLayout = ({ children, title }: AdminLayoutProps) => {
@@ -23,7 +26,7 @@ const AdminLayout = ({ children, title }: AdminLayoutProps) => {
       <div className="hidden lg:flex w-64 flex-shrink-0 flex-col bg-card border-r border-border">
         <div className="p-6 border-b border-border">
           <div className="flex items-center gap-2">
-            <Crown className="w-5 h-5 text-primary" />
+            <LayoutDashboard className="w-5 h-5 text-primary" />
             <h2 className="text-lg font-bold text-foreground">Admin Panel</h2>
           </div>
           <p className="text-xs text-muted-foreground mt-1">Farmko Management</p>

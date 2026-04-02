@@ -61,6 +61,10 @@ serve(async (req) => {
           .from("products")
           .select("*", { count: "exact", head: true });
 
+        const { count: activeChats } = await supabaseClient
+          .from("conversations")
+          .select("*", { count: "exact", head: true });
+
         const { data: subs } = await supabaseClient
           .from("farmer_subscriptions")
           .select("plan");
@@ -70,7 +74,50 @@ serve(async (req) => {
           if (s.plan in planCounts) planCounts[s.plan as keyof typeof planCounts]++;
         });
 
-        result = { totalFarmers, totalCustomers, totalProducts, planCounts };
+        // New users last 7 days
+        const sevenDaysAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString();
+        const { count: newUsersLast7Days } = await supabaseClient
+          .from("profiles")
+          .select("*", { count: "exact", head: true })
+          .gte("created_at", sevenDaysAgo);
+
+        const { count: productsCreatedLast7Days } = await supabaseClient
+          .from("products")
+          .select("*", { count: "exact", head: true })
+          .gte("created_at", sevenDaysAgo);
+
+        // Most active farmers (by product count)
+        const { data: allProducts } = await supabaseClient
+          .from("products")
+          .select("farmer_id");
+
+        const farmerProductCounts: Record<string, number> = {};
+        allProducts?.forEach((p: any) => {
+          farmerProductCounts[p.farmer_id] = (farmerProductCounts[p.farmer_id] || 0) + 1;
+        });
+
+        const topFarmerIds = Object.entries(farmerProductCounts)
+          .sort((a, b) => b[1] - a[1])
+          .slice(0, 5)
+          .map(([id, count]) => ({ id, productCount: count }));
+
+        let mostActiveFarmers: any[] = [];
+        if (topFarmerIds.length > 0) {
+          const { data: farmerProfiles } = await supabaseClient
+            .from("profiles")
+            .select("id, name, avatar_url")
+            .in("id", topFarmerIds.map(f => f.id));
+
+          mostActiveFarmers = topFarmerIds.map(f => {
+            const profile = farmerProfiles?.find((p: any) => p.id === f.id);
+            return { ...f, name: profile?.name || "Unknown", avatar_url: profile?.avatar_url };
+          });
+        }
+
+        result = {
+          totalFarmers, totalCustomers, totalProducts, activeChats,
+          planCounts, newUsersLast7Days, productsCreatedLast7Days, mostActiveFarmers,
+        };
         break;
       }
 
@@ -151,6 +198,186 @@ serve(async (req) => {
           .update({ verified: !!verified })
           .eq("id", farmerId);
 
+        if (error) throw error;
+        result = { success: true };
+        break;
+      }
+
+      // ===== NEW: Users Management =====
+      case "get_users": {
+        const { data } = await supabaseClient
+          .from("profiles")
+          .select("id, name, email, role, avatar_url, created_at, verified")
+          .order("created_at", { ascending: false });
+
+        // Get subscriptions for farmers
+        const farmerIds = data?.filter((u: any) => u.role === "farmer").map((u: any) => u.id) || [];
+        let subMap = new Map<string, any>();
+        if (farmerIds.length > 0) {
+          const { data: subs } = await supabaseClient
+            .from("farmer_subscriptions")
+            .select("farmer_id, plan, status")
+            .in("farmer_id", farmerIds);
+          subMap = new Map(subs?.map((s: any) => [s.farmer_id, s]) || []);
+        }
+
+        // Get admin roles
+        const { data: adminRoles } = await supabaseClient
+          .from("user_roles")
+          .select("user_id, role");
+        const adminMap = new Map(adminRoles?.map((r: any) => [r.user_id, r.role]) || []);
+
+        result = data?.map((u: any) => ({
+          ...u,
+          plan: u.role === "farmer" ? (subMap.get(u.id)?.plan ?? "starter") : null,
+          isAdmin: adminMap.has(u.id),
+          adminRole: adminMap.get(u.id) || null,
+        }));
+        break;
+      }
+
+      case "change_user_role": {
+        const { userId, newRole } = params;
+        if (!["farmer", "customer"].includes(newRole)) throw new Error("Invalid role");
+
+        const { error } = await supabaseClient
+          .from("profiles")
+          .update({ role: newRole })
+          .eq("id", userId);
+
+        if (error) throw error;
+
+        // If changing to farmer, ensure subscription exists
+        if (newRole === "farmer") {
+          await supabaseClient
+            .from("farmer_subscriptions")
+            .upsert({ farmer_id: userId, plan: "starter", status: "active" }, { onConflict: "farmer_id" });
+        }
+
+        result = { success: true };
+        break;
+      }
+
+      case "toggle_admin": {
+        const { userId, makeAdmin } = params;
+        if (makeAdmin) {
+          const { error } = await supabaseClient
+            .from("user_roles")
+            .upsert({ user_id: userId, role: "admin" }, { onConflict: "user_id,role" });
+          if (error) throw error;
+        } else {
+          const { error } = await supabaseClient
+            .from("user_roles")
+            .delete()
+            .eq("user_id", userId)
+            .eq("role", "admin");
+          if (error) throw error;
+        }
+        result = { success: true };
+        break;
+      }
+
+      case "ban_user": {
+        const { userId, ban } = params;
+        // Use Supabase admin API to ban/unban
+        if (ban) {
+          const { error } = await supabaseClient.auth.admin.updateUserById(userId, { ban_duration: "876000h" }); // ~100 years
+          if (error) throw error;
+        } else {
+          const { error } = await supabaseClient.auth.admin.updateUserById(userId, { ban_duration: "none" });
+          if (error) throw error;
+        }
+        result = { success: true };
+        break;
+      }
+
+      // ===== NEW: Products Management =====
+      case "get_all_products": {
+        const { data } = await supabaseClient
+          .from("products")
+          .select("id, title, status, category, price, unit, images, created_at, farmer_id")
+          .order("created_at", { ascending: false });
+
+        const farmerIds = [...new Set(data?.map((p: any) => p.farmer_id) || [])];
+        let farmerMap = new Map<string, any>();
+        if (farmerIds.length > 0) {
+          const { data: farmers } = await supabaseClient
+            .from("profiles")
+            .select("id, name, avatar_url")
+            .in("id", farmerIds);
+          farmerMap = new Map(farmers?.map((f: any) => [f.id, f]) || []);
+        }
+
+        result = data?.map((p: any) => ({
+          ...p,
+          farmer: farmerMap.get(p.farmer_id) || { name: "Unknown" },
+        }));
+        break;
+      }
+
+      case "remove_product": {
+        const { productId } = params;
+        const { error } = await supabaseClient
+          .from("products")
+          .delete()
+          .eq("id", productId);
+        if (error) throw error;
+        result = { success: true };
+        break;
+      }
+
+      case "update_product_status": {
+        const { productId, status } = params;
+        const { error } = await supabaseClient
+          .from("products")
+          .update({ status })
+          .eq("id", productId);
+        if (error) throw error;
+        result = { success: true };
+        break;
+      }
+
+      // ===== NEW: Content Moderation (Instafarm) =====
+      case "get_all_instafarm_posts": {
+        const { data } = await supabaseClient
+          .from("instafarm_posts")
+          .select("id, image_url, caption, created_at, farmer_id, product_id")
+          .order("created_at", { ascending: false });
+
+        const farmerIds = [...new Set(data?.map((p: any) => p.farmer_id) || [])];
+        let farmerMap = new Map<string, any>();
+        if (farmerIds.length > 0) {
+          const { data: farmers } = await supabaseClient
+            .from("profiles")
+            .select("id, name, avatar_url")
+            .in("id", farmerIds);
+          farmerMap = new Map(farmers?.map((f: any) => [f.id, f]) || []);
+        }
+
+        const productIds = data?.filter((p: any) => p.product_id).map((p: any) => p.product_id) || [];
+        let productMap = new Map<string, any>();
+        if (productIds.length > 0) {
+          const { data: products } = await supabaseClient
+            .from("products")
+            .select("id, title")
+            .in("id", productIds);
+          productMap = new Map(products?.map((p: any) => [p.id, p]) || []);
+        }
+
+        result = data?.map((p: any) => ({
+          ...p,
+          farmer: farmerMap.get(p.farmer_id) || { name: "Unknown" },
+          product: p.product_id ? (productMap.get(p.product_id) || null) : null,
+        }));
+        break;
+      }
+
+      case "delete_instafarm_post": {
+        const { postId } = params;
+        // Delete likes and comments first
+        await supabaseClient.from("post_likes").delete().eq("post_id", postId);
+        await supabaseClient.from("post_comments").delete().eq("post_id", postId);
+        const { error } = await supabaseClient.from("instafarm_posts").delete().eq("id", postId);
         if (error) throw error;
         result = { success: true };
         break;

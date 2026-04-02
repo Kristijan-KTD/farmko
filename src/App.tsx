@@ -35,6 +35,9 @@ import SubscriptionSuccess from "./pages/SubscriptionSuccess";
 import AdminDashboard from "./pages/admin/AdminDashboard";
 import AdminSubscriptions from "./pages/admin/AdminSubscriptions";
 import AdminFarmers from "./pages/admin/AdminFarmers";
+import AdminUsers from "./pages/admin/AdminUsers";
+import AdminProducts from "./pages/admin/AdminProducts";
+import AdminContent from "./pages/admin/AdminContent";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -76,8 +79,11 @@ const App = () => (
                 <Route path="/plans" element={<Plans />} />
                 <Route path="/subscription-success" element={<SubscriptionSuccess />} />
                 <Route path="/admin" element={<AdminDashboard />} />
+                <Route path="/admin/users" element={<AdminUsers />} />
                 <Route path="/admin/subscriptions" element={<AdminSubscriptions />} />
                 <Route path="/admin/farmers" element={<AdminFarmers />} />
+                <Route path="/admin/products" element={<AdminProducts />} />
+                <Route path="/admin/content" element={<AdminContent />} />
                 <Route path="*" element={<NotFound />} />
               </Routes>
             </BrowserRouter>
