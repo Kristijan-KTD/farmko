@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from "react";
-import { Users, ShoppingBag, Crown, Loader2, Leaf, Zap, RefreshCw } from "lucide-react";
+import { Users, ShoppingBag, Crown, Loader2, Leaf, Zap, RefreshCw, MessageCircle, TrendingUp, UserPlus, User } from "lucide-react";
 import AdminLayout from "@/components/admin/AdminLayout";
 import AdminGuard from "@/components/admin/AdminGuard";
 import { adminService } from "@/services/adminService";
@@ -22,8 +22,6 @@ const AdminDashboard = () => {
       setStats(data);
     } catch (e: unknown) {
       if (signal?.aborted) return;
-      const msg = e instanceof Error ? e.message : "Unknown error";
-      console.error("Dashboard fetch error:", msg);
       toast({ title: "Error", description: "Failed to load dashboard data", variant: "destructive" });
       setError(true);
     } finally {
@@ -55,12 +53,13 @@ const AdminDashboard = () => {
           </div>
         ) : (
           <div className="space-y-6">
+            {/* Main Stats */}
             <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
               {[
                 { label: "Total Farmers", value: stats.totalFarmers ?? 0, icon: Users, color: "bg-primary/10 text-primary" },
                 { label: "Total Customers", value: stats.totalCustomers ?? 0, icon: Users, color: "bg-blue-50 text-blue-500" },
                 { label: "Total Products", value: stats.totalProducts ?? 0, icon: ShoppingBag, color: "bg-orange-50 text-orange-500" },
-                { label: "Paid Subscribers", value: (stats.planCounts?.growth ?? 0) + (stats.planCounts?.pro ?? 0), icon: Crown, color: "bg-yellow-50 text-yellow-600" },
+                { label: "Active Chats", value: stats.activeChats ?? 0, icon: MessageCircle, color: "bg-purple-50 text-purple-500" },
               ].map(({ label, value, icon: Icon, color }) => (
                 <div key={label} className="p-4 rounded-xl border border-border bg-card space-y-2">
                   <div className={`w-10 h-10 rounded-full flex items-center justify-center ${color}`}>
@@ -72,6 +71,32 @@ const AdminDashboard = () => {
               ))}
             </div>
 
+            {/* Analytics - Last 7 Days */}
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+              <div className="p-4 rounded-xl border border-border bg-card space-y-2">
+                <div className="flex items-center gap-2">
+                  <UserPlus className="w-4 h-4 text-primary" />
+                  <span className="text-xs font-medium text-muted-foreground">New Users (7 days)</span>
+                </div>
+                <p className="text-2xl font-bold text-foreground">{stats.newUsersLast7Days ?? 0}</p>
+              </div>
+              <div className="p-4 rounded-xl border border-border bg-card space-y-2">
+                <div className="flex items-center gap-2">
+                  <ShoppingBag className="w-4 h-4 text-orange-500" />
+                  <span className="text-xs font-medium text-muted-foreground">Products Created (7 days)</span>
+                </div>
+                <p className="text-2xl font-bold text-foreground">{stats.productsCreatedLast7Days ?? 0}</p>
+              </div>
+              <div className="p-4 rounded-xl border border-border bg-card space-y-2">
+                <div className="flex items-center gap-2">
+                  <Crown className="w-4 h-4 text-yellow-600" />
+                  <span className="text-xs font-medium text-muted-foreground">Paid Subscribers</span>
+                </div>
+                <p className="text-2xl font-bold text-foreground">{(stats.planCounts?.growth ?? 0) + (stats.planCounts?.pro ?? 0)}</p>
+              </div>
+            </div>
+
+            {/* Subscription Distribution */}
             <div className="rounded-xl border border-border bg-card p-5 space-y-4">
               <h3 className="font-semibold text-foreground">Subscription Distribution</h3>
               <div className="space-y-3">
@@ -101,6 +126,33 @@ const AdminDashboard = () => {
                 })}
               </div>
             </div>
+
+            {/* Most Active Farmers */}
+            {stats.mostActiveFarmers && stats.mostActiveFarmers.length > 0 && (
+              <div className="rounded-xl border border-border bg-card p-5 space-y-4">
+                <h3 className="font-semibold text-foreground flex items-center gap-2">
+                  <TrendingUp className="w-4 h-4 text-primary" /> Most Active Farmers
+                </h3>
+                <div className="space-y-3">
+                  {stats.mostActiveFarmers.map((farmer, i) => (
+                    <div key={farmer.id} className="flex items-center gap-3">
+                      <span className="text-xs font-bold text-muted-foreground w-5">{i + 1}</span>
+                      <div className="w-8 h-8 rounded-full bg-muted flex items-center justify-center overflow-hidden flex-shrink-0">
+                        {farmer.avatar_url ? (
+                          <img src={farmer.avatar_url} alt="" className="w-full h-full object-cover" />
+                        ) : (
+                          <User className="w-4 h-4 text-muted-foreground" />
+                        )}
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm font-medium text-foreground truncate">{farmer.name}</p>
+                      </div>
+                      <span className="text-xs text-muted-foreground">{farmer.productCount} products</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
           </div>
         )}
       </AdminLayout>

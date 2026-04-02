@@ -1,6 +1,6 @@
 import { ReactNode } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
-import { LayoutDashboard, Users, CreditCard, Crown, ArrowLeft } from "lucide-react";
+import { LayoutDashboard, Users, CreditCard, ShoppingBag, Camera, ArrowLeft } from "lucide-react";
 
 interface AdminLayoutProps {
   children: ReactNode;
