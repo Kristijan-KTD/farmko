@@ -5,11 +5,20 @@ export interface DashboardStats {
   totalFarmers: number;
   totalCustomers: number;
   totalProducts: number;
+  activeChats: number;
   planCounts: {
     starter: number;
     growth: number;
     pro: number;
   };
+  newUsersLast7Days: number;
+  productsCreatedLast7Days: number;
+  mostActiveFarmers: {
+    id: string;
+    name: string;
+    avatar_url: string | null;
+    productCount: number;
+  }[];
 }
 
 export interface FarmerSubscription {
@@ -43,4 +52,41 @@ export interface Subscription {
     email: string | null;
     avatar_url: string | null;
   } | null;
+}
+
+export interface AdminUser {
+  id: string;
+  name: string;
+  email: string | null;
+  role: "farmer" | "customer";
+  avatar_url: string | null;
+  created_at: string;
+  verified: boolean;
+  plan: Plan | null;
+  isAdmin: boolean;
+  adminRole: string | null;
+}
+
+export interface AdminProduct {
+  id: string;
+  title: string;
+  status: string;
+  category: string | null;
+  price: number;
+  unit: string;
+  images: string[] | null;
+  created_at: string;
+  farmer_id: string;
+  farmer: { id?: string; name: string; avatar_url?: string | null };
+}
+
+export interface AdminInstafarmPost {
+  id: string;
+  image_url: string;
+  caption: string | null;
+  created_at: string;
+  farmer_id: string;
+  product_id: string | null;
+  farmer: { id?: string; name: string; avatar_url?: string | null };
+  product: { id: string; title: string } | null;
 }
