@@ -4,10 +4,13 @@ import { supabase } from "@/integrations/supabase/client";
 
 export type PlanTier = "starter" | "growth" | "pro";
 
+export type BillingInterval = "monthly" | "annual";
+
 export const PLANS = {
   starter: {
     name: "Starter",
     price: 0,
+    annualPrice: 0,
     listingLimit: 3 as number | null,
     features: ["Up to 3 active listings", "1 photo per listing", "Basic farmer profile", "Visible in search", "Customer messaging", "Farm location map"],
     limitations: ["No analytics", "No featured placement", "No promoted listings"],
@@ -15,8 +18,11 @@ export const PLANS = {
   growth: {
     name: "Growth",
     price: 12,
+    annualPrice: 9,
     priceId: "price_1T8miqCsFOwH9CIqJHpjiL2o",
+    annualPriceId: "price_1THkEJCsFOwH9CIqnl7ADGN3",
     productId: "prod_U70kdowQgNhm1Q",
+    annualProductId: "prod_UGGlYMMmgvNhPH",
     listingLimit: 20 as number | null,
     features: ["Up to 20 active listings", "Up to 3 photos per listing", "Enhanced farmer profile", "Farm story section", "Basic analytics", "Higher search ranking", "Customers can favorite products"],
     limitations: [],
@@ -24,8 +30,11 @@ export const PLANS = {
   pro: {
     name: "Pro Farmer",
     price: 29,
+    annualPrice: 25,
     priceId: "price_1T8mjBCsFOwH9CIqdEB6GVzZ",
+    annualPriceId: "price_1THkF3CsFOwH9CIq01ygPzTW",
     productId: "prod_U70kEspnycdHnj",
+    annualProductId: "prod_UGGmDQhtv8bzwh",
     listingLimit: null as number | null,
     features: ["Unlimited listings", "Up to 6 photos per listing", "Featured farmer badge", "Top search ranking", "Full analytics dashboard", "Featured in promotions", "Early access to new features"],
     limitations: [],

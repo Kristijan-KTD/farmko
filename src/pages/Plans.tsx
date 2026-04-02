@@ -3,7 +3,7 @@ import { Check, Crown, Zap, Leaf, Loader2, Settings } from "lucide-react";
 import MobileLayout from "@/components/layout/MobileLayout";
 import PageHeader from "@/components/layout/PageHeader";
 import { Button } from "@/components/ui/button";
-import { useSubscription, PLANS, PlanTier } from "@/contexts/SubscriptionContext";
+import { useSubscription, PLANS, PlanTier, BillingInterval } from "@/contexts/SubscriptionContext";
 import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
@@ -21,15 +21,19 @@ const Plans = () => {
   const { toast } = useToast();
   const [loading, setLoading] = useState<string | null>(null);
   const [managingPortal, setManagingPortal] = useState(false);
+  const [billing, setBilling] = useState<BillingInterval>("monthly");
 
   const handleSubscribe = async (tier: PlanTier) => {
     if (tier === "starter" || tier === currentPlan) return;
     const planConfig = PLANS[tier];
-    if (!("priceId" in planConfig)) return;
+    const priceId = billing === "annual" && "annualPriceId" in planConfig
+      ? planConfig.annualPriceId
+      : "priceId" in planConfig ? planConfig.priceId : null;
+    if (!priceId) return;
 
     setLoading(tier);
     const { data, error } = await supabase.functions.invoke("create-checkout", {
-      body: { priceId: planConfig.priceId },
+      body: { priceId },
     });
 
     if (data?.url) {
@@ -53,11 +57,52 @@ const Plans = () => {
 
   const tiers: PlanTier[] = ["starter", "growth", "pro"];
 
+  const getPrice = (tier: PlanTier) => {
+    const plan = PLANS[tier];
+    if (plan.price === 0) return "Free";
+    const price = billing === "annual" ? plan.annualPrice : plan.price;
+    return `$${price}/mo`;
+  };
+
+  const getSavings = (tier: PlanTier) => {
+    const plan = PLANS[tier];
+    if (plan.price === 0) return null;
+    const monthlyCost = plan.price * 12;
+    const annualCost = plan.annualPrice * 12;
+    const saved = monthlyCost - annualCost;
+    return saved > 0 ? saved : null;
+  };
+
   return (
     <MobileLayout>
       <PageHeader title="Subscription Plans" />
 
       <div className="flex-1 pb-8 section-gap">
+        {/* Billing toggle */}
+        <div className="flex items-center justify-center gap-1 p-1 rounded-lg bg-muted">
+          <button
+            onClick={() => setBilling("monthly")}
+            className={`flex-1 py-2 px-4 rounded-md text-sm font-medium transition-all ${
+              billing === "monthly"
+                ? "bg-card text-foreground shadow-sm"
+                : "text-muted-foreground hover:text-foreground"
+            }`}
+          >
+            Monthly
+          </button>
+          <button
+            onClick={() => setBilling("annual")}
+            className={`flex-1 py-2 px-4 rounded-md text-sm font-medium transition-all relative ${
+              billing === "annual"
+                ? "bg-card text-foreground shadow-sm"
+                : "text-muted-foreground hover:text-foreground"
+            }`}
+          >
+            Annual
+            <span className="ml-1.5 text-[10px] font-bold text-primary">Save</span>
+          </button>
+        </div>
+
         {subscribed && subscriptionEnd && (
           <div className="p-3 rounded-md bg-primary/10 border border-primary/20">
             <p className="text-xs text-primary font-medium">
@@ -72,6 +117,7 @@ const Plans = () => {
           const Icon = planIcons[tier];
           const isCurrent = tier === currentPlan;
           const isUpgrade = tiers.indexOf(tier) > tiers.indexOf(currentPlan);
+          const savings = billing === "annual" ? getSavings(tier) : null;
 
           return (
             <div
@@ -93,9 +139,19 @@ const Plans = () => {
                   </div>
                   <div>
                     <h3 className="font-bold text-foreground">{plan.name}</h3>
-                    <p className="text-sm text-muted-foreground">
-                      {plan.price === 0 ? "Free" : `$${plan.price}/mo`}
-                    </p>
+                    <div className="flex items-center gap-2">
+                      <p className="text-sm text-muted-foreground">{getPrice(tier)}</p>
+                      {billing === "annual" && savings && (
+                        <span className="text-[10px] font-semibold text-primary bg-primary/10 px-2 py-0.5 rounded-full">
+                          Save ${savings}/yr
+                        </span>
+                      )}
+                    </div>
+                    {billing === "annual" && plan.price > 0 && (
+                      <p className="text-[10px] text-muted-foreground">
+                        Billed ${plan.annualPrice * 12}/year
+                      </p>
+                    )}
                   </div>
                 </div>
               </div>
