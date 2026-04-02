@@ -30,7 +30,7 @@ interface StoreProduct {
 const Home = () => {
   const [menuOpen, setMenuOpen] = useState(false);
   const navigate = useNavigate();
-  const { user } = useAuth();
+  const { user, isLoading: authLoading } = useAuth();
   const { plan } = useSubscription();
   const [stats, setStats] = useState<DashboardStats>({ activeListings: 0, unreadChats: 0, profileViews: 0, favorites: 0 });
   const [storePreview, setStorePreview] = useState<StoreProduct[]>([]);
