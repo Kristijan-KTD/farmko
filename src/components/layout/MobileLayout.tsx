@@ -24,7 +24,7 @@ const MobileLayout = ({ children, className = "", noPadding = false, hideDesktop
       )}
       
       {/* Main content */}
-      <div className="flex-1 flex justify-center min-h-screen overflow-x-hidden">
+      <div className="flex-1 flex justify-center h-screen overflow-y-auto overflow-x-hidden">
         <div className={`w-full max-w-full lg:max-w-3xl min-h-screen flex flex-col ${noPadding ? "" : "px-3 lg:px-6"} ${className}`}>
           {children}
         </div>
