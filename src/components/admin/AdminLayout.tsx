@@ -26,7 +26,7 @@ const AdminLayout = ({ children, title }: AdminLayoutProps) => {
       <div className="hidden lg:flex w-64 flex-shrink-0 flex-col bg-card border-r border-border">
         <div className="p-6 border-b border-border">
           <div className="flex items-center gap-2">
-            <Crown className="w-5 h-5 text-primary" />
+            <LayoutDashboard className="w-5 h-5 text-primary" />
             <h2 className="text-lg font-bold text-foreground">Admin Panel</h2>
           </div>
           <p className="text-xs text-muted-foreground mt-1">Farmko Management</p>
