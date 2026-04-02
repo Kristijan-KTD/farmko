@@ -111,7 +111,30 @@ const Explore = () => {
       </div>
 
       {/* Category Chips */}
-      <div className="flex overflow-x-auto gap-2 mb-3 pb-1 no-scrollbar">
+      <div
+        className="flex overflow-x-auto gap-2 mb-3 pb-1 no-scrollbar cursor-grab active:cursor-grabbing select-none"
+        onMouseDown={(e) => {
+          const el = e.currentTarget;
+          el.dataset.dragging = "false";
+          el.dataset.startX = String(e.pageX - el.offsetLeft);
+          el.dataset.scrollLeft = String(el.scrollLeft);
+          const onMove = (ev: MouseEvent) => {
+            const x = ev.pageX - el.offsetLeft;
+            const walk = x - Number(el.dataset.startX);
+            if (Math.abs(walk) > 3) el.dataset.dragging = "true";
+            el.scrollLeft = Number(el.dataset.scrollLeft) - walk;
+          };
+          const onUp = () => {
+            document.removeEventListener("mousemove", onMove);
+            document.removeEventListener("mouseup", onUp);
+            if (el.dataset.dragging === "true") {
+              el.addEventListener("click", (ev) => ev.stopPropagation(), { capture: true, once: true });
+            }
+          };
+          document.addEventListener("mousemove", onMove);
+          document.addEventListener("mouseup", onUp);
+        }}
+      >
         {CATEGORIES.map((cat) => {
           const isActive = activeCategory === (cat.key === "all" ? null : cat.key);
           const isAll = cat.key === "all" && !activeCategory;
