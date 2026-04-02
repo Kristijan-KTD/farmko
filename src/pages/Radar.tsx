@@ -326,7 +326,7 @@ const Radar = () => {
 
   return (
     <MobileLayout noPadding>
-      <div className="px-6 flex items-center justify-between">
+      <div className="px-6 flex items-center justify-between sticky top-0 z-30 bg-background">
         <PageHeader title="Radar" />
         {isMobile ? (
           <Sheet open={filterOpen} onOpenChange={handleOpenFilter}>
