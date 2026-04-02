@@ -30,7 +30,7 @@ interface StoreProduct {
 const Home = () => {
   const [menuOpen, setMenuOpen] = useState(false);
   const navigate = useNavigate();
-  const { user } = useAuth();
+  const { user, isLoading: authLoading } = useAuth();
   const { plan } = useSubscription();
   const [stats, setStats] = useState<DashboardStats>({ activeListings: 0, unreadChats: 0, profileViews: 0, favorites: 0 });
   const [storePreview, setStorePreview] = useState<StoreProduct[]>([]);
@@ -80,6 +80,16 @@ const Home = () => {
   const viewsInsight = stats.profileViews > 0
     ? `Your profile received ${stats.profileViews} views this week`
     : "Post products to start getting views";
+
+  if (authLoading) {
+    return (
+      <MobileLayout>
+        <div className="flex justify-center items-center flex-1 py-16">
+          <Loader2 className="w-6 h-6 animate-spin text-primary" />
+        </div>
+      </MobileLayout>
+    );
+  }
 
   return (
     <MobileLayout>
