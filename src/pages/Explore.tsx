@@ -168,7 +168,7 @@ const Explore = () => {
             {visibleCount < sorted.length && (
               <button
                 onClick={() => setVisibleCount((c) => c + PAGE_SIZE)}
-                className="w-full py-3 mt-2 text-sm font-medium text-primary hover:text-primary/80 active:scale-[0.98] transition-colors"
+                className="w-full py-3 mt-2 text-sm text-primary hover:text-primary/80 active:scale-[0.98] transition-colors font-normal"
               >
                 View more ({sorted.length - visibleCount} remaining)
               </button>
