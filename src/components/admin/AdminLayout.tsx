@@ -9,8 +9,11 @@ interface AdminLayoutProps {
 
 const navItems = [
   { icon: LayoutDashboard, label: "Dashboard", path: "/admin" },
+  { icon: Users, label: "Users", path: "/admin/users" },
   { icon: CreditCard, label: "Subscriptions", path: "/admin/subscriptions" },
   { icon: Users, label: "Farmers", path: "/admin/farmers" },
+  { icon: ShoppingBag, label: "Products", path: "/admin/products" },
+  { icon: Camera, label: "Content", path: "/admin/content" },
 ];
 
 const AdminLayout = ({ children, title }: AdminLayoutProps) => {
