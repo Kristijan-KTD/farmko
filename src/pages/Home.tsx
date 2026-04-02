@@ -96,7 +96,7 @@ const Home = () => {
       <div className="lg:hidden">
         <SideMenu isOpen={menuOpen} onClose={() => setMenuOpen(false)} />
       </div>
-      <div className="lg:hidden">
+      <div className="lg:hidden sticky top-0 z-30 bg-background">
         <TopBar onMenuOpen={() => setMenuOpen(true)} />
       </div>
       <div className="hidden lg:block py-4">
