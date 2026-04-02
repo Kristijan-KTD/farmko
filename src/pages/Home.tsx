@@ -81,6 +81,16 @@ const Home = () => {
     ? `Your profile received ${stats.profileViews} views this week`
     : "Post products to start getting views";
 
+  if (authLoading) {
+    return (
+      <MobileLayout>
+        <div className="flex justify-center items-center flex-1 py-16">
+          <Loader2 className="w-6 h-6 animate-spin text-primary" />
+        </div>
+      </MobileLayout>
+    );
+  }
+
   return (
     <MobileLayout>
       <div className="lg:hidden">
