@@ -207,7 +207,7 @@ serve(async (req) => {
       case "get_users": {
         const { data } = await supabaseClient
           .from("profiles")
-          .select("id, name, email, role, avatar_url, created_at, verified")
+          .select("id, name, email, role, avatar_url, created_at, verified, is_test_account, created_by_admin")
           .order("created_at", { ascending: false });
 
         // Get subscriptions for farmers
