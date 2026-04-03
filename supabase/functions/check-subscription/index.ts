@@ -104,6 +104,8 @@ serve(async (req) => {
     const subscriptionEnd = new Date(subscription.current_period_end * 1000).toISOString();
     logStep("Active subscription found", { plan, productId, subscriptionEnd });
 
+    const limitForPlan = plan === "pro" ? null : plan === "growth" ? 20 : 3;
+
     await supabaseClient
       .from("farmer_subscriptions")
       .upsert({
@@ -113,6 +115,7 @@ serve(async (req) => {
         stripe_subscription_id: subscription.id,
         stripe_customer_id: customerId,
         renewal_date: subscriptionEnd,
+        listings_limit_per_period: limitForPlan,
       }, { onConflict: "farmer_id" });
 
     return new Response(JSON.stringify({

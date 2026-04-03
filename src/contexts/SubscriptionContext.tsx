@@ -72,6 +72,11 @@ export const SubscriptionProvider = ({ children }: { children: ReactNode }) => {
   const [subscribed, setSubscribed] = useState(false);
   const [subscriptionEnd, setSubscriptionEnd] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [listingQuota, setListingQuota] = useState<ListingQuota>({
+    postedThisPeriod: 0,
+    limitPerPeriod: 3,
+    periodEnd: null,
+  });
 
   const refreshSubscription = useCallback(async () => {
     // Wait for auth to finish loading before resolving subscription
