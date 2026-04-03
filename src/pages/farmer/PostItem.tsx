@@ -14,14 +14,12 @@ import { CATEGORIES } from "@/lib/categories";
 const PostItem = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
-  const { canCreateListing, plan, listingLimit, isLoading: subLoading } = useSubscription();
+  const { canCreateListing, plan, listingQuota, isLoading: subLoading, refreshSubscription } = useSubscription();
   const { toast } = useToast();
   const fileRef = useRef<HTMLInputElement>(null);
   const [step, setStep] = useState<1 | 2 | "done">(1);
   const [isLoading, setIsLoading] = useState(false);
   const [showUpgrade, setShowUpgrade] = useState(false);
-  const [activeCount, setActiveCount] = useState(0);
-  const [countLoading, setCountLoading] = useState(true);
   const UNIT_OPTIONS = [
     { key: "lbs", label: "lbs" },
     { key: "g", label: "g" },
@@ -46,28 +44,7 @@ const PostItem = () => {
   const [images, setImages] = useState<{ file: File; preview: string }[]>([]);
   const [errors, setErrors] = useState<Record<string, string>>({});
 
-  useEffect(() => {
-    if (!user) return;
-    let mounted = true;
-    const checkCount = async () => {
-      try {
-        const { count, error } = await supabase
-          .from("products")
-          .select("*", { count: "exact", head: true })
-          .eq("farmer_id", user.id)
-          .eq("status", "active");
-        if (!mounted) return;
-        if (error) toast({ title: "Failed to load listing count", variant: "destructive" });
-        setActiveCount(count || 0);
-      } catch {
-        // silent
-      } finally {
-        if (mounted) setCountLoading(false);
-      }
-    };
-    checkCount();
-    return () => { mounted = false; };
-  }, [user, plan, canCreateListing, listingLimit, toast]);
+  // No longer need to fetch active count - quota is tracked in subscription
 
   useEffect(() => {
     return () => { images.forEach(img => URL.revokeObjectURL(img.preview)); };
@@ -116,8 +93,8 @@ const PostItem = () => {
   };
 
   const handleContinueToStep2 = () => {
-    if (subLoading || countLoading) return;
-    if (!canCreateListing(activeCount)) {
+    if (subLoading) return;
+    if (!canCreateListing()) {
       setShowUpgrade(true);
       return;
     }
@@ -127,7 +104,7 @@ const PostItem = () => {
 
   const handleSubmit = async () => {
     if (!user) return;
-    if (!canCreateListing(activeCount)) {
+    if (!canCreateListing()) {
       setShowUpgrade(true);
       return;
     }
@@ -146,6 +123,22 @@ const PostItem = () => {
         uploadedPaths.push(path);
         const { data } = supabase.storage.from("product-images").getPublicUrl(path);
         uploadedUrls.push(data.publicUrl);
+      }
+
+      // Server-side quota check and increment
+      const { data: allowed, error: quotaError } = await supabase.rpc("check_and_increment_listing_quota", {
+        _farmer_id: user.id,
+      });
+
+      if (quotaError || !allowed) {
+        for (const path of uploadedPaths) {
+          await supabase.storage.from("product-images").remove([path]).catch(() => {});
+        }
+        if (!allowed) {
+          setShowUpgrade(true);
+          throw new Error("You've reached your listing limit for this month.");
+        }
+        throw new Error(quotaError?.message || "Quota check failed");
       }
 
       const { error } = await supabase.from("products").insert({
@@ -168,6 +161,7 @@ const PostItem = () => {
         throw new Error(`Product creation failed: ${error.message}`);
       }
 
+      await refreshSubscription();
       setStep("done");
     } catch (e: unknown) {
       const msg = e instanceof Error ? e.message : "An unexpected error occurred";
@@ -177,8 +171,8 @@ const PostItem = () => {
     }
   };
 
-  const limitDisplay = listingLimit === null ? "Unlimited" : String(listingLimit);
-  const isDataReady = !subLoading && !countLoading;
+  const limitDisplay = listingQuota.limitPerPeriod === null ? "Unlimited" : String(listingQuota.limitPerPeriod);
+  const isDataReady = !subLoading;
 
   if (step === "done") {
     return (
@@ -355,10 +349,10 @@ const PostItem = () => {
             </div>
           ) : (
             <span className="text-xs text-muted-foreground">
-              Listings: <span className="font-semibold text-foreground">{activeCount}</span> / <span className="font-semibold text-foreground">{limitDisplay}</span>
+              Listings used this month: <span className="font-semibold text-foreground">{listingQuota.postedThisPeriod}</span> / <span className="font-semibold text-foreground">{limitDisplay}</span>
             </span>
           )}
-          {isDataReady && !canCreateListing(activeCount) && (
+          {isDataReady && !canCreateListing() && (
             <button onClick={() => setShowUpgrade(true)} className="text-xs font-semibold text-primary">Upgrade</button>
           )}
         </div>

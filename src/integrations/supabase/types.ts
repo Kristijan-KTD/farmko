@@ -157,6 +157,10 @@ export type Database = {
           created_at: string
           farmer_id: string
           id: string
+          listings_limit_per_period: number | null
+          listings_posted_this_period: number
+          period_end: string
+          period_start: string
           plan: string
           renewal_date: string | null
           start_date: string
@@ -168,6 +172,10 @@ export type Database = {
           created_at?: string
           farmer_id: string
           id?: string
+          listings_limit_per_period?: number | null
+          listings_posted_this_period?: number
+          period_end?: string
+          period_start?: string
           plan?: string
           renewal_date?: string | null
           start_date?: string
@@ -179,6 +187,10 @@ export type Database = {
           created_at?: string
           farmer_id?: string
           id?: string
+          listings_limit_per_period?: number | null
+          listings_posted_this_period?: number
+          period_end?: string
+          period_start?: string
           plan?: string
           renewal_date?: string | null
           start_date?: string
@@ -723,6 +735,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      check_and_increment_listing_quota: {
+        Args: { _farmer_id: string }
+        Returns: boolean
+      }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["admin_role"]

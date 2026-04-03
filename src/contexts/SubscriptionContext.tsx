@@ -41,6 +41,12 @@ export const PLANS = {
   },
 } as const;
 
+interface ListingQuota {
+  postedThisPeriod: number;
+  limitPerPeriod: number | null;
+  periodEnd: string | null;
+}
+
 interface SubscriptionState {
   plan: PlanTier;
   subscribed: boolean;
@@ -48,7 +54,8 @@ interface SubscriptionState {
   isLoading: boolean;
   listingLimit: number | null;
   postLimit: number | null;
-  canCreateListing: (currentCount: number) => boolean;
+  listingQuota: ListingQuota;
+  canCreateListing: () => boolean;
   canCreatePost: (currentMonthCount: number) => boolean;
   canTagProducts: boolean;
   hasFeature: (feature: "analytics" | "featured_badge" | "farm_story" | "favorites") => boolean;
@@ -65,6 +72,11 @@ export const SubscriptionProvider = ({ children }: { children: ReactNode }) => {
   const [subscribed, setSubscribed] = useState(false);
   const [subscriptionEnd, setSubscriptionEnd] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [listingQuota, setListingQuota] = useState<ListingQuota>({
+    postedThisPeriod: 0,
+    limitPerPeriod: 3,
+    periodEnd: null,
+  });
 
   const refreshSubscription = useCallback(async () => {
     // Wait for auth to finish loading before resolving subscription
@@ -105,6 +117,7 @@ export const SubscriptionProvider = ({ children }: { children: ReactNode }) => {
 
     // Authenticated farmer → resolve subscription
     let resolved = false;
+    let quotaData: ListingQuota = { postedThisPeriod: 0, limitPerPeriod: 3, periodEnd: null };
 
     // Strategy 1: Edge function
     try {
@@ -116,12 +129,6 @@ export const SubscriptionProvider = ({ children }: { children: ReactNode }) => {
         setSubscribed(data.subscribed || false);
         setSubscriptionEnd(data.subscription_end || null);
         resolved = true;
-        console.log("[Subscription] Resolved via edge function:", {
-          userId: user.id,
-          plan: resolvedPlan,
-          listingLimit: resolvedPlan === "pro" ? null : PLANS[resolvedPlan].listingLimit,
-          source: "edge-function",
-        });
       } else if (error) {
         console.warn("[Subscription] Edge function failed:", error.message);
       }
@@ -129,12 +136,12 @@ export const SubscriptionProvider = ({ children }: { children: ReactNode }) => {
       console.warn("[Subscription] Edge function exception:", e instanceof Error ? e.message : e);
     }
 
-    // Strategy 2: Direct DB fallback (only if edge function failed)
+    // Strategy 2: Direct DB fallback
     if (!resolved) {
       try {
         const { data: sub, error } = await supabase
           .from("farmer_subscriptions")
-          .select("plan, status, renewal_date")
+          .select("plan, status, renewal_date, listings_posted_this_period, listings_limit_per_period, period_end")
           .eq("farmer_id", user.id)
           .maybeSingle();
 
@@ -144,23 +151,36 @@ export const SubscriptionProvider = ({ children }: { children: ReactNode }) => {
           setSubscribed(sub.status === "active");
           setSubscriptionEnd(sub.renewal_date || null);
           resolved = true;
-          console.log("[Subscription] Resolved via DB fallback:", {
-            userId: user.id,
-            plan: fallbackPlan,
-            listingLimit: fallbackPlan === "pro" ? null : PLANS[fallbackPlan].listingLimit,
-            source: "db-fallback",
-          });
-        } else {
-          console.warn("[Subscription] DB fallback failed:", error?.message);
+          quotaData = {
+            postedThisPeriod: (sub as any).listings_posted_this_period ?? 0,
+            limitPerPeriod: (sub as any).listings_limit_per_period ?? 3,
+            periodEnd: (sub as any).period_end || null,
+          };
         }
       } catch (e: unknown) {
         console.warn("[Subscription] DB fallback exception:", e instanceof Error ? e.message : e);
       }
     }
 
-    // Only fall back to starter after both strategies have been attempted
+    // Always fetch quota from DB (edge function doesn't return it)
+    try {
+      const { data: sub } = await supabase
+        .from("farmer_subscriptions")
+        .select("listings_posted_this_period, listings_limit_per_period, period_end")
+        .eq("farmer_id", user.id)
+        .maybeSingle();
+      if (sub) {
+        quotaData = {
+          postedThisPeriod: (sub as any).listings_posted_this_period ?? 0,
+          limitPerPeriod: (sub as any).listings_limit_per_period ?? 3,
+          periodEnd: (sub as any).period_end || null,
+        };
+      }
+    } catch {}
+
+    setListingQuota(quotaData);
+
     if (!resolved) {
-      console.warn("[Subscription] All resolution strategies failed, defaulting to starter:", { userId: user.id });
       setPlan("starter");
       setSubscribed(false);
       setSubscriptionEnd(null);
@@ -179,16 +199,15 @@ export const SubscriptionProvider = ({ children }: { children: ReactNode }) => {
     return () => clearInterval(interval);
   }, [session, user, refreshSubscription]);
 
-  const listingLimit: number | null = plan === "pro" ? null : (PLANS[plan].listingLimit ?? 3);
+  const listingLimit: number | null = listingQuota.limitPerPeriod;
   const postLimit: number | null = plan === "pro" ? null : (plan === "growth" ? 20 : 3);
   const canTagProducts = plan === "growth" || plan === "pro";
 
-  const canCreateListing = useCallback((currentCount: number) => {
+  const canCreateListing = useCallback(() => {
     if (isLoading) return false;
-    if (plan === "pro") return true;
-    if (listingLimit === null) return true;
-    return currentCount < listingLimit;
-  }, [plan, listingLimit, isLoading]);
+    if (listingQuota.limitPerPeriod === null) return true;
+    return listingQuota.postedThisPeriod < listingQuota.limitPerPeriod;
+  }, [listingQuota, isLoading]);
 
   const canCreatePost = useCallback((currentMonthCount: number) => {
     if (isLoading) return false;
@@ -211,7 +230,7 @@ export const SubscriptionProvider = ({ children }: { children: ReactNode }) => {
   }, [plan]);
 
   return (
-    <SubscriptionContext.Provider value={{ plan, subscribed, subscriptionEnd, isLoading, listingLimit, postLimit, canCreateListing, canCreatePost, canTagProducts, hasFeature, refreshSubscription }}>
+    <SubscriptionContext.Provider value={{ plan, subscribed, subscriptionEnd, isLoading, listingLimit, postLimit, listingQuota, canCreateListing, canCreatePost, canTagProducts, hasFeature, refreshSubscription }}>
       {children}
     </SubscriptionContext.Provider>
   );
