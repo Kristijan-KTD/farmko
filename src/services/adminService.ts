@@ -2,11 +2,33 @@ import { supabase } from "@/integrations/supabase/client";
 import type { DashboardStats, Farmer, Subscription, Plan, SubscriptionStatus, AdminUser, AdminProduct, AdminInstafarmPost, CreateTestUserParams } from "@/types/admin";
 
 const invoke = async <T>(action: string, params: Record<string, unknown> = {}): Promise<T> => {
+  const { data: { session } } = await supabase.auth.getSession();
+
+  if (!session?.access_token) {
+    throw new Error("Your admin session has expired. Please log in again.");
+  }
+
   const { data, error } = await supabase.functions.invoke("admin", {
     body: { action, ...params },
+    headers: {
+      Authorization: `Bearer ${session.access_token}`,
+    },
   });
-  if (error) throw new Error(error.message);
-  if (data?.error) throw new Error(data.error);
+
+  if (error) {
+    // Parse the error message for user-friendly messages
+    const msg = error.message || "An unknown error occurred";
+    if (msg.includes("401") || msg.includes("authentication") || msg.includes("session")) {
+      throw new Error("Your admin session has expired. Please log in again.");
+    }
+    if (msg.includes("403") || msg.includes("not authorized")) {
+      throw new Error("You are not authorized to perform this action.");
+    }
+    throw new Error(msg);
+  }
+  if (data?.error) {
+    throw new Error(data.error);
+  }
   return data as T;
 };
 
