@@ -104,7 +104,7 @@ const PostItem = () => {
 
   const handleSubmit = async () => {
     if (!user) return;
-    if (!canCreateListing(activeCount)) {
+    if (!canCreateListing()) {
       setShowUpgrade(true);
       return;
     }
