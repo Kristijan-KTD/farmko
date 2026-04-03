@@ -199,16 +199,15 @@ export const SubscriptionProvider = ({ children }: { children: ReactNode }) => {
     return () => clearInterval(interval);
   }, [session, user, refreshSubscription]);
 
-  const listingLimit: number | null = plan === "pro" ? null : (PLANS[plan].listingLimit ?? 3);
+  const listingLimit: number | null = listingQuota.limitPerPeriod;
   const postLimit: number | null = plan === "pro" ? null : (plan === "growth" ? 20 : 3);
   const canTagProducts = plan === "growth" || plan === "pro";
 
-  const canCreateListing = useCallback((currentCount: number) => {
+  const canCreateListing = useCallback(() => {
     if (isLoading) return false;
-    if (plan === "pro") return true;
-    if (listingLimit === null) return true;
-    return currentCount < listingLimit;
-  }, [plan, listingLimit, isLoading]);
+    if (listingQuota.limitPerPeriod === null) return true;
+    return listingQuota.postedThisPeriod < listingQuota.limitPerPeriod;
+  }, [listingQuota, isLoading]);
 
   const canCreatePost = useCallback((currentMonthCount: number) => {
     if (isLoading) return false;
@@ -231,7 +230,7 @@ export const SubscriptionProvider = ({ children }: { children: ReactNode }) => {
   }, [plan]);
 
   return (
-    <SubscriptionContext.Provider value={{ plan, subscribed, subscriptionEnd, isLoading, listingLimit, postLimit, canCreateListing, canCreatePost, canTagProducts, hasFeature, refreshSubscription }}>
+    <SubscriptionContext.Provider value={{ plan, subscribed, subscriptionEnd, isLoading, listingLimit, postLimit, listingQuota, canCreateListing, canCreatePost, canTagProducts, hasFeature, refreshSubscription }}>
       {children}
     </SubscriptionContext.Provider>
   );
