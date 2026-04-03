@@ -125,6 +125,22 @@ const PostItem = () => {
         uploadedUrls.push(data.publicUrl);
       }
 
+      // Server-side quota check and increment
+      const { data: allowed, error: quotaError } = await supabase.rpc("check_and_increment_listing_quota", {
+        _farmer_id: user.id,
+      });
+
+      if (quotaError || !allowed) {
+        for (const path of uploadedPaths) {
+          await supabase.storage.from("product-images").remove([path]).catch(() => {});
+        }
+        if (!allowed) {
+          setShowUpgrade(true);
+          throw new Error("You've reached your listing limit for this month.");
+        }
+        throw new Error(quotaError?.message || "Quota check failed");
+      }
+
       const { error } = await supabase.from("products").insert({
         farmer_id: user.id,
         title: form.name,
@@ -145,6 +161,7 @@ const PostItem = () => {
         throw new Error(`Product creation failed: ${error.message}`);
       }
 
+      await refreshSubscription();
       setStep("done");
     } catch (e: unknown) {
       const msg = e instanceof Error ? e.message : "An unexpected error occurred";
