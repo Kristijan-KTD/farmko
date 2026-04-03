@@ -13,6 +13,12 @@ const logStep = (step: string, details?: any) => {
   console.log(`[CHECK-SUBSCRIPTION] ${step}${detailsStr}`);
 };
 
+const getLimitForPlan = (plan: string) => {
+  if (plan === "pro") return null;
+  if (plan === "growth") return 20;
+  return 3;
+};
+
 // Map Stripe product IDs to plan names
 const PRODUCT_PLAN_MAP: Record<string, string> = {
   "prod_U70kdowQgNhm1Q": "growth",
@@ -62,14 +68,47 @@ serve(async (req) => {
     const email = user.email!;
     logStep("User authenticated", { userId, email });
 
+    const { data: existingSubscription } = await supabaseClient
+      .from("farmer_subscriptions")
+      .select("plan, status, renewal_date, stripe_subscription_id")
+      .eq("farmer_id", userId)
+      .maybeSingle();
+
+    const hasManualPlanOverride = Boolean(
+      existingSubscription &&
+      existingSubscription.plan !== "starter" &&
+      existingSubscription.status === "active" &&
+      !existingSubscription.stripe_subscription_id
+    );
+
     const stripe = new Stripe(stripeKey, { apiVersion: "2023-10-16" });
     const customers = await stripe.customers.list({ email, limit: 1 });
 
     if (customers.data.length === 0) {
+      if (hasManualPlanOverride) {
+        logStep("No Stripe customer found, preserving manual plan", { plan: existingSubscription?.plan });
+        return new Response(JSON.stringify({
+          subscribed: true,
+          plan: existingSubscription?.plan,
+          subscription_end: existingSubscription?.renewal_date || null,
+        }), {
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+          status: 200,
+        });
+      }
+
       logStep("No Stripe customer found, defaulting to starter");
       await supabaseClient
         .from("farmer_subscriptions")
-        .upsert({ farmer_id: userId, plan: "starter", status: "active" }, { onConflict: "farmer_id" });
+        .upsert({
+          farmer_id: userId,
+          plan: "starter",
+          status: "active",
+          renewal_date: null,
+          stripe_customer_id: null,
+          stripe_subscription_id: null,
+          listings_limit_per_period: getLimitForPlan("starter"),
+        }, { onConflict: "farmer_id" });
 
       return new Response(JSON.stringify({ subscribed: false, plan: "starter" }), {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
@@ -87,10 +126,30 @@ serve(async (req) => {
     });
 
     if (subscriptions.data.length === 0) {
+      if (hasManualPlanOverride) {
+        logStep("No active Stripe subscription, preserving manual plan", { plan: existingSubscription?.plan });
+        return new Response(JSON.stringify({
+          subscribed: true,
+          plan: existingSubscription?.plan,
+          subscription_end: existingSubscription?.renewal_date || null,
+        }), {
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+          status: 200,
+        });
+      }
+
       logStep("No active subscription");
       await supabaseClient
         .from("farmer_subscriptions")
-        .upsert({ farmer_id: userId, plan: "starter", status: "active", stripe_customer_id: customerId }, { onConflict: "farmer_id" });
+        .upsert({
+          farmer_id: userId,
+          plan: "starter",
+          status: "active",
+          renewal_date: null,
+          stripe_customer_id: customerId,
+          stripe_subscription_id: null,
+          listings_limit_per_period: getLimitForPlan("starter"),
+        }, { onConflict: "farmer_id" });
 
       return new Response(JSON.stringify({ subscribed: false, plan: "starter" }), {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
@@ -104,7 +163,7 @@ serve(async (req) => {
     const subscriptionEnd = new Date(subscription.current_period_end * 1000).toISOString();
     logStep("Active subscription found", { plan, productId, subscriptionEnd });
 
-    const limitForPlan = plan === "pro" ? null : plan === "growth" ? 20 : 3;
+    const limitForPlan = getLimitForPlan(plan);
 
     await supabaseClient
       .from("farmer_subscriptions")
