@@ -8,6 +8,13 @@ export const PLAN_CONFIG: Record<Plan, { name: string; listingLimit: number | nu
   pro: { name: "Pro Farmer", listingLimit: null, postLimit: null, canTagProducts: true },
 };
 
+/** Monthly listing quota per plan */
+export const PLAN_LISTING_LIMIT: Record<Plan, number | null> = {
+  starter: 3,
+  growth: 20,
+  pro: null,
+};
+
 export const FEATURE_ACCESS: Record<string, Plan[]> = {
   analytics: ["growth", "pro"],
   featured_badge: ["pro"],
