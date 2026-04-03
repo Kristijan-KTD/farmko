@@ -210,11 +210,36 @@ Deno.serve(async (req) => {
 
       case "promote_farmer": {
         const { farmerId, plan } = params;
-        const { error } = await supabaseClient
-          .from("farmer_subscriptions")
-          .upsert({ farmer_id: farmerId, plan, status: "active" }, { onConflict: "farmer_id" });
+        const limitForPlan = plan === "pro" ? null : plan === "growth" ? 20 : 3;
 
-        if (error) throw error;
+        // Check if subscription row exists
+        const { data: existingSub } = await supabaseClient
+          .from("farmer_subscriptions")
+          .select("id")
+          .eq("farmer_id", farmerId)
+          .maybeSingle();
+
+        if (existingSub) {
+          const { error } = await supabaseClient
+            .from("farmer_subscriptions")
+            .update({ plan, status: "active", listings_limit_per_period: limitForPlan })
+            .eq("farmer_id", farmerId);
+          if (error) throw error;
+        } else {
+          const { error } = await supabaseClient
+            .from("farmer_subscriptions")
+            .insert({
+              farmer_id: farmerId,
+              plan,
+              status: "active",
+              listings_limit_per_period: limitForPlan,
+              listings_posted_this_period: 0,
+              period_start: new Date(new Date().getFullYear(), new Date().getMonth(), 1).toISOString(),
+              period_end: new Date(new Date().getFullYear(), new Date().getMonth() + 1, 1).toISOString(),
+            });
+          if (error) throw error;
+        }
+
         result = { success: true };
         break;
       }
