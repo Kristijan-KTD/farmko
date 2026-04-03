@@ -207,7 +207,7 @@ serve(async (req) => {
       case "get_users": {
         const { data } = await supabaseClient
           .from("profiles")
-          .select("id, name, email, role, avatar_url, created_at, verified")
+          .select("id, name, email, role, avatar_url, created_at, verified, is_test_account, created_by_admin")
           .order("created_at", { ascending: false });
 
         // Get subscriptions for farmers
@@ -374,11 +374,79 @@ serve(async (req) => {
 
       case "delete_instafarm_post": {
         const { postId } = params;
-        // Delete likes and comments first
         await supabaseClient.from("post_likes").delete().eq("post_id", postId);
         await supabaseClient.from("post_comments").delete().eq("post_id", postId);
         const { error } = await supabaseClient.from("instafarm_posts").delete().eq("id", postId);
         if (error) throw error;
+        result = { success: true };
+        break;
+      }
+
+      // ===== Test User Management =====
+      case "create_test_user": {
+        const { email, password, fullName, role, plan, location, isTestAccount, avatarUrl } = params;
+        if (!email || !password || !fullName || !role) {
+          throw new Error("Missing required fields: email, password, fullName, role");
+        }
+        if (!["farmer", "customer"].includes(role)) throw new Error("Invalid role");
+
+        // Create auth user using admin API (won't affect current session)
+        const { data: newUser, error: createError } = await supabaseClient.auth.admin.createUser({
+          email,
+          password,
+          email_confirm: true,
+          user_metadata: { name: fullName, role },
+        });
+        if (createError) {
+          if (createError.message?.includes("already been registered") || createError.message?.includes("unique")) {
+            throw new Error("A user with this email already exists");
+          }
+          throw createError;
+        }
+
+        // Update the profile that was auto-created by the trigger
+        const { error: profileError } = await supabaseClient
+          .from("profiles")
+          .update({
+            name: fullName,
+            role,
+            location: location || null,
+            avatar_url: avatarUrl || null,
+            is_test_account: isTestAccount !== false,
+            created_by_admin: true,
+          })
+          .eq("id", newUser.user.id);
+
+        if (profileError) throw profileError;
+
+        // If farmer, set up subscription
+        if (role === "farmer" && plan && plan !== "starter") {
+          await supabaseClient
+            .from("farmer_subscriptions")
+            .upsert({ farmer_id: newUser.user.id, plan, status: "active" }, { onConflict: "farmer_id" });
+        }
+
+        result = { success: true, userId: newUser.user.id };
+        break;
+      }
+
+      case "delete_test_user": {
+        const { userId } = params;
+        // Verify it's a test account
+        const { data: profile } = await supabaseClient
+          .from("profiles")
+          .select("is_test_account")
+          .eq("id", userId)
+          .single();
+
+        if (!profile?.is_test_account) {
+          throw new Error("Can only delete test accounts");
+        }
+
+        // Delete auth user (cascades to profile via FK)
+        const { error: deleteError } = await supabaseClient.auth.admin.deleteUser(userId);
+        if (deleteError) throw deleteError;
+
         result = { success: true };
         break;
       }

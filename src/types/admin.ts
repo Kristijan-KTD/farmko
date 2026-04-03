@@ -65,6 +65,19 @@ export interface AdminUser {
   plan: Plan | null;
   isAdmin: boolean;
   adminRole: string | null;
+  is_test_account: boolean;
+  created_by_admin: boolean;
+}
+
+export interface CreateTestUserParams {
+  email: string;
+  password: string;
+  fullName: string;
+  role: "farmer" | "customer";
+  plan?: Plan;
+  location?: string;
+  isTestAccount?: boolean;
+  avatarUrl?: string;
 }
 
 export interface AdminProduct {

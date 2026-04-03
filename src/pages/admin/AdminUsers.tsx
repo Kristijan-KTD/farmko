@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback, useMemo } from "react";
-import { Loader2, User, Search, RefreshCw, ChevronLeft, ChevronRight, Shield, ShieldOff, Ban, UserCheck } from "lucide-react";
+import { Loader2, User, Search, RefreshCw, ChevronLeft, ChevronRight, Shield, ShieldOff, Ban, UserPlus, Trash2 } from "lucide-react";
 import AdminLayout from "@/components/admin/AdminLayout";
 import AdminGuard from "@/components/admin/AdminGuard";
 import { adminService } from "@/services/adminService";
@@ -13,13 +13,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogDescription,
-} from "@/components/ui/dialog";
+import CreateTestUserModal from "@/components/admin/CreateTestUserModal";
 import type { AdminUser } from "@/types/admin";
 
 const PAGE_SIZE = 20;
@@ -30,11 +24,12 @@ const AdminUsers = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
   const [search, setSearch] = useState("");
-  const [roleFilter, setRoleFilter] = useState<"all" | "farmer" | "customer" | "admin">("all");
+  const [roleFilter, setRoleFilter] = useState<"all" | "farmer" | "customer" | "admin" | "test">("all");
   const [page, setPage] = useState(1);
-  const [actionTarget, setActionTarget] = useState<AdminUser | null>(null);
-  const [actionType, setActionType] = useState<"role" | "ban" | "admin" | null>(null);
-  const [acting, setActing] = useState(false);
+
+  // Test user modal
+  const [modalOpen, setModalOpen] = useState(false);
+  const [presetRole, setPresetRole] = useState<"farmer" | "customer" | undefined>();
 
   const fetchUsers = useCallback(async (signal?: AbortSignal) => {
     setLoading(true);
@@ -66,6 +61,8 @@ const AdminUsers = () => {
     }
     if (roleFilter === "admin") {
       list = list.filter(u => u.isAdmin);
+    } else if (roleFilter === "test") {
+      list = list.filter(u => u.is_test_account);
     } else if (roleFilter !== "all") {
       list = list.filter(u => u.role === roleFilter);
     }
@@ -79,48 +76,48 @@ const AdminUsers = () => {
   useEffect(() => { setPage(1); }, [search, roleFilter]);
 
   const handleRoleChange = async (userId: string, newRole: "farmer" | "customer") => {
-    setActing(true);
     try {
       await adminService.changeUserRole(userId, newRole);
       toast({ title: "Role updated" });
       await fetchUsers();
     } catch (e: unknown) {
       toast({ title: "Error", description: e instanceof Error ? e.message : "Failed", variant: "destructive" });
-    } finally {
-      setActing(false);
-      setActionTarget(null);
-      setActionType(null);
     }
   };
 
   const handleToggleAdmin = async (userId: string, makeAdmin: boolean) => {
-    setActing(true);
     try {
       await adminService.toggleAdmin(userId, makeAdmin);
       toast({ title: makeAdmin ? "Admin granted" : "Admin revoked" });
       await fetchUsers();
     } catch (e: unknown) {
       toast({ title: "Error", description: e instanceof Error ? e.message : "Failed", variant: "destructive" });
-    } finally {
-      setActing(false);
-      setActionTarget(null);
-      setActionType(null);
     }
   };
 
   const handleBan = async (userId: string, ban: boolean) => {
-    setActing(true);
     try {
       await adminService.banUser(userId, ban);
       toast({ title: ban ? "User banned" : "User unbanned" });
       await fetchUsers();
     } catch (e: unknown) {
       toast({ title: "Error", description: e instanceof Error ? e.message : "Failed", variant: "destructive" });
-    } finally {
-      setActing(false);
-      setActionTarget(null);
-      setActionType(null);
     }
+  };
+
+  const handleDeleteTestUser = async (userId: string) => {
+    try {
+      await adminService.deleteTestUser(userId);
+      toast({ title: "Test account deleted" });
+      await fetchUsers();
+    } catch (e: unknown) {
+      toast({ title: "Error", description: e instanceof Error ? e.message : "Failed", variant: "destructive" });
+    }
+  };
+
+  const openCreateModal = (role?: "farmer" | "customer") => {
+    setPresetRole(role);
+    setModalOpen(true);
   };
 
   const roleBadge = (u: AdminUser) => {
@@ -129,24 +126,45 @@ const AdminUsers = () => {
     return "bg-blue-50 text-blue-600";
   };
 
+  const filterTabs = [
+    { key: "all", label: "All Users" },
+    { key: "farmer", label: "Farmers" },
+    { key: "customer", label: "Customers" },
+    { key: "admin", label: "Admins" },
+    { key: "test", label: "Test Accounts" },
+  ] as const;
+
   return (
     <AdminGuard>
       <AdminLayout title="Users Management">
+        {/* Quick actions */}
+        <div className="flex flex-wrap gap-2 mb-4">
+          <Button size="sm" onClick={() => openCreateModal()} className="gap-1.5">
+            <UserPlus className="w-4 h-4" /> Create Test User
+          </Button>
+          <Button size="sm" variant="outline" onClick={() => openCreateModal("farmer")} className="gap-1.5">
+            <UserPlus className="w-4 h-4" /> Test Farmer
+          </Button>
+          <Button size="sm" variant="outline" onClick={() => openCreateModal("customer")} className="gap-1.5">
+            <UserPlus className="w-4 h-4" /> Test Customer
+          </Button>
+        </div>
+
         <div className="space-y-3 mb-4">
           <div className="relative">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
             <Input placeholder="Search by name or email..." value={search} onChange={(e) => setSearch(e.target.value)} className="pl-9" />
           </div>
           <div className="flex flex-wrap gap-2">
-            {(["all", "farmer", "customer", "admin"] as const).map((r) => (
+            {filterTabs.map((tab) => (
               <button
-                key={r}
-                onClick={() => setRoleFilter(r)}
+                key={tab.key}
+                onClick={() => setRoleFilter(tab.key)}
                 className={`px-3 py-1.5 rounded-full text-xs font-medium border transition-colors ${
-                  roleFilter === r ? "bg-primary text-primary-foreground border-primary" : "bg-card text-muted-foreground border-border hover:border-primary/50"
+                  roleFilter === tab.key ? "bg-primary text-primary-foreground border-primary" : "bg-card text-muted-foreground border-border hover:border-primary/50"
                 }`}
               >
-                {r === "all" ? "All Users" : r.charAt(0).toUpperCase() + r.slice(1) + "s"}
+                {tab.label}
               </button>
             ))}
           </div>
@@ -176,6 +194,11 @@ const AdminUsers = () => {
                         <span className={`inline-flex px-2 py-0.5 rounded-full text-[10px] font-semibold ${roleBadge(u)}`}>
                           {u.isAdmin ? "Admin" : u.role}
                         </span>
+                        {u.is_test_account && (
+                          <span className="inline-flex px-2 py-0.5 rounded-full text-[10px] font-semibold bg-orange-100 text-orange-700">
+                            Test
+                          </span>
+                        )}
                         {u.plan && (
                           <span className="inline-flex px-2 py-0.5 rounded-full text-[10px] font-semibold bg-muted text-muted-foreground capitalize">{u.plan}</span>
                         )}
@@ -208,6 +231,16 @@ const AdminUsers = () => {
                       >
                         <Ban className="w-3 h-3 mr-1" /> Ban
                       </Button>
+                      {u.is_test_account && (
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={() => handleDeleteTestUser(u.id)}
+                          className="rounded-full text-xs h-8 text-destructive hover:text-destructive"
+                        >
+                          <Trash2 className="w-3 h-3 mr-1" /> Delete
+                        </Button>
+                      )}
                     </div>
                   </div>
                 </div>
@@ -224,6 +257,13 @@ const AdminUsers = () => {
             <p className="text-xs text-muted-foreground text-center mt-2">{filtered.length} user{filtered.length !== 1 ? "s" : ""} total</p>
           </>
         )}
+
+        <CreateTestUserModal
+          open={modalOpen}
+          onOpenChange={setModalOpen}
+          onCreated={() => fetchUsers()}
+          presetRole={presetRole}
+        />
       </AdminLayout>
     </AdminGuard>
   );
