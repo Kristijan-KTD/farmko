@@ -14,14 +14,12 @@ import { CATEGORIES } from "@/lib/categories";
 const PostItem = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
-  const { canCreateListing, plan, listingLimit, isLoading: subLoading } = useSubscription();
+  const { canCreateListing, plan, listingQuota, isLoading: subLoading, refreshSubscription } = useSubscription();
   const { toast } = useToast();
   const fileRef = useRef<HTMLInputElement>(null);
   const [step, setStep] = useState<1 | 2 | "done">(1);
   const [isLoading, setIsLoading] = useState(false);
   const [showUpgrade, setShowUpgrade] = useState(false);
-  const [activeCount, setActiveCount] = useState(0);
-  const [countLoading, setCountLoading] = useState(true);
   const UNIT_OPTIONS = [
     { key: "lbs", label: "lbs" },
     { key: "g", label: "g" },
