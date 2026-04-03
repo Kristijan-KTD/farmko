@@ -171,8 +171,8 @@ const PostItem = () => {
     }
   };
 
-  const limitDisplay = listingLimit === null ? "Unlimited" : String(listingLimit);
-  const isDataReady = !subLoading && !countLoading;
+  const limitDisplay = listingQuota.limitPerPeriod === null ? "Unlimited" : String(listingQuota.limitPerPeriod);
+  const isDataReady = !subLoading;
 
   if (step === "done") {
     return (
