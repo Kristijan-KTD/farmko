@@ -593,8 +593,10 @@ export type Database = {
           avatar_url: string | null
           bio: string | null
           created_at: string
+          created_by_admin: boolean
           email: string | null
           id: string
+          is_test_account: boolean
           last_seen_at: string | null
           latitude: number | null
           location: string | null
@@ -609,8 +611,10 @@ export type Database = {
           avatar_url?: string | null
           bio?: string | null
           created_at?: string
+          created_by_admin?: boolean
           email?: string | null
           id: string
+          is_test_account?: boolean
           last_seen_at?: string | null
           latitude?: number | null
           location?: string | null
@@ -625,8 +629,10 @@ export type Database = {
           avatar_url?: string | null
           bio?: string | null
           created_at?: string
+          created_by_admin?: boolean
           email?: string | null
           id?: string
+          is_test_account?: boolean
           last_seen_at?: string | null
           latitude?: number | null
           location?: string | null
