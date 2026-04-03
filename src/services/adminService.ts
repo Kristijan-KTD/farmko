@@ -1,5 +1,5 @@
 import { supabase } from "@/integrations/supabase/client";
-import type { DashboardStats, Farmer, Subscription, Plan, SubscriptionStatus, AdminUser, AdminProduct, AdminInstafarmPost } from "@/types/admin";
+import type { DashboardStats, Farmer, Subscription, Plan, SubscriptionStatus, AdminUser, AdminProduct, AdminInstafarmPost, CreateTestUserParams } from "@/types/admin";
 
 const invoke = async <T>(action: string, params: Record<string, unknown> = {}): Promise<T> => {
   const { data, error } = await supabase.functions.invoke("admin", {
@@ -29,6 +29,12 @@ export const adminService = {
     invoke<{ success: boolean }>("toggle_admin", { userId, makeAdmin }),
   banUser: (userId: string, ban: boolean) =>
     invoke<{ success: boolean }>("ban_user", { userId, ban }),
+
+  // Test User Management
+  createTestUser: (params: CreateTestUserParams) =>
+    invoke<{ success: boolean; userId: string }>("create_test_user", params as unknown as Record<string, unknown>),
+  deleteTestUser: (userId: string) =>
+    invoke<{ success: boolean }>("delete_test_user", { userId }),
 
   // Products Management
   getAllProducts: () => invoke<AdminProduct[]>("get_all_products"),
