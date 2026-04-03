@@ -41,6 +41,12 @@ export const PLANS = {
   },
 } as const;
 
+interface ListingQuota {
+  postedThisPeriod: number;
+  limitPerPeriod: number | null;
+  periodEnd: string | null;
+}
+
 interface SubscriptionState {
   plan: PlanTier;
   subscribed: boolean;
@@ -48,7 +54,8 @@ interface SubscriptionState {
   isLoading: boolean;
   listingLimit: number | null;
   postLimit: number | null;
-  canCreateListing: (currentCount: number) => boolean;
+  listingQuota: ListingQuota;
+  canCreateListing: () => boolean;
   canCreatePost: (currentMonthCount: number) => boolean;
   canTagProducts: boolean;
   hasFeature: (feature: "analytics" | "featured_badge" | "farm_story" | "favorites") => boolean;
