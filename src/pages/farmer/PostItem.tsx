@@ -44,28 +44,7 @@ const PostItem = () => {
   const [images, setImages] = useState<{ file: File; preview: string }[]>([]);
   const [errors, setErrors] = useState<Record<string, string>>({});
 
-  useEffect(() => {
-    if (!user) return;
-    let mounted = true;
-    const checkCount = async () => {
-      try {
-        const { count, error } = await supabase
-          .from("products")
-          .select("*", { count: "exact", head: true })
-          .eq("farmer_id", user.id)
-          .eq("status", "active");
-        if (!mounted) return;
-        if (error) toast({ title: "Failed to load listing count", variant: "destructive" });
-        setActiveCount(count || 0);
-      } catch {
-        // silent
-      } finally {
-        if (mounted) setCountLoading(false);
-      }
-    };
-    checkCount();
-    return () => { mounted = false; };
-  }, [user, plan, canCreateListing, listingLimit, toast]);
+  // No longer need to fetch active count - quota is tracked in subscription
 
   useEffect(() => {
     return () => { images.forEach(img => URL.revokeObjectURL(img.preview)); };
