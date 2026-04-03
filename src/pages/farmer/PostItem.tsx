@@ -349,10 +349,10 @@ const PostItem = () => {
             </div>
           ) : (
             <span className="text-xs text-muted-foreground">
-              Listings: <span className="font-semibold text-foreground">{activeCount}</span> / <span className="font-semibold text-foreground">{limitDisplay}</span>
+              Listings used this month: <span className="font-semibold text-foreground">{listingQuota.postedThisPeriod}</span> / <span className="font-semibold text-foreground">{limitDisplay}</span>
             </span>
           )}
-          {isDataReady && !canCreateListing(activeCount) && (
+          {isDataReady && !canCreateListing() && (
             <button onClick={() => setShowUpgrade(true)} className="text-xs font-semibold text-primary">Upgrade</button>
           )}
         </div>
