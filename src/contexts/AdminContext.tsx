@@ -40,8 +40,15 @@ export const AdminProvider = ({ children }: { children: ReactNode }) => {
         }
 
         // Only call the admin function if user has a role entry
+        const { data: { session: currentSession } } = await supabase.auth.getSession();
+        if (!currentSession?.access_token) {
+          setIsAdmin(false);
+          setIsLoading(false);
+          return;
+        }
         const { data, error } = await supabase.functions.invoke("admin", {
           body: { action: "get_dashboard_stats" },
+          headers: { Authorization: `Bearer ${currentSession.access_token}` },
         });
         setIsAdmin(!error && !data?.error);
       } catch {

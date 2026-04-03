@@ -1,4 +1,3 @@
-import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.49.1";
 
 const corsHeaders = {
@@ -7,42 +6,73 @@ const corsHeaders = {
     "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
 };
 
-serve(async (req) => {
+Deno.serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
   }
 
+  const jsonHeaders = { ...corsHeaders, "Content-Type": "application/json" };
+
+  // --- Strict auth validation ---
+  const authHeader = req.headers.get("Authorization");
+  console.log("Authorization header exists:", !!authHeader);
+
+  if (!authHeader || !authHeader.startsWith("Bearer ")) {
+    console.error("Auth error: Missing or invalid Authorization header format.");
+    return new Response(
+      JSON.stringify({ error: "Missing or invalid Authorization header. Please log in again." }),
+      { status: 401, headers: jsonHeaders }
+    );
+  }
+
+  const token = authHeader.split("Bearer ")[1];
+  console.log("Parsed token exists:", !!token, "token length:", token?.length ?? 0);
+
+  if (!token || token.trim() === "") {
+    console.error("Auth error: Empty token.");
+    return new Response(
+      JSON.stringify({ error: "Missing authentication token. Please log in again." }),
+      { status: 401, headers: jsonHeaders }
+    );
+  }
+
+  // Service role client for admin operations
   const supabaseClient = createClient(
     Deno.env.get("SUPABASE_URL") ?? "",
     Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "",
     { auth: { persistSession: false } }
   );
 
+  // Validate user from token
+  const { data: userData, error: userError } = await supabaseClient.auth.getUser(token);
+  console.log("User resolved successfully:", !!userData?.user);
+
+  if (userError || !userData?.user) {
+    console.error("Auth error: Failed to get user.", userError?.message);
+    return new Response(
+      JSON.stringify({ error: "Authentication failed. Your session may have expired. Please log in again." }),
+      { status: 401, headers: jsonHeaders }
+    );
+  }
+
+  const user = userData.user;
+
+  // Check admin role
+  const { data: isAdmin } = await supabaseClient.rpc("has_role", {
+    _user_id: user.id,
+    _role: "admin",
+  });
+
+  if (!isAdmin) {
+    console.error("Auth error: User is not an admin.", user.id);
+    return new Response(
+      JSON.stringify({ error: "You are not authorized to perform this action." }),
+      { status: 403, headers: jsonHeaders }
+    );
+  }
+
   try {
-    const authHeader = req.headers.get("Authorization");
-    if (!authHeader) throw new Error("No authorization header");
-
-    const token = authHeader.replace("Bearer ", "");
-    const { data: userData, error: userError } = await supabaseClient.auth.getUser(token);
-    if (userError) throw new Error(`Auth error: ${userError.message}`);
-    const user = userData.user;
-    if (!user) throw new Error("User not authenticated");
-
     const { action, ...params } = await req.json();
-
-    // Check if user is admin
-    const { data: isAdmin } = await supabaseClient.rpc("has_role", {
-      _user_id: user.id,
-      _role: "admin",
-    });
-
-    if (!isAdmin) {
-      return new Response(JSON.stringify({ error: "Unauthorized: admin access required" }), {
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-        status: 403,
-      });
-    }
-
     let result: any = null;
 
     switch (action) {
@@ -74,7 +104,6 @@ serve(async (req) => {
           if (s.plan in planCounts) planCounts[s.plan as keyof typeof planCounts]++;
         });
 
-        // New users last 7 days
         const sevenDaysAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString();
         const { count: newUsersLast7Days } = await supabaseClient
           .from("profiles")
@@ -86,7 +115,6 @@ serve(async (req) => {
           .select("*", { count: "exact", head: true })
           .gte("created_at", sevenDaysAgo);
 
-        // Most active farmers (by product count)
         const { data: allProducts } = await supabaseClient
           .from("products")
           .select("farmer_id");
@@ -203,14 +231,12 @@ serve(async (req) => {
         break;
       }
 
-      // ===== NEW: Users Management =====
       case "get_users": {
         const { data } = await supabaseClient
           .from("profiles")
           .select("id, name, email, role, avatar_url, created_at, verified, is_test_account, created_by_admin")
           .order("created_at", { ascending: false });
 
-        // Get subscriptions for farmers
         const farmerIds = data?.filter((u: any) => u.role === "farmer").map((u: any) => u.id) || [];
         let subMap = new Map<string, any>();
         if (farmerIds.length > 0) {
@@ -221,7 +247,6 @@ serve(async (req) => {
           subMap = new Map(subs?.map((s: any) => [s.farmer_id, s]) || []);
         }
 
-        // Get admin roles
         const { data: adminRoles } = await supabaseClient
           .from("user_roles")
           .select("user_id, role");
@@ -247,7 +272,6 @@ serve(async (req) => {
 
         if (error) throw error;
 
-        // If changing to farmer, ensure subscription exists
         if (newRole === "farmer") {
           await supabaseClient
             .from("farmer_subscriptions")
@@ -279,9 +303,8 @@ serve(async (req) => {
 
       case "ban_user": {
         const { userId, ban } = params;
-        // Use Supabase admin API to ban/unban
         if (ban) {
-          const { error } = await supabaseClient.auth.admin.updateUserById(userId, { ban_duration: "876000h" }); // ~100 years
+          const { error } = await supabaseClient.auth.admin.updateUserById(userId, { ban_duration: "876000h" });
           if (error) throw error;
         } else {
           const { error } = await supabaseClient.auth.admin.updateUserById(userId, { ban_duration: "none" });
@@ -291,7 +314,6 @@ serve(async (req) => {
         break;
       }
 
-      // ===== NEW: Products Management =====
       case "get_all_products": {
         const { data } = await supabaseClient
           .from("products")
@@ -337,7 +359,6 @@ serve(async (req) => {
         break;
       }
 
-      // ===== NEW: Content Moderation (Instafarm) =====
       case "get_all_instafarm_posts": {
         const { data } = await supabaseClient
           .from("instafarm_posts")
@@ -382,7 +403,6 @@ serve(async (req) => {
         break;
       }
 
-      // ===== Test User Management =====
       case "create_test_user": {
         const { email, password, fullName, role, plan, location, isTestAccount, avatarUrl } = params;
         if (!email || !password || !fullName || !role) {
@@ -390,7 +410,6 @@ serve(async (req) => {
         }
         if (!["farmer", "customer"].includes(role)) throw new Error("Invalid role");
 
-        // Create auth user using admin API (won't affect current session)
         const { data: newUser, error: createError } = await supabaseClient.auth.admin.createUser({
           email,
           password,
@@ -404,7 +423,6 @@ serve(async (req) => {
           throw createError;
         }
 
-        // Update the profile that was auto-created by the trigger
         const { error: profileError } = await supabaseClient
           .from("profiles")
           .update({
@@ -419,7 +437,6 @@ serve(async (req) => {
 
         if (profileError) throw profileError;
 
-        // If farmer, set up subscription
         if (role === "farmer" && plan && plan !== "starter") {
           await supabaseClient
             .from("farmer_subscriptions")
@@ -432,7 +449,6 @@ serve(async (req) => {
 
       case "delete_test_user": {
         const { userId } = params;
-        // Verify it's a test account
         const { data: profile } = await supabaseClient
           .from("profiles")
           .select("is_test_account")
@@ -443,7 +459,6 @@ serve(async (req) => {
           throw new Error("Can only delete test accounts");
         }
 
-        // Delete auth user (cascades to profile via FK)
         const { error: deleteError } = await supabaseClient.auth.admin.deleteUser(userId);
         if (deleteError) throw deleteError;
 
@@ -456,14 +471,15 @@ serve(async (req) => {
     }
 
     return new Response(JSON.stringify(result), {
-      headers: { ...corsHeaders, "Content-Type": "application/json" },
+      headers: jsonHeaders,
       status: 200,
     });
   } catch (error) {
     const msg = error instanceof Error ? error.message : String(error);
+    console.error("Admin action error:", msg);
     return new Response(JSON.stringify({ error: msg }), {
-      headers: { ...corsHeaders, "Content-Type": "application/json" },
-      status: 500,
+      headers: jsonHeaders,
+      status: 400,
     });
   }
 });
