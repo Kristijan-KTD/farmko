@@ -218,7 +218,7 @@ const Radar = () => {
       ]);
 
       if (usersRes.data) {
-        setUsers(usersRes.data.filter(u => u.latitude != null && u.longitude != null).map(u => ({ ...u, role: u.role as "farmer" | "customer" })));
+        setUsers(usersRes.data.filter(u => u.latitude != null && u.longitude != null && u.role === "farmer").map(u => ({ ...u, role: u.role as "farmer" | "customer" })));
       }
       if (productsRes.data) {
         setProducts(productsRes.data.map((p: any) => {
