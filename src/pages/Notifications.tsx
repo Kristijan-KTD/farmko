@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Bell, MessageCircle, Package, CheckCheck, Loader2 } from "lucide-react";
+import { Bell, MessageCircle, Package, CheckCheck, Loader2, Star } from "lucide-react";
 import MobileLayout from "@/components/layout/MobileLayout";
 import PageHeader from "@/components/layout/PageHeader";
 import BottomNav from "@/components/layout/BottomNav";
