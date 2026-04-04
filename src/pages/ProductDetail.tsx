@@ -67,6 +67,11 @@ const ProductDetail = () => {
   const [farmerProductCount, setFarmerProductCount] = useState(0);
   const [farmerReviewCount, setFarmerReviewCount] = useState(0);
 
+  // Scroll to top when product id changes
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [id]);
+
   useEffect(() => {
     if (!id) return;
     let mounted = true;
