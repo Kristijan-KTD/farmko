@@ -311,9 +311,9 @@ const Radar = () => {
 
   const handleResetFilter = () => {
     setLocalView("all");
-    setLocalRadius(50);
+    setLocalRadius(null);
     setViewMode("all");
-    setRadius(50);
+    setRadius(null);
     setFilterOpen(false);
   };
 
