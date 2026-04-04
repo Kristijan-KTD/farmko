@@ -45,7 +45,7 @@ interface RadarProduct {
 }
 
 type ViewMode = "all" | "farmers" | "products";
-type RadiusOption = 5 | 10 | 25 | 50;
+type RadiusOption = 5 | 10 | 25 | 50 | null;
 
 const farmerIcon = new L.DivIcon({
   className: "",

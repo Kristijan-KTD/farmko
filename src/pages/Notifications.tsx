@@ -74,7 +74,7 @@ const Notifications = () => {
       refreshUnread();
     }
     if (notif.type === "message" && notif.reference_id) navigate(`/chat/${notif.reference_id}`);
-    else if (notif.type === "product" && notif.reference_id) navigate(`/product/${notif.reference_id}`);
+    else if ((notif.type === "product" || notif.type === "review") && notif.reference_id) navigate(`/product/${notif.reference_id}`);
   };
 
   const markAllRead = async () => {
