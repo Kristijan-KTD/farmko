@@ -153,7 +153,9 @@ export const SubscriptionProvider = ({ children }: { children: ReactNode }) => {
           resolved = true;
           quotaData = {
             postedThisPeriod: (sub as any).listings_posted_this_period ?? 0,
-            limitPerPeriod: (sub as any).listings_limit_per_period ?? 3,
+            limitPerPeriod: (sub as any).listings_limit_per_period === null
+              ? null
+              : ((sub as any).listings_limit_per_period ?? 3),
             periodEnd: (sub as any).period_end || null,
           };
         }
@@ -172,7 +174,9 @@ export const SubscriptionProvider = ({ children }: { children: ReactNode }) => {
       if (sub) {
         quotaData = {
           postedThisPeriod: (sub as any).listings_posted_this_period ?? 0,
-          limitPerPeriod: (sub as any).listings_limit_per_period ?? 3,
+          limitPerPeriod: (sub as any).listings_limit_per_period === null
+            ? null
+            : ((sub as any).listings_limit_per_period ?? 3),
           periodEnd: (sub as any).period_end || null,
         };
       }
