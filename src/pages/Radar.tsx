@@ -190,7 +190,7 @@ const Radar = () => {
   const [myLocation, setMyLocation] = useState<{ lat: number; lng: number } | null>(null);
   const [filterOpen, setFilterOpen] = useState(false);
   const [localView, setLocalView] = useState<ViewMode>("all");
-  const [localRadius, setLocalRadius] = useState<RadiusOption>(50);
+  const [localRadius, setLocalRadius] = useState<RadiusOption>(null);
   const [flyTarget, setFlyTarget] = useState<{ lat: number; lng: number; zoom?: number } | null>(null);
 
   useEffect(() => {
