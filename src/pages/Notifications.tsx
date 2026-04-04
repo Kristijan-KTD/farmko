@@ -23,6 +23,7 @@ const iconMap: Record<string, typeof MessageCircle> = {
   message: MessageCircle,
   product: Package,
   update: Bell,
+  review: Star,
 };
 
 const Notifications = () => {
