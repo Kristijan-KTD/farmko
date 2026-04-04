@@ -90,6 +90,7 @@ function FlyToLocation({ lat, lng, zoom }: { lat: number; lng: number; zoom?: nu
 }
 
 const RADIUS_OPTIONS: { value: RadiusOption; label: string }[] = [
+  { value: null, label: "Any" },
   { value: 5, label: "5 km" },
   { value: 10, label: "10 km" },
   { value: 25, label: "25 km" },
