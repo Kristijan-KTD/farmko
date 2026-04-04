@@ -181,7 +181,7 @@ const Radar = () => {
   const navigate = useNavigate();
   const isMobile = useIsMobile();
   const [viewMode, setViewMode] = useState<ViewMode>("all");
-  const [radius, setRadius] = useState<RadiusOption>(50);
+  const [radius, setRadius] = useState<RadiusOption>(null);
   const [selectedPin, setSelectedPin] = useState<RadarUser | null>(null);
   const [selectedProduct, setSelectedProduct] = useState<RadarProduct | null>(null);
   const [users, setUsers] = useState<RadarUser[]>([]);
