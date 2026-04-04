@@ -70,6 +70,9 @@ const ProductDetail = () => {
   // Scroll to top when product id changes
   useEffect(() => {
     window.scrollTo(0, 0);
+    // Also scroll the MobileLayout container
+    const container = document.querySelector('.overflow-y-auto');
+    if (container) container.scrollTo(0, 0);
   }, [id]);
 
   useEffect(() => {
