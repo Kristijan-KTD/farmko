@@ -277,7 +277,7 @@ const ProductDetail = () => {
 
   const MiniProductCard = ({ p }: { p: RelatedProduct }) => (
     <button
-      onClick={() => navigate(`/product/${p.id}`)}
+      onClick={() => { navigate(`/product/${p.id}`); window.scrollTo(0, 0); }}
       className="card-interactive flex flex-col shrink-0 w-[130px] min-w-[130px] snap-start overflow-hidden text-left"
     >
       <div className="aspect-[4/3] bg-muted relative overflow-hidden">
