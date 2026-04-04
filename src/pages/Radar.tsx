@@ -253,7 +253,7 @@ const Radar = () => {
 
   const filteredProducts = products.filter(p => {
     if (viewMode === "farmers") return false;
-    if (!myLocation || !p.latitude || !p.longitude) return true;
+    if (radius === null || !myLocation || !p.latitude || !p.longitude) return true;
     return haversineKm(myLocation.lat, myLocation.lng, p.latitude, p.longitude) <= radius;
   });
 
