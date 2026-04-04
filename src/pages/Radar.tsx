@@ -244,7 +244,7 @@ const Radar = () => {
   const filteredUsers = users.filter(p => {
     if (viewMode === "products") return false;
     if (viewMode === "farmers" && p.role !== "farmer") return false;
-    if (myLocation && p.latitude && p.longitude) {
+    if (radius !== null && myLocation && p.latitude && p.longitude) {
       const dist = haversineKm(myLocation.lat, myLocation.lng, p.latitude, p.longitude);
       if (dist > radius) return false;
     }
