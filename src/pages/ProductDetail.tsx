@@ -67,13 +67,7 @@ const ProductDetail = () => {
   const [farmerProductCount, setFarmerProductCount] = useState(0);
   const [farmerReviewCount, setFarmerReviewCount] = useState(0);
 
-  // Scroll to top when product id changes
-  useEffect(() => {
-    window.scrollTo(0, 0);
-    // Also scroll the MobileLayout container
-    const container = document.querySelector('.overflow-y-auto');
-    if (container) container.scrollTo(0, 0);
-  }, [id]);
+  // Scroll handled by MobileLayout on route change
 
   useEffect(() => {
     if (!id) return;
