@@ -322,7 +322,7 @@ const Radar = () => {
 
   const activeFilterCount = [
     viewMode !== "all" ? viewMode : null,
-    radius !== 50 ? radius : null,
+    radius !== null ? radius : null,
   ].filter(Boolean).length;
 
   return (
