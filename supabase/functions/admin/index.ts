@@ -1,4 +1,136 @@
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.49.1";
+import Stripe from "https://esm.sh/stripe@18.5.0";
+
+type Plan = "starter" | "growth" | "pro";
+type BillingInterval = "monthly" | "annual";
+
+const PLAN_PRICE_IDS: Record<Exclude<Plan, "starter">, Record<BillingInterval, string>> = {
+  growth: {
+    monthly: "price_1T8miqCsFOwH9CIqJHpjiL2o",
+    annual: "price_1THkEJCsFOwH9CIqnl7ADGN3",
+  },
+  pro: {
+    monthly: "price_1T8mjBCsFOwH9CIqdEB6GVzZ",
+    annual: "price_1THkF3CsFOwH9CIq01ygPzTW",
+  },
+};
+
+const getLimitForPlan = (plan: Plan): number | null => {
+  if (plan === "pro") return null;
+  if (plan === "growth") return 20;
+  return 3;
+};
+
+const getCurrentPeriodBounds = () => ({
+  periodStart: new Date(new Date().getFullYear(), new Date().getMonth(), 1).toISOString(),
+  periodEnd: new Date(new Date().getFullYear(), new Date().getMonth() + 1, 1).toISOString(),
+});
+
+const getStripeClient = () => {
+  const stripeKey = Deno.env.get("STRIPE_SECRET_KEY");
+  if (!stripeKey) {
+    throw new Error("Stripe is not configured.");
+  }
+
+  return new Stripe(stripeKey, { apiVersion: "2023-10-16" });
+};
+
+const syncStripeSubscriptionPlan = async (subscriptionId: string, targetPlan: Plan) => {
+  const stripe = getStripeClient();
+  const subscription = await stripe.subscriptions.retrieve(subscriptionId, {
+    expand: ["items.data.price"],
+  });
+
+  const currentItem = subscription.items.data[0];
+  if (!currentItem) {
+    throw new Error("No subscription item found for this customer.");
+  }
+
+  const stripeCustomerId = typeof subscription.customer === "string"
+    ? subscription.customer
+    : subscription.customer?.id ?? null;
+
+  if (targetPlan === "starter") {
+    await stripe.subscriptions.cancel(subscriptionId);
+    return {
+      stripe_customer_id: stripeCustomerId,
+      stripe_subscription_id: null,
+      renewal_date: null,
+    };
+  }
+
+  const billingInterval: BillingInterval = currentItem.price.recurring?.interval === "year"
+    ? "annual"
+    : "monthly";
+  const targetPriceId = PLAN_PRICE_IDS[targetPlan][billingInterval];
+
+  const updatedSubscription = await stripe.subscriptions.update(subscriptionId, {
+    cancel_at_period_end: false,
+    proration_behavior: "create_prorations",
+    items: [{ id: currentItem.id, price: targetPriceId }],
+  });
+
+  return {
+    stripe_customer_id: typeof updatedSubscription.customer === "string"
+      ? updatedSubscription.customer
+      : updatedSubscription.customer?.id ?? stripeCustomerId,
+    stripe_subscription_id: updatedSubscription.id,
+    renewal_date: new Date(updatedSubscription.current_period_end * 1000).toISOString(),
+  };
+};
+
+const upsertAdminManagedSubscription = async (
+  supabaseClient: ReturnType<typeof createClient>,
+  farmerId: string,
+  plan: Plan,
+  status: string,
+) => {
+  const { data: existingSub, error: existingSubError } = await supabaseClient
+    .from("farmer_subscriptions")
+    .select("id, stripe_customer_id, stripe_subscription_id, renewal_date")
+    .eq("farmer_id", farmerId)
+    .maybeSingle();
+
+  if (existingSubError) throw existingSubError;
+
+  const stripeSyncFields = existingSub?.stripe_subscription_id
+    ? await syncStripeSubscriptionPlan(existingSub.stripe_subscription_id, plan)
+    : {
+        stripe_customer_id: existingSub?.stripe_customer_id ?? null,
+        stripe_subscription_id: null,
+        renewal_date: plan === "starter" ? null : existingSub?.renewal_date ?? null,
+      };
+
+  const payload = {
+    farmer_id: farmerId,
+    plan,
+    status,
+    listings_limit_per_period: getLimitForPlan(plan),
+    ...stripeSyncFields,
+  };
+
+  if (existingSub) {
+    const { error } = await supabaseClient
+      .from("farmer_subscriptions")
+      .update(payload)
+      .eq("farmer_id", farmerId);
+
+    if (error) throw error;
+    return;
+  }
+
+  const { periodStart, periodEnd } = getCurrentPeriodBounds();
+  const { error } = await supabaseClient
+    .from("farmer_subscriptions")
+    .insert({
+      ...payload,
+      listings_posted_this_period: 0,
+      period_start: periodStart,
+      period_end: periodEnd,
+    });
+
+  if (error) throw error;
+};
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -164,12 +296,7 @@ Deno.serve(async (req) => {
 
       case "update_subscription": {
         const { farmerId, plan, status } = params;
-        const { error } = await supabaseClient
-          .from("farmer_subscriptions")
-          .update({ plan, status })
-          .eq("farmer_id", farmerId);
-
-        if (error) throw error;
+        await upsertAdminManagedSubscription(supabaseClient, farmerId, plan as Plan, String(status ?? "active"));
         result = { success: true };
         break;
       }
@@ -210,36 +337,7 @@ Deno.serve(async (req) => {
 
       case "promote_farmer": {
         const { farmerId, plan } = params;
-        const limitForPlan = plan === "pro" ? null : plan === "growth" ? 20 : 3;
-
-        // Check if subscription row exists
-        const { data: existingSub } = await supabaseClient
-          .from("farmer_subscriptions")
-          .select("id")
-          .eq("farmer_id", farmerId)
-          .maybeSingle();
-
-        if (existingSub) {
-          const { error } = await supabaseClient
-            .from("farmer_subscriptions")
-            .update({ plan, status: "active", listings_limit_per_period: limitForPlan })
-            .eq("farmer_id", farmerId);
-          if (error) throw error;
-        } else {
-          const { error } = await supabaseClient
-            .from("farmer_subscriptions")
-            .insert({
-              farmer_id: farmerId,
-              plan,
-              status: "active",
-              listings_limit_per_period: limitForPlan,
-              listings_posted_this_period: 0,
-              period_start: new Date(new Date().getFullYear(), new Date().getMonth(), 1).toISOString(),
-              period_end: new Date(new Date().getFullYear(), new Date().getMonth() + 1, 1).toISOString(),
-            });
-          if (error) throw error;
-        }
-
+        await upsertAdminManagedSubscription(supabaseClient, farmerId, plan as Plan, "active");
         result = { success: true };
         break;
       }
