@@ -1,37 +1,30 @@
-import { useState, useEffect, useRef, forwardRef, type ComponentPropsWithoutRef } from "react";
-import { MapPin, User, MessageCircle, Loader2, Package, Star, SlidersHorizontal, Navigation } from "lucide-react";
+import { useState, useEffect, useRef, forwardRef, useMemo, type ComponentPropsWithoutRef } from "react";
+import { MapPin, Loader2, Package, SlidersHorizontal, Navigation, LayoutGrid } from "lucide-react";
 import MobileLayout from "@/components/layout/MobileLayout";
 import PageHeader from "@/components/layout/PageHeader";
 import BottomNav from "@/components/layout/BottomNav";
 import { useAuth } from "@/contexts/AuthContext";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
+import { Slider } from "@/components/ui/slider";
 import { supabase } from "@/integrations/supabase/client";
-import { Badge } from "@/components/ui/badge";
 import { haversineKm, formatDistance } from "@/lib/distance";
+import { CATEGORIES } from "@/lib/categories";
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
+import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { MapContainer, TileLayer, Marker, Popup, useMap } from "react-leaflet";
+import { MapContainer, TileLayer, Marker, Popup, useMap, useMapEvents } from "react-leaflet";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
+import "leaflet.markercluster/dist/MarkerCluster.css";
+import "leaflet.markercluster/dist/MarkerCluster.Default.css";
+import "leaflet.markercluster";
 import { useIsMobile } from "@/hooks/use-mobile";
-
-interface RadarUser {
-  id: string;
-  name: string;
-  role: "farmer" | "customer";
-  location: string | null;
-  avatar_url: string | null;
-  latitude: number | null;
-  longitude: number | null;
-  verified?: boolean;
-}
 
 interface RadarProduct {
   id: string;
@@ -42,32 +35,20 @@ interface RadarProduct {
   farmerName: string;
   latitude: number | null;
   longitude: number | null;
+  category: string | null;
 }
 
-type ViewMode = "all" | "farmers" | "products";
-type RadiusOption = 5 | 10 | 25 | 50 | null;
+// Distance slider steps in miles
+const DISTANCE_STEPS = [5, 20, 50, 100] as const;
+const DISTANCE_LABELS = ["5 mi", "20 mi", "50 mi", "100+ mi"];
 
-const farmerIcon = new L.DivIcon({
-  className: "",
-  html: `<div style="display:flex;align-items:center;justify-content:center;width:32px;height:32px;border-radius:50%;background:hsl(152,70%,48%);border:3px solid white;box-shadow:0 2px 8px rgba(0,0,0,0.3);">
-    <svg width="16" height="16" viewBox="0 0 24 24" fill="white" stroke="white" stroke-width="2"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
-  </div>`,
-  iconSize: [32, 32],
-  iconAnchor: [16, 16],
-});
-
-const customerIcon = new L.DivIcon({
-  className: "",
-  html: `<div style="display:flex;align-items:center;justify-content:center;width:32px;height:32px;border-radius:50%;background:hsl(0,84%,60%);border:3px solid white;box-shadow:0 2px 8px rgba(0,0,0,0.3);">
-    <svg width="16" height="16" viewBox="0 0 24 24" fill="white" stroke="white" stroke-width="2"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
-  </div>`,
-  iconSize: [32, 32],
-  iconAnchor: [16, 16],
-});
+function milesToKm(miles: number): number {
+  return miles * 1.60934;
+}
 
 const productIcon = new L.DivIcon({
   className: "",
-  html: `<div style="display:flex;align-items:center;justify-content:center;width:28px;height:28px;border-radius:8px;background:hsl(25,95%,53%);border:2px solid white;box-shadow:0 2px 8px rgba(0,0,0,0.3);">
+  html: `<div style="display:flex;align-items:center;justify-content:center;width:28px;height:28px;border-radius:8px;background:hsl(152,70%,48%);border:2px solid white;box-shadow:0 2px 8px rgba(0,0,0,0.3);">
     <svg width="14" height="14" viewBox="0 0 24 24" fill="white" stroke="white" stroke-width="2"><path d="m7.5 4.27 9 5.15M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z"/></svg>
   </div>`,
   iconSize: [28, 28],
@@ -89,19 +70,72 @@ function FlyToLocation({ lat, lng, zoom }: { lat: number; lng: number; zoom?: nu
   return null;
 }
 
-const RADIUS_OPTIONS: { value: RadiusOption; label: string }[] = [
-  { value: null, label: "Any" },
-  { value: 5, label: "5 km" },
-  { value: 10, label: "10 km" },
-  { value: 25, label: "25 km" },
-  { value: 50, label: "50 km" },
-];
+// Marker cluster layer component
+function MarkerClusterGroup({ products, onSelect }: { products: RadarProduct[]; onSelect: (p: RadarProduct) => void }) {
+  const map = useMap();
+  const clusterRef = useRef<L.MarkerClusterGroup | null>(null);
 
-const VIEW_OPTIONS: { value: ViewMode; label: string }[] = [
-  { value: "all", label: "All" },
-  { value: "farmers", label: "Farmers" },
-  { value: "products", label: "Products" },
-];
+  useEffect(() => {
+    if (clusterRef.current) {
+      map.removeLayer(clusterRef.current);
+    }
+
+    const cluster = (L as any).markerClusterGroup({
+      maxClusterRadius: 50,
+      spiderfyOnMaxZoom: true,
+      showCoverageOnHover: false,
+      zoomToBoundsOnClick: true,
+      iconCreateFunction: (c: any) => {
+        const count = c.getChildCount();
+        return L.divIcon({
+          html: `<div style="display:flex;align-items:center;justify-content:center;width:36px;height:36px;border-radius:50%;background:hsl(152,70%,48%);color:white;font-weight:700;font-size:13px;border:3px solid white;box-shadow:0 2px 8px rgba(0,0,0,0.3);">${count}</div>`,
+          className: "",
+          iconSize: L.point(36, 36),
+          iconAnchor: L.point(18, 18),
+        });
+      },
+    });
+
+    products.forEach((p) => {
+      if (p.latitude == null || p.longitude == null) return;
+      const marker = L.marker([p.latitude, p.longitude], { icon: productIcon });
+      // Add tooltip with product name
+      marker.bindTooltip(p.title, {
+        permanent: true,
+        direction: "top",
+        offset: L.point(0, -16),
+        className: "radar-product-tooltip",
+      });
+      marker.on("click", () => onSelect(p));
+      cluster.addLayer(marker);
+    });
+
+    map.addLayer(cluster);
+    clusterRef.current = cluster;
+
+    return () => {
+      if (clusterRef.current) {
+        map.removeLayer(clusterRef.current);
+      }
+    };
+  }, [products, map, onSelect]);
+
+  return null;
+}
+
+// Map bounds tracker for lazy loading
+function MapBoundsTracker({ onBoundsChange }: { onBoundsChange: (bounds: L.LatLngBounds) => void }) {
+  const map = useMapEvents({
+    moveend: () => onBoundsChange(map.getBounds()),
+    zoomend: () => onBoundsChange(map.getBounds()),
+  });
+
+  useEffect(() => {
+    onBoundsChange(map.getBounds());
+  }, []);
+
+  return null;
+}
 
 type RadarFilterTriggerProps = ComponentPropsWithoutRef<"button"> & {
   activeFilterCount: number;
@@ -129,10 +163,12 @@ const RadarFilterTrigger = forwardRef<HTMLButtonElement, RadarFilterTriggerProps
 RadarFilterTrigger.displayName = "RadarFilterTrigger";
 
 const RadarFilterBody = ({
-  localView, setLocalView, localRadius, setLocalRadius, activeFilterCount, onApply, onReset,
+  localCategory, setLocalCategory,
+  localDistIdx, setLocalDistIdx,
+  activeFilterCount, onApply, onReset,
 }: {
-  localView: ViewMode; setLocalView: (v: ViewMode) => void;
-  localRadius: RadiusOption; setLocalRadius: (r: RadiusOption) => void;
+  localCategory: string | null; setLocalCategory: (c: string | null) => void;
+  localDistIdx: number; setLocalDistIdx: (i: number) => void;
   activeFilterCount: number; onApply: () => void; onReset: () => void;
 }) => (
   <div className="space-y-5">
@@ -144,54 +180,83 @@ const RadarFilterBody = ({
         </button>
       )}
     </div>
+
+    {/* Category */}
     <div>
       <div className="flex items-center gap-2 mb-3">
-        <User className="w-4 h-4 text-muted-foreground" />
-        <h3 className="text-sm font-semibold text-foreground">Show</h3>
+        <LayoutGrid className="w-4 h-4 text-muted-foreground" />
+        <h3 className="text-sm font-semibold text-foreground">Category</h3>
       </div>
       <div className="flex flex-wrap gap-2">
-        {VIEW_OPTIONS.map((opt) => (
-          <button key={opt.value} onClick={() => setLocalView(opt.value)}
-            className={`px-4 py-2 rounded-xl text-[13px] font-medium transition-all duration-150 active:scale-[0.97] ${
-              localView === opt.value ? "bg-primary text-primary-foreground shadow-sm" : "bg-secondary text-foreground hover:bg-accent border border-border"
-            }`}>{opt.label}</button>
-        ))}
+        {CATEGORIES.map((cat) => {
+          const catValue = cat.key === "all" ? null : cat.key;
+          const isActive = localCategory === catValue;
+          return (
+            <button
+              key={cat.key}
+              onClick={() => setLocalCategory(catValue)}
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-[13px] font-medium transition-all duration-150 active:scale-[0.97] ${
+                isActive
+                  ? "bg-primary text-primary-foreground shadow-sm"
+                  : "bg-secondary text-foreground hover:bg-accent border border-border"
+              }`}
+            >
+              <cat.icon className="w-3.5 h-3.5" />
+              {cat.label}
+            </button>
+          );
+        })}
       </div>
     </div>
+
+    {/* Distance Slider */}
     <div>
       <div className="flex items-center gap-2 mb-3">
         <MapPin className="w-4 h-4 text-muted-foreground" />
         <h3 className="text-sm font-semibold text-foreground">Distance</h3>
       </div>
-      <div className="flex flex-wrap gap-2">
-        {RADIUS_OPTIONS.map((opt) => (
-          <button key={opt.value ?? "any"} onClick={() => setLocalRadius(opt.value)}
-            className={`px-4 py-2 rounded-xl text-[13px] font-medium transition-all duration-150 active:scale-[0.97] ${
-              localRadius === opt.value ? "bg-primary text-primary-foreground shadow-sm" : "bg-secondary text-foreground hover:bg-accent border border-border"
-            }`}>{opt.label}</button>
-        ))}
+      <div className="px-1">
+        <Slider
+          min={0}
+          max={3}
+          step={1}
+          value={[localDistIdx]}
+          onValueChange={([val]) => setLocalDistIdx(val)}
+        />
+        <div className="flex justify-between mt-2">
+          {DISTANCE_LABELS.map((label, i) => (
+            <span
+              key={label}
+              className={`text-[11px] ${i === localDistIdx ? "text-primary font-semibold" : "text-muted-foreground"}`}
+            >
+              {label}
+            </span>
+          ))}
+        </div>
       </div>
     </div>
+
     <Button onClick={onApply} className="w-full h-12 rounded-md text-sm font-semibold">Apply Filters</Button>
   </div>
 );
+
+const MAX_VISIBLE = 200;
 
 const Radar = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
   const isMobile = useIsMobile();
-  const [viewMode, setViewMode] = useState<ViewMode>("all");
-  const [radius, setRadius] = useState<RadiusOption>(null);
-  const [selectedPin, setSelectedPin] = useState<RadarUser | null>(null);
+  const [category, setCategory] = useState<string | null>(null);
+  const [distIdx, setDistIdx] = useState(3); // default 100+ (any)
   const [selectedProduct, setSelectedProduct] = useState<RadarProduct | null>(null);
-  const [users, setUsers] = useState<RadarUser[]>([]);
-  const [products, setProducts] = useState<RadarProduct[]>([]);
+  const [allProducts, setAllProducts] = useState<RadarProduct[]>([]);
   const [loading, setLoading] = useState(true);
   const [myLocation, setMyLocation] = useState<{ lat: number; lng: number } | null>(null);
   const [filterOpen, setFilterOpen] = useState(false);
-  const [localView, setLocalView] = useState<ViewMode>("all");
-  const [localRadius, setLocalRadius] = useState<RadiusOption>(null);
+  const [localCategory, setLocalCategory] = useState<string | null>(null);
+  const [localDistIdx, setLocalDistIdx] = useState(3);
   const [flyTarget, setFlyTarget] = useState<{ lat: number; lng: number; zoom?: number } | null>(null);
+  const [mapBounds, setMapBounds] = useState<L.LatLngBounds | null>(null);
 
   useEffect(() => {
     if (navigator.geolocation) {
@@ -213,16 +278,13 @@ const Radar = () => {
 
   useEffect(() => {
     const fetchData = async () => {
-      const [usersRes, productsRes] = await Promise.all([
-        supabase.from("profiles").select("id, name, role, location, avatar_url, latitude, longitude, verified").neq("id", user?.id || ""),
-        supabase.from("products").select("id, title, price, images, farmer_id, farmer:profiles!products_farmer_id_fkey(name, latitude, longitude)").eq("status", "active"),
-      ]);
+      const { data } = await supabase
+        .from("products")
+        .select("id, title, price, images, farmer_id, category, farmer:profiles!products_farmer_id_fkey(name, latitude, longitude)")
+        .eq("status", "active");
 
-      if (usersRes.data) {
-        setUsers(usersRes.data.filter(u => u.latitude != null && u.longitude != null && u.role === "farmer").map(u => ({ ...u, role: u.role as "farmer" | "customer" })));
-      }
-      if (productsRes.data) {
-        setProducts(productsRes.data.map((p: any) => {
+      if (data) {
+        setAllProducts(data.map((p: any) => {
           const farmer = Array.isArray(p.farmer) ? p.farmer[0] : p.farmer;
           return {
             id: p.id,
@@ -233,6 +295,7 @@ const Radar = () => {
             farmerName: farmer?.name || "Unknown",
             latitude: farmer?.latitude ?? null,
             longitude: farmer?.longitude ?? null,
+            category: p.category,
           };
         }).filter((p: RadarProduct) => p.latitude != null && p.longitude != null));
       }
@@ -241,47 +304,40 @@ const Radar = () => {
     fetchData();
   }, [user]);
 
-  const filteredUsers = users.filter(p => {
-    if (viewMode === "products") return false;
-    if (viewMode === "farmers" && p.role !== "farmer") return false;
-    if (radius !== null && myLocation && p.latitude && p.longitude) {
-      const dist = haversineKm(myLocation.lat, myLocation.lng, p.latitude, p.longitude);
-      if (dist > radius) return false;
+  // Apply filters + bounds + limit
+  const filteredProducts = useMemo(() => {
+    let result = allProducts;
+
+    // Category filter
+    if (category) {
+      result = result.filter(p => p.category === category);
     }
-    return true;
-  });
 
-  const filteredProducts = products.filter(p => {
-    if (viewMode === "farmers") return false;
-    if (radius === null || !myLocation || !p.latitude || !p.longitude) return true;
-    return haversineKm(myLocation.lat, myLocation.lng, p.latitude, p.longitude) <= radius;
-  });
-
-  const handleContact = async (targetUser: RadarUser) => {
-    if (!user) return;
-    setSelectedPin(null);
-    const { data: existing } = await supabase
-      .from("conversations")
-      .select("id")
-      .or(`and(participant_one.eq.${user.id},participant_two.eq.${targetUser.id}),and(participant_one.eq.${targetUser.id},participant_two.eq.${user.id})`)
-      .maybeSingle();
-
-    if (existing) {
-      navigate(`/chat/${existing.id}`);
-    } else {
-      const { data: conv } = await supabase
-        .from("conversations")
-        .insert({ participant_one: user.id, participant_two: targetUser.id })
-        .select("id")
-        .single();
-      if (conv) navigate(`/chat/${conv.id}`);
+    // Distance filter
+    const miles = DISTANCE_STEPS[distIdx];
+    if (miles < 100 && myLocation) {
+      const maxKm = milesToKm(miles);
+      result = result.filter(p =>
+        p.latitude != null && p.longitude != null &&
+        haversineKm(myLocation.lat, myLocation.lng, p.latitude, p.longitude) <= maxKm
+      );
     }
-  };
+
+    // Bounds filter (lazy loading)
+    if (mapBounds) {
+      result = result.filter(p =>
+        p.latitude != null && p.longitude != null &&
+        mapBounds.contains(L.latLng(p.latitude, p.longitude))
+      );
+    }
+
+    // Limit
+    return result.slice(0, MAX_VISIBLE);
+  }, [allProducts, category, distIdx, myLocation, mapBounds]);
 
   const handleFindMyLocation = () => {
     if (myLocation) {
       setFlyTarget({ lat: myLocation.lat, lng: myLocation.lng, zoom: 15 });
-      // Reset after animation
       setTimeout(() => setFlyTarget(null), 2000);
     } else if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(
@@ -297,33 +353,36 @@ const Radar = () => {
 
   const handleOpenFilter = (isOpen: boolean) => {
     if (isOpen) {
-      setLocalView(viewMode);
-      setLocalRadius(radius);
+      setLocalCategory(category);
+      setLocalDistIdx(distIdx);
     }
     setFilterOpen(isOpen);
   };
 
   const handleApplyFilter = () => {
-    setViewMode(localView);
-    setRadius(localRadius);
+    setCategory(localCategory);
+    setDistIdx(localDistIdx);
     setFilterOpen(false);
   };
 
   const handleResetFilter = () => {
-    setLocalView("all");
-    setLocalRadius(null);
-    setViewMode("all");
-    setRadius(null);
+    setLocalCategory(null);
+    setLocalDistIdx(3);
+    setCategory(null);
+    setDistIdx(3);
     setFilterOpen(false);
   };
 
   const defaultCenter: [number, number] = myLocation ? [myLocation.lat, myLocation.lng] : [14.5995, 120.9842];
-  const markerCount = filteredUsers.length + filteredProducts.length;
 
   const activeFilterCount = [
-    viewMode !== "all" ? viewMode : null,
-    radius !== null ? radius : null,
-  ].filter(Boolean).length;
+    category !== null ? category : null,
+    distIdx !== 3 ? distIdx : null,
+  ].filter(v => v !== null).length;
+
+  const distLabel = DISTANCE_LABELS[distIdx];
+
+  const handleSelectProduct = useMemo(() => (p: RadarProduct) => setSelectedProduct(p), []);
 
   return (
     <MobileLayout noPadding>
@@ -339,10 +398,8 @@ const Radar = () => {
                 <div className="w-10 h-1 rounded-full bg-border" />
               </div>
               <RadarFilterBody
-                localView={localView}
-                setLocalView={setLocalView}
-                localRadius={localRadius}
-                setLocalRadius={setLocalRadius}
+                localCategory={localCategory} setLocalCategory={setLocalCategory}
+                localDistIdx={localDistIdx} setLocalDistIdx={setLocalDistIdx}
                 activeFilterCount={activeFilterCount}
                 onApply={handleApplyFilter}
                 onReset={handleResetFilter}
@@ -356,10 +413,8 @@ const Radar = () => {
             </PopoverTrigger>
             <PopoverContent align="end" className="w-80 p-5">
               <RadarFilterBody
-                localView={localView}
-                setLocalView={setLocalView}
-                localRadius={localRadius}
-                setLocalRadius={setLocalRadius}
+                localCategory={localCategory} setLocalCategory={setLocalCategory}
+                localDistIdx={localDistIdx} setLocalDistIdx={setLocalDistIdx}
                 activeFilterCount={activeFilterCount}
                 onApply={handleApplyFilter}
                 onReset={handleResetFilter}
@@ -379,6 +434,8 @@ const Radar = () => {
           <MapContainer center={defaultCenter} zoom={12} className="z-0" style={{ width: "100%", height: "100%", position: "absolute", top: 0, left: 0 }} zoomControl={false}>
             <TileLayer attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>' url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
 
+            <MapBoundsTracker onBoundsChange={setMapBounds} />
+
             {myLocation && (
               <>
                 <FlyToLocation lat={myLocation.lat} lng={myLocation.lng} />
@@ -390,35 +447,21 @@ const Radar = () => {
 
             {flyTarget && <FlyToLocation lat={flyTarget.lat} lng={flyTarget.lng} zoom={flyTarget.zoom} />}
 
-            {filteredUsers.map(pin => (
-              <Marker key={pin.id} position={[pin.latitude!, pin.longitude!]} icon={pin.role === "farmer" ? farmerIcon : customerIcon} eventHandlers={{ click: () => setSelectedPin(pin) }} />
-            ))}
-
-            {filteredProducts.map(pin => (
-              <Marker key={pin.id} position={[pin.latitude!, pin.longitude!]} icon={productIcon} eventHandlers={{ click: () => setSelectedProduct(pin) }} />
-            ))}
+            <MarkerClusterGroup products={filteredProducts} onSelect={handleSelectProduct} />
           </MapContainer>
         )}
 
-        {/* Legend - hidden when filter is open */}
+        {/* Legend */}
         {!filterOpen && (
           <div className="absolute left-4 top-4 bg-card/90 backdrop-blur-sm rounded-lg p-2 border border-border z-[1000]">
-            {(viewMode === "all" || viewMode === "farmers") && (
-              <div className="flex items-center gap-2 mb-1">
-                <div className="w-3 h-3 bg-primary rounded-full" />
-                <span className="text-[10px] text-foreground">Farmers</span>
-              </div>
-            )}
-            {(viewMode === "all" || viewMode === "products") && (
-              <div className="flex items-center gap-2">
-                <div className="w-3 h-3 bg-orange-500 rounded" />
-                <span className="text-[10px] text-foreground">Products</span>
-              </div>
-            )}
+            <div className="flex items-center gap-2">
+              <div className="w-3 h-3 bg-primary rounded" />
+              <span className="text-[10px] text-foreground">Products</span>
+            </div>
           </div>
         )}
 
-        {/* Bottom card - hidden when filter is open */}
+        {/* Bottom card */}
         {!filterOpen && (
           <button
             onClick={handleFindMyLocation}
@@ -429,56 +472,12 @@ const Radar = () => {
             </div>
             <div className="flex-1">
               <p className="text-sm font-semibold text-foreground">{user?.name || "You"}</p>
-              <p className="text-xs text-muted-foreground">{markerCount} results on map · {radius}km radius</p>
+              <p className="text-xs text-muted-foreground">{filteredProducts.length} products on map · {distLabel}</p>
             </div>
             <MapPin className="w-4 h-4 text-muted-foreground" />
           </button>
         )}
       </div>
-
-      {/* Farmer detail dialog */}
-      <Dialog open={!!selectedPin} onOpenChange={open => !open && setSelectedPin(null)}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>{selectedPin?.name}</DialogTitle>
-          </DialogHeader>
-          {selectedPin && (
-            <div className="space-y-4">
-              <div className="flex items-center gap-3">
-                <div className={`w-12 h-12 rounded-full flex items-center justify-center overflow-hidden ${selectedPin.role === "farmer" ? "bg-primary/10" : "bg-destructive/10"}`}>
-                  {selectedPin.avatar_url ? (
-                    <img src={selectedPin.avatar_url} alt="" className="w-full h-full object-cover" />
-                  ) : (
-                    <User className={`w-6 h-6 ${selectedPin.role === "farmer" ? "text-primary" : "text-destructive"}`} />
-                  )}
-                </div>
-                <div>
-                  <div className="flex items-center gap-1.5">
-                    <p className="text-sm font-semibold text-foreground capitalize">{selectedPin.role}</p>
-                    {selectedPin.verified && (
-                      <Badge variant="secondary" className="text-[8px] px-1 py-0 h-4 bg-blue-50 text-blue-600 border-blue-200">✓ Verified</Badge>
-                    )}
-                  </div>
-                  {selectedPin.location && <p className="text-xs text-muted-foreground">{selectedPin.location}</p>}
-                  {myLocation && selectedPin.latitude && selectedPin.longitude && (
-                    <p className="text-xs text-muted-foreground">{formatDistance(haversineKm(myLocation.lat, myLocation.lng, selectedPin.latitude, selectedPin.longitude))}</p>
-                  )}
-                </div>
-              </div>
-              <div className="flex gap-2">
-                <Button onClick={() => handleContact(selectedPin)} className="flex-1 rounded-full gap-2">
-                  <MessageCircle className="w-4 h-4" /> Message
-                </Button>
-                {selectedPin.role === "farmer" && (
-                  <Button onClick={() => { setSelectedPin(null); navigate(`/farmer/${selectedPin.id}`); }} variant="outline" className="flex-1 rounded-full">
-                    View Profile
-                  </Button>
-                )}
-              </div>
-            </div>
-          )}
-        </DialogContent>
-      </Dialog>
 
       {/* Product detail dialog */}
       <Dialog open={!!selectedProduct} onOpenChange={open => !open && setSelectedProduct(null)}>
