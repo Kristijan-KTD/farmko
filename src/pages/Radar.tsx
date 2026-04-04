@@ -165,7 +165,7 @@ const RadarFilterBody = ({
       </div>
       <div className="flex flex-wrap gap-2">
         {RADIUS_OPTIONS.map((opt) => (
-          <button key={opt.value} onClick={() => setLocalRadius(opt.value)}
+          <button key={opt.value ?? "any"} onClick={() => setLocalRadius(opt.value)}
             className={`px-4 py-2 rounded-xl text-[13px] font-medium transition-all duration-150 active:scale-[0.97] ${
               localRadius === opt.value ? "bg-primary text-primary-foreground shadow-sm" : "bg-secondary text-foreground hover:bg-accent border border-border"
             }`}>{opt.label}</button>
