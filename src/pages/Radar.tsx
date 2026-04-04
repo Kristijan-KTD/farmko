@@ -45,7 +45,7 @@ interface RadarProduct {
 }
 
 type ViewMode = "all" | "farmers" | "products";
-type RadiusOption = 5 | 10 | 25 | 50;
+type RadiusOption = 5 | 10 | 25 | 50 | null;
 
 const farmerIcon = new L.DivIcon({
   className: "",
@@ -90,6 +90,7 @@ function FlyToLocation({ lat, lng, zoom }: { lat: number; lng: number; zoom?: nu
 }
 
 const RADIUS_OPTIONS: { value: RadiusOption; label: string }[] = [
+  { value: null, label: "Any" },
   { value: 5, label: "5 km" },
   { value: 10, label: "10 km" },
   { value: 25, label: "25 km" },
@@ -164,7 +165,7 @@ const RadarFilterBody = ({
       </div>
       <div className="flex flex-wrap gap-2">
         {RADIUS_OPTIONS.map((opt) => (
-          <button key={opt.value} onClick={() => setLocalRadius(opt.value)}
+          <button key={opt.value ?? "any"} onClick={() => setLocalRadius(opt.value)}
             className={`px-4 py-2 rounded-xl text-[13px] font-medium transition-all duration-150 active:scale-[0.97] ${
               localRadius === opt.value ? "bg-primary text-primary-foreground shadow-sm" : "bg-secondary text-foreground hover:bg-accent border border-border"
             }`}>{opt.label}</button>
@@ -180,7 +181,7 @@ const Radar = () => {
   const navigate = useNavigate();
   const isMobile = useIsMobile();
   const [viewMode, setViewMode] = useState<ViewMode>("all");
-  const [radius, setRadius] = useState<RadiusOption>(50);
+  const [radius, setRadius] = useState<RadiusOption>(null);
   const [selectedPin, setSelectedPin] = useState<RadarUser | null>(null);
   const [selectedProduct, setSelectedProduct] = useState<RadarProduct | null>(null);
   const [users, setUsers] = useState<RadarUser[]>([]);
@@ -189,7 +190,7 @@ const Radar = () => {
   const [myLocation, setMyLocation] = useState<{ lat: number; lng: number } | null>(null);
   const [filterOpen, setFilterOpen] = useState(false);
   const [localView, setLocalView] = useState<ViewMode>("all");
-  const [localRadius, setLocalRadius] = useState<RadiusOption>(50);
+  const [localRadius, setLocalRadius] = useState<RadiusOption>(null);
   const [flyTarget, setFlyTarget] = useState<{ lat: number; lng: number; zoom?: number } | null>(null);
 
   useEffect(() => {
@@ -218,7 +219,7 @@ const Radar = () => {
       ]);
 
       if (usersRes.data) {
-        setUsers(usersRes.data.filter(u => u.latitude != null && u.longitude != null).map(u => ({ ...u, role: u.role as "farmer" | "customer" })));
+        setUsers(usersRes.data.filter(u => u.latitude != null && u.longitude != null && u.role === "farmer").map(u => ({ ...u, role: u.role as "farmer" | "customer" })));
       }
       if (productsRes.data) {
         setProducts(productsRes.data.map((p: any) => {
@@ -243,7 +244,7 @@ const Radar = () => {
   const filteredUsers = users.filter(p => {
     if (viewMode === "products") return false;
     if (viewMode === "farmers" && p.role !== "farmer") return false;
-    if (myLocation && p.latitude && p.longitude) {
+    if (radius !== null && myLocation && p.latitude && p.longitude) {
       const dist = haversineKm(myLocation.lat, myLocation.lng, p.latitude, p.longitude);
       if (dist > radius) return false;
     }
@@ -252,7 +253,7 @@ const Radar = () => {
 
   const filteredProducts = products.filter(p => {
     if (viewMode === "farmers") return false;
-    if (!myLocation || !p.latitude || !p.longitude) return true;
+    if (radius === null || !myLocation || !p.latitude || !p.longitude) return true;
     return haversineKm(myLocation.lat, myLocation.lng, p.latitude, p.longitude) <= radius;
   });
 
@@ -310,9 +311,9 @@ const Radar = () => {
 
   const handleResetFilter = () => {
     setLocalView("all");
-    setLocalRadius(50);
+    setLocalRadius(null);
     setViewMode("all");
-    setRadius(50);
+    setRadius(null);
     setFilterOpen(false);
   };
 
@@ -321,7 +322,7 @@ const Radar = () => {
 
   const activeFilterCount = [
     viewMode !== "all" ? viewMode : null,
-    radius !== 50 ? radius : null,
+    radius !== null ? radius : null,
   ].filter(Boolean).length;
 
   return (

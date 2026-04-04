@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Bell, MessageCircle, Package, CheckCheck, Loader2 } from "lucide-react";
+import { Bell, MessageCircle, Package, CheckCheck, Loader2, Star } from "lucide-react";
 import MobileLayout from "@/components/layout/MobileLayout";
 import PageHeader from "@/components/layout/PageHeader";
 import BottomNav from "@/components/layout/BottomNav";
@@ -23,6 +23,7 @@ const iconMap: Record<string, typeof MessageCircle> = {
   message: MessageCircle,
   product: Package,
   update: Bell,
+  review: Star,
 };
 
 const Notifications = () => {
@@ -74,7 +75,7 @@ const Notifications = () => {
       refreshUnread();
     }
     if (notif.type === "message" && notif.reference_id) navigate(`/chat/${notif.reference_id}`);
-    else if (notif.type === "product" && notif.reference_id) navigate(`/product/${notif.reference_id}`);
+    else if ((notif.type === "product" || notif.type === "review") && notif.reference_id) navigate(`/product/${notif.reference_id}`);
   };
 
   const markAllRead = async () => {
