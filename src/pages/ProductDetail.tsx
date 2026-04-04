@@ -70,6 +70,9 @@ const ProductDetail = () => {
   // Scroll to top when product id changes
   useEffect(() => {
     window.scrollTo(0, 0);
+    // Also scroll the MobileLayout container
+    const container = document.querySelector('.overflow-y-auto');
+    if (container) container.scrollTo(0, 0);
   }, [id]);
 
   useEffect(() => {
@@ -277,7 +280,7 @@ const ProductDetail = () => {
 
   const MiniProductCard = ({ p }: { p: RelatedProduct }) => (
     <button
-      onClick={() => { navigate(`/product/${p.id}`); window.scrollTo(0, 0); }}
+      onClick={() => { navigate(`/product/${p.id}`); }}
       className="card-interactive flex flex-col shrink-0 w-[130px] min-w-[130px] snap-start overflow-hidden text-left"
     >
       <div className="aspect-[4/3] bg-muted relative overflow-hidden">
