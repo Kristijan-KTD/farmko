@@ -79,9 +79,11 @@ serve(async (req) => {
       .eq("farmer_id", userId)
       .maybeSingle();
 
-    const hasManualPlanOverride = Boolean(
+    // Admin override: plan was set without a Stripe subscription ID
+    // This covers both upgrades (e.g. admin sets "pro" without Stripe) AND
+    // downgrades (e.g. admin sets "starter" after cancelling Stripe sub)
+    const hasAdminOverride = Boolean(
       existingSubscription &&
-      existingSubscription.plan !== "starter" &&
       existingSubscription.status === "active" &&
       !existingSubscription.stripe_subscription_id
     );
@@ -90,10 +92,10 @@ serve(async (req) => {
     const customers = await stripe.customers.list({ email, limit: 1 });
 
     if (customers.data.length === 0) {
-      if (hasManualPlanOverride) {
-        logStep("No Stripe customer found, preserving manual plan", { plan: existingSubscription?.plan });
+      if (hasAdminOverride) {
+        logStep("No Stripe customer found, preserving admin-set plan", { plan: existingSubscription?.plan });
         return new Response(JSON.stringify({
-          subscribed: true,
+          subscribed: existingSubscription?.plan !== "starter",
           plan: existingSubscription?.plan,
           subscription_end: existingSubscription?.renewal_date || null,
         }), {
@@ -124,6 +126,34 @@ serve(async (req) => {
     const customerId = customers.data[0].id;
     logStep("Found Stripe customer", { customerId });
 
+    // If admin has overridden the plan, cancel any active Stripe subscriptions
+    // that conflict, and preserve the admin-set plan
+    if (hasAdminOverride) {
+      const activeStripeSubs = await stripe.subscriptions.list({
+        customer: customerId,
+        status: "active",
+        limit: 10,
+      });
+      // Cancel any lingering Stripe subscriptions that admin intended to remove
+      for (const sub of activeStripeSubs.data) {
+        logStep("Cancelling orphaned Stripe subscription due to admin override", { subId: sub.id });
+        try {
+          await stripe.subscriptions.cancel(sub.id);
+        } catch (e) {
+          logStep("Failed to cancel orphaned subscription", { subId: sub.id, error: String(e) });
+        }
+      }
+      logStep("Preserving admin-set plan", { plan: existingSubscription?.plan });
+      return new Response(JSON.stringify({
+        subscribed: existingSubscription?.plan !== "starter",
+        plan: existingSubscription?.plan,
+        subscription_end: existingSubscription?.renewal_date || null,
+      }), {
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+        status: 200,
+      });
+    }
+
     const subscriptions = await stripe.subscriptions.list({
       customer: customerId,
       status: "active",
@@ -131,18 +161,6 @@ serve(async (req) => {
     });
 
     if (subscriptions.data.length === 0) {
-      if (hasManualPlanOverride) {
-        logStep("No active Stripe subscription, preserving manual plan", { plan: existingSubscription?.plan });
-        return new Response(JSON.stringify({
-          subscribed: true,
-          plan: existingSubscription?.plan,
-          subscription_end: existingSubscription?.renewal_date || null,
-        }), {
-          headers: { ...corsHeaders, "Content-Type": "application/json" },
-          status: 200,
-        });
-      }
-
       logStep("No active subscription");
       await supabaseClient
         .from("farmer_subscriptions")
