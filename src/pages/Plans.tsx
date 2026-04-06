@@ -10,6 +10,12 @@ import { supabase } from "@/integrations/supabase/client";
 
 const planIcons = { starter: Leaf, growth: Zap, pro: Crown };
 
+const planDescriptions: Record<PlanTier, string> = {
+  starter: "Get started for free",
+  growth: "Grow your farm business",
+  pro: "Maximum reach & tools",
+};
+
 const Plans = () => {
   const { plan: currentPlan, subscribed, subscriptionEnd, refreshSubscription } = useSubscription();
   const { user } = useAuth();
@@ -68,14 +74,20 @@ const Plans = () => {
 
   return (
     <MobileLayout>
-      <PageHeader title="Choose Your Plan" />
+      <PageHeader title="Plans" />
 
-      <div className="flex-1 pb-8 px-4 space-y-5">
+      <div className="flex-1 pb-8 px-4 space-y-6">
+        {/* Header */}
+        <div className="text-center space-y-2 pt-2">
+          <h1 className="text-2xl font-bold text-foreground">Pick your plan</h1>
+          <p className="text-sm text-muted-foreground">Choose the plan that fits your farm</p>
+        </div>
+
         {/* Billing toggle */}
         <div className="flex items-center justify-center gap-1 p-1 rounded-xl bg-muted max-w-xs mx-auto">
           <button
             onClick={() => setBilling("monthly")}
-            className={`flex-1 py-2.5 px-4 rounded-lg text-sm font-semibold transition-all ${
+            className={`flex-1 py-2 px-4 rounded-lg text-sm font-semibold transition-all ${
               billing === "monthly"
                 ? "bg-card text-foreground shadow-sm"
                 : "text-muted-foreground hover:text-foreground"
@@ -85,7 +97,7 @@ const Plans = () => {
           </button>
           <button
             onClick={() => setBilling("annual")}
-            className={`flex-1 py-2.5 px-4 rounded-lg text-sm font-semibold transition-all relative ${
+            className={`flex-1 py-2 px-4 rounded-lg text-sm font-semibold transition-all ${
               billing === "annual"
                 ? "bg-card text-foreground shadow-sm"
                 : "text-muted-foreground hover:text-foreground"
@@ -105,133 +117,139 @@ const Plans = () => {
           </div>
         )}
 
-        {/* Plan cards */}
-        {tiers.map((tier) => {
-          const plan = PLANS[tier];
-          const Icon = planIcons[tier];
-          const isCurrent = tier === currentPlan;
-          const isUpgrade = tiers.indexOf(tier) > tiers.indexOf(currentPlan);
-          const savings = billing === "annual" ? getMonthlySavings(tier) : null;
-          const isGrowth = tier === "growth";
+        {/* Plan columns — horizontal on desktop, stacked on mobile */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          {tiers.map((tier) => {
+            const plan = PLANS[tier];
+            const Icon = planIcons[tier];
+            const isCurrent = tier === currentPlan;
+            const isUpgrade = tiers.indexOf(tier) > tiers.indexOf(currentPlan);
+            const isDowngrade = tiers.indexOf(tier) < tiers.indexOf(currentPlan);
+            const savings = billing === "annual" ? getMonthlySavings(tier) : null;
+            const isGrowth = tier === "growth";
 
-          return (
-            <div
-              key={tier}
-              className={`rounded-xl border-2 p-5 space-y-4 bg-card relative transition-all ${
-                isGrowth
-                  ? "border-primary ring-2 ring-primary/20 shadow-lg"
-                  : tier === "pro"
-                  ? "border-yellow-500/50"
-                  : "border-border"
-              } ${isCurrent ? "ring-2 ring-primary/30" : ""}`}
-            >
-              {/* Badges */}
-              <div className="flex items-center gap-2">
-                {isGrowth && (
-                  <span className="absolute -top-3 left-4 bg-primary text-primary-foreground text-[10px] font-bold px-3 py-1 rounded-full tracking-wide">
-                    BEST VALUE
-                  </span>
-                )}
-                {isCurrent && (
-                  <span className={`absolute -top-3 ${isGrowth ? 'right-4' : 'left-4'} bg-foreground text-background text-[10px] font-bold px-3 py-1 rounded-full tracking-wide`}>
-                    YOUR PLAN
-                  </span>
-                )}
-              </div>
-
-              {/* Plan header */}
-              <div className="flex items-start justify-between pt-1">
-                <div className="flex items-center gap-3">
-                  <div className={`w-11 h-11 rounded-full flex items-center justify-center ${
-                    tier === "pro" ? "bg-yellow-500/10 text-yellow-600" : tier === "growth" ? "bg-primary/10 text-primary" : "bg-muted text-muted-foreground"
-                  }`}>
-                    <Icon className="w-5 h-5" />
-                  </div>
-                  <div>
-                    <h3 className="font-bold text-lg text-foreground">{plan.name}</h3>
-                    <p className="text-xs text-muted-foreground">
-                      {tier === "starter" ? "Get started for free" : tier === "growth" ? "Grow your farm business" : "Maximum reach & tools"}
-                    </p>
-                  </div>
+            return (
+              <div
+                key={tier}
+                className={`rounded-xl border bg-card flex flex-col relative transition-all ${
+                  isGrowth
+                    ? "border-primary ring-1 ring-primary/20"
+                    : "border-border"
+                } ${isCurrent ? "ring-1 ring-primary/30" : ""}`}
+              >
+                {/* Badges */}
+                <div className="relative h-0">
+                  {isGrowth && (
+                    <span className="absolute -top-3 left-4 bg-primary text-primary-foreground text-[10px] font-bold px-3 py-1 rounded-full tracking-wide z-10">
+                      BEST VALUE
+                    </span>
+                  )}
+                  {isCurrent && (
+                    <span className={`absolute -top-3 ${isGrowth ? 'right-4' : 'left-4'} bg-foreground text-background text-[10px] font-bold px-3 py-1 rounded-full tracking-wide z-10`}>
+                      YOUR PLAN
+                    </span>
+                  )}
                 </div>
-                <div className="text-right">
+
+                {/* Plan header */}
+                <div className="p-5 pb-0 pt-6 space-y-3">
+                  <div className="flex items-center gap-2.5">
+                    <div className={`w-9 h-9 rounded-full flex items-center justify-center ${
+                      tier === "pro" ? "bg-yellow-500/10 text-yellow-600" : tier === "growth" ? "bg-primary/10 text-primary" : "bg-muted text-muted-foreground"
+                    }`}>
+                      <Icon className="w-4 h-4" />
+                    </div>
+                    <h3 className="font-bold text-lg text-foreground">{plan.name}</h3>
+                  </div>
+                  <p className="text-xs text-muted-foreground">{planDescriptions[tier]}</p>
+                </div>
+
+                {/* Pricing */}
+                <div className="px-5 py-4 border-b border-border">
                   <div className="flex items-baseline gap-0.5">
-                    <span className="text-2xl font-bold text-foreground">{getPrice(tier)}</span>
-                    {plan.price > 0 && <span className="text-xs text-muted-foreground">/mo</span>}
+                    <span className="text-3xl font-bold text-foreground">{getPrice(tier)}</span>
+                    {plan.price > 0 && <span className="text-sm text-muted-foreground">/mo</span>}
                   </div>
                   {billing === "annual" && savings && (
-                    <p className="text-[10px] font-semibold text-primary">
-                      Save ${savings}/mo
-                    </p>
+                    <p className="text-xs font-semibold text-primary mt-1">Save ${savings}/mo</p>
                   )}
                   {billing === "annual" && plan.price > 0 && (
-                    <p className="text-[10px] text-muted-foreground">
-                      ${plan.annualPrice * 12}/year
+                    <p className="text-[11px] text-muted-foreground mt-0.5">
+                      ${plan.annualPrice * 12} billed annually
                     </p>
                   )}
+                  {plan.price === 0 && (
+                    <p className="text-[11px] text-muted-foreground mt-1">No credit card required</p>
+                  )}
                 </div>
-              </div>
 
-              {/* Features */}
-              <div className="space-y-2 pt-1">
-                {plan.features.map((f) => (
-                  <div key={f} className="flex items-start gap-2.5">
-                    <div className={`w-4 h-4 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5 ${
-                      tier === "pro" ? "bg-yellow-500/10" : "bg-primary/10"
-                    }`}>
-                      <Check className={`w-2.5 h-2.5 ${tier === "pro" ? "text-yellow-600" : "text-primary"}`} />
+                {/* CTA — always visible */}
+                <div className="px-5 pt-4">
+                  {isCurrent && !subscribed && (
+                    <Button variant="outline" disabled className="w-full rounded-lg h-11 font-semibold">
+                      Current Plan
+                    </Button>
+                  )}
+                  {isCurrent && subscribed && (
+                    <Button
+                      variant="outline"
+                      onClick={handleManageSubscription}
+                      disabled={managingPortal}
+                      className="w-full rounded-lg h-11 font-semibold gap-2"
+                    >
+                      {managingPortal ? <Loader2 className="w-4 h-4 animate-spin" /> : <Settings className="w-4 h-4" />}
+                      Manage Plan
+                    </Button>
+                  )}
+                  {isUpgrade && (
+                    <Button
+                      onClick={() => handleSubscribe(tier)}
+                      disabled={!!loading}
+                      className={`w-full rounded-lg h-11 font-semibold ${
+                        tier === "pro"
+                          ? "bg-yellow-500 hover:bg-yellow-600 text-white"
+                          : isGrowth
+                          ? "bg-primary hover:bg-primary/90"
+                          : ""
+                      }`}
+                    >
+                      {loading === tier ? (
+                        <Loader2 className="w-4 h-4 animate-spin mr-2" />
+                      ) : null}
+                      {loading === tier ? "Processing..." : `Upgrade to ${plan.name}`}
+                    </Button>
+                  )}
+                  {isDowngrade && !isCurrent && (
+                    <Button variant="outline" disabled className="w-full rounded-lg h-11 font-semibold text-muted-foreground">
+                      Included in your plan
+                    </Button>
+                  )}
+                </div>
+
+                {/* Features */}
+                <div className="p-5 pt-4 space-y-2.5 flex-1">
+                  <p className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wider">
+                    {tier === "starter" ? "Includes:" : tier === "growth" ? "Everything in Starter, plus:" : "Everything in Growth, plus:"}
+                  </p>
+                  {plan.features.map((f) => (
+                    <div key={f} className="flex items-start gap-2">
+                      <Check className={`w-3.5 h-3.5 mt-0.5 flex-shrink-0 ${
+                        tier === "pro" ? "text-yellow-600" : "text-primary"
+                      }`} />
+                      <span className="text-xs text-foreground leading-relaxed">{f}</span>
                     </div>
-                    <span className="text-xs text-foreground leading-relaxed">{f}</span>
-                  </div>
-                ))}
-                {plan.limitations.map((l) => (
-                  <div key={l} className="flex items-start gap-2.5">
-                    <span className="w-4 h-4 text-muted-foreground/50 flex-shrink-0 text-center text-[10px] mt-0.5">✕</span>
-                    <span className="text-xs text-muted-foreground">{l}</span>
-                  </div>
-                ))}
-              </div>
-
-              {/* CTA */}
-              {isUpgrade && (
-                <Button
-                  onClick={() => handleSubscribe(tier)}
-                  disabled={!!loading}
-                  className={`w-full rounded-lg h-12 font-semibold text-sm ${
-                    tier === "pro"
-                      ? "bg-yellow-500 hover:bg-yellow-600 text-white"
-                      : isGrowth
-                      ? "bg-primary hover:bg-primary/90"
-                      : ""
-                  }`}
-                >
-                  {loading === tier ? (
-                    <Loader2 className="w-4 h-4 animate-spin mr-2" />
-                  ) : null}
-                  {loading === tier ? "Processing..." : `Upgrade to ${plan.name}`}
-                </Button>
-              )}
-
-              {isCurrent && tier === "starter" && (
-                <div className="text-center">
-                  <p className="text-xs text-muted-foreground">Upgrade to reach more customers</p>
+                  ))}
+                  {plan.limitations.map((l) => (
+                    <div key={l} className="flex items-start gap-2">
+                      <span className="w-3.5 h-3.5 text-muted-foreground/40 flex-shrink-0 text-center text-[10px] mt-0.5">✕</span>
+                      <span className="text-xs text-muted-foreground">{l}</span>
+                    </div>
+                  ))}
                 </div>
-              )}
-
-              {isCurrent && subscribed && (
-                <Button
-                  variant="outline"
-                  onClick={handleManageSubscription}
-                  disabled={managingPortal}
-                  className="w-full rounded-lg h-11 font-semibold gap-2"
-                >
-                  {managingPortal ? <Loader2 className="w-4 h-4 animate-spin" /> : <Settings className="w-4 h-4" />}
-                  Manage Subscription
-                </Button>
-              )}
-            </div>
-          );
-        })}
+              </div>
+            );
+          })}
+        </div>
 
         <Button
           variant="ghost"
