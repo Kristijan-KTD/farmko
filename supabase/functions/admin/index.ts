@@ -6,18 +6,18 @@ type BillingInterval = "monthly" | "annual";
 
 const PLAN_PRICE_IDS: Record<Exclude<Plan, "starter">, Record<BillingInterval, string>> = {
   growth: {
-    monthly: "price_1T8miqCsFOwH9CIqJHpjiL2o",
-    annual: "price_1THkEJCsFOwH9CIqnl7ADGN3",
+    monthly: "price_1TJIFSCsFOwH9CIqDvEvESVH",
+    annual: "price_1TJIFzCsFOwH9CIquXzuGRyP",
   },
   pro: {
-    monthly: "price_1T8mjBCsFOwH9CIqdEB6GVzZ",
-    annual: "price_1THkF3CsFOwH9CIq01ygPzTW",
+    monthly: "price_1TJIGKCsFOwH9CIqmESr1eCh",
+    annual: "price_1TJIGgCsFOwH9CIqRNMwVSWN",
   },
 };
 
 const getLimitForPlan = (plan: Plan): number | null => {
   if (plan === "pro") return null;
-  if (plan === "growth") return 20;
+  if (plan === "growth") return 6;
   return 3;
 };
 
