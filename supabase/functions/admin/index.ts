@@ -168,6 +168,16 @@ Deno.serve(async (req) => {
     );
   }
 
+  // User-context client for token validation
+  const userClient = createClient(
+    Deno.env.get("SUPABASE_URL") ?? "",
+    Deno.env.get("SUPABASE_ANON_KEY") ?? "",
+    {
+      global: { headers: { Authorization: `Bearer ${token}` } },
+      auth: { persistSession: false },
+    }
+  );
+
   // Service role client for admin operations
   const supabaseClient = createClient(
     Deno.env.get("SUPABASE_URL") ?? "",
@@ -175,8 +185,8 @@ Deno.serve(async (req) => {
     { auth: { persistSession: false } }
   );
 
-  // Validate user from token
-  const { data: userData, error: userError } = await supabaseClient.auth.getUser(token);
+  // Validate user from token using user-context client
+  const { data: userData, error: userError } = await userClient.auth.getUser();
   console.log("User resolved successfully:", !!userData?.user);
 
   if (userError || !userData?.user) {
