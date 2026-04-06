@@ -101,10 +101,10 @@ const AdminDashboard = () => {
               <h3 className="font-semibold text-foreground">Subscription Distribution</h3>
               <div className="space-y-3">
                 {[
-                  { plan: "Starter (Free)", count: stats.planCounts?.starter ?? 0, icon: Leaf, color: "bg-muted text-muted-foreground" },
-                  { plan: "Growth ($12/mo)", count: stats.planCounts?.growth ?? 0, icon: Zap, color: "bg-primary/10 text-primary" },
-                  { plan: "Pro ($29/mo)", count: stats.planCounts?.pro ?? 0, icon: Crown, color: "bg-yellow-50 text-yellow-600" },
-                ].map(({ plan, count, icon: Icon, color }) => {
+                  { plan: "Starter", price: "Free", count: stats.planCounts?.starter ?? 0, icon: Leaf, color: "bg-muted text-muted-foreground" },
+                  { plan: "Growth", price: "$9/mo · $6/mo annual", count: stats.planCounts?.growth ?? 0, icon: Zap, color: "bg-primary/10 text-primary" },
+                  { plan: "Pro", price: "$19/mo · $16/mo annual", count: stats.planCounts?.pro ?? 0, icon: Crown, color: "bg-yellow-50 text-yellow-600" },
+                ].map(({ plan, price, count, icon: Icon, color }) => {
                   const total = stats.totalFarmers ?? 0;
                   const pct = safePercent(count, total);
                   return (
@@ -114,7 +114,10 @@ const AdminDashboard = () => {
                       </div>
                       <div className="flex-1">
                         <div className="flex items-center justify-between mb-1">
-                          <span className="text-sm font-medium text-foreground">{plan}</span>
+                          <div className="flex items-center gap-2">
+                            <span className="text-sm font-medium text-foreground">{plan}</span>
+                            <span className="text-[10px] text-muted-foreground">{price}</span>
+                          </div>
                           <span className="text-xs text-muted-foreground">{count} ({pct}%)</span>
                         </div>
                         <div className="h-2 bg-secondary rounded-full overflow-hidden">
