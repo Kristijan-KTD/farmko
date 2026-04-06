@@ -79,9 +79,11 @@ serve(async (req) => {
       .eq("farmer_id", userId)
       .maybeSingle();
 
-    const hasManualPlanOverride = Boolean(
+    // Admin override: plan was set without a Stripe subscription ID
+    // This covers both upgrades (e.g. admin sets "pro" without Stripe) AND
+    // downgrades (e.g. admin sets "starter" after cancelling Stripe sub)
+    const hasAdminOverride = Boolean(
       existingSubscription &&
-      existingSubscription.plan !== "starter" &&
       existingSubscription.status === "active" &&
       !existingSubscription.stripe_subscription_id
     );
