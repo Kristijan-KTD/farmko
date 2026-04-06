@@ -4,14 +4,14 @@ export const PLAN_PRIORITY: Record<Plan, number> = { pro: 0, growth: 1, starter:
 
 export const PLAN_CONFIG: Record<Plan, { name: string; listingLimit: number | null; postLimit: number | null; canTagProducts: boolean }> = {
   starter: { name: "Starter", listingLimit: 3, postLimit: 3, canTagProducts: false },
-  growth: { name: "Growth", listingLimit: 20, postLimit: 20, canTagProducts: true },
+  growth: { name: "Growth", listingLimit: 6, postLimit: 6, canTagProducts: true },
   pro: { name: "Pro Farmer", listingLimit: null, postLimit: null, canTagProducts: true },
 };
 
 /** Monthly listing quota per plan */
 export const PLAN_LISTING_LIMIT: Record<Plan, number | null> = {
   starter: 3,
-  growth: 20,
+  growth: 6,
   pro: null,
 };
 

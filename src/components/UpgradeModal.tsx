@@ -27,10 +27,10 @@ const UpgradeModal = ({ open, onClose, title, description }: UpgradeModalProps) 
             <Zap className="w-7 h-7 text-primary" />
           </div>
           <DialogTitle className="text-center">
-            {title || "You've reached your monthly listing limit"}
+            {title || "Upgrade to reach more customers"}
           </DialogTitle>
           <DialogDescription className="text-center">
-            {description || "Upgrade your plan to post more listings each month and reach more customers."}
+            {description || "Get better visibility in Explore, unlock product tagging, and grow your farm business with analytics."}
           </DialogDescription>
         </DialogHeader>
         <div className="space-y-3 pt-2">

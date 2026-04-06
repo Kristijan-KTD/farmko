@@ -15,16 +15,22 @@ const logStep = (step: string, details?: any) => {
 
 const getLimitForPlan = (plan: string) => {
   if (plan === "pro") return null;
-  if (plan === "growth") return 20;
+  if (plan === "growth") return 6;
   return 3;
 };
 
-// Map Stripe product IDs to plan names
+// Map Stripe product IDs to plan names (both old and new)
 const PRODUCT_PLAN_MAP: Record<string, string> = {
+  // Legacy products
   "prod_U70kdowQgNhm1Q": "growth",
   "prod_U70kEspnycdHnj": "pro",
   "prod_UGGlYMMmgvNhPH": "growth",
   "prod_UGGmDQhtv8bzwh": "pro",
+  // New products (updated pricing)
+  "prod_UHrz1RSt4wYPMv": "growth",
+  "prod_UHrz0fvvCu2twD": "growth",
+  "prod_UHs0nhWKNv8QRW": "pro",
+  "prod_UHs0kFNScwGIzd": "pro",
 };
 
 serve(async (req) => {
@@ -56,7 +62,6 @@ serve(async (req) => {
     
     if (userError || !userData.user?.email) {
       logStep("Auth failed, returning starter gracefully", { error: userError?.message });
-      // Return 200 with starter instead of 401 to prevent frontend error loops
       return new Response(JSON.stringify({ subscribed: false, plan: "starter" }), {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
         status: 200,

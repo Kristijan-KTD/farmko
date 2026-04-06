@@ -12,31 +12,54 @@ export const PLANS = {
     price: 0,
     annualPrice: 0,
     listingLimit: 3 as number | null,
-    features: ["Up to 3 active listings", "1 photo per listing", "Basic farmer profile", "Visible in search", "Customer messaging", "Farm location map"],
-    limitations: ["No analytics", "No featured placement", "No promoted listings"],
+    features: [
+      "3 listings per month",
+      "3 Instafarm posts per month",
+      "Basic farmer profile",
+      "Chat with customers",
+      "Basic visibility in search",
+      "Farm location on map",
+    ],
+    limitations: ["No analytics", "No product tagging", "No priority placement"],
   },
   growth: {
     name: "Growth",
-    price: 12,
-    annualPrice: 9,
-    priceId: "price_1T8miqCsFOwH9CIqJHpjiL2o",
-    annualPriceId: "price_1THkEJCsFOwH9CIqnl7ADGN3",
-    productId: "prod_U70kdowQgNhm1Q",
-    annualProductId: "prod_UGGlYMMmgvNhPH",
-    listingLimit: 20 as number | null,
-    features: ["Up to 20 active listings", "Up to 3 photos per listing", "Enhanced farmer profile", "Farm story section", "Basic analytics", "Higher search ranking", "Customers can favorite products"],
+    price: 9,
+    annualPrice: 6,
+    priceId: "price_1TJIFSCsFOwH9CIqDvEvESVH",
+    annualPriceId: "price_1TJIFzCsFOwH9CIquXzuGRyP",
+    productId: "prod_UHrz1RSt4wYPMv",
+    annualProductId: "prod_UHrz0fvvCu2twD",
+    listingLimit: 6 as number | null,
+    features: [
+      "6 listings per month",
+      "6 Instafarm posts per month",
+      "Higher visibility in Explore",
+      "Product tagging in Instafarm",
+      "Basic analytics dashboard",
+      "Priority placement in Radar",
+      "Customers can favorite products",
+    ],
     limitations: [],
   },
   pro: {
     name: "Pro Farmer",
-    price: 29,
-    annualPrice: 25,
-    priceId: "price_1T8mjBCsFOwH9CIqdEB6GVzZ",
-    annualPriceId: "price_1THkF3CsFOwH9CIq01ygPzTW",
-    productId: "prod_U70kEspnycdHnj",
-    annualProductId: "prod_UGGmDQhtv8bzwh",
+    price: 19,
+    annualPrice: 16,
+    priceId: "price_1TJIGKCsFOwH9CIqmESr1eCh",
+    annualPriceId: "price_1TJIGgCsFOwH9CIqRNMwVSWN",
+    productId: "prod_UHs0nhWKNv8QRW",
+    annualProductId: "prod_UHs0kFNScwGIzd",
     listingLimit: null as number | null,
-    features: ["Unlimited listings", "Up to 6 photos per listing", "Featured farmer badge", "Top search ranking", "Full analytics dashboard", "Featured in promotions", "Early access to new features"],
+    features: [
+      "Unlimited listings",
+      "Unlimited Instafarm posts",
+      "Top visibility in Explore + Radar",
+      "Advanced analytics dashboard",
+      "Verified farmer badge",
+      "Featured farmer benefits",
+      "Early access to new features",
+    ],
     limitations: [],
   },
 } as const;
@@ -79,64 +102,27 @@ export const SubscriptionProvider = ({ children }: { children: ReactNode }) => {
   });
 
   const refreshSubscription = useCallback(async () => {
-    // Wait for auth to finish loading before resolving subscription
-    if (authLoading) {
-      console.log("[Subscription] Auth still loading, deferring resolution");
-      return;
-    }
+    if (authLoading) return;
+    if (!session) { setPlan("starter"); setSubscribed(false); setSubscriptionEnd(null); setIsLoading(false); return; }
+    if (!user) { setPlan("starter"); setSubscribed(false); setSubscriptionEnd(null); setIsLoading(false); return; }
+    if (user.role !== "farmer") { setPlan("starter"); setSubscribed(false); setSubscriptionEnd(null); setIsLoading(false); return; }
 
-    // No session → starter
-    if (!session) {
-      console.log("[Subscription] No session, defaulting to starter");
-      setPlan("starter");
-      setSubscribed(false);
-      setSubscriptionEnd(null);
-      setIsLoading(false);
-      return;
-    }
-
-    // No profile yet → starter
-    if (!user) {
-      console.log("[Subscription] No user profile, defaulting to starter");
-      setPlan("starter");
-      setSubscribed(false);
-      setSubscriptionEnd(null);
-      setIsLoading(false);
-      return;
-    }
-
-    // Not a farmer → starter
-    if (user.role !== "farmer") {
-      console.log("[Subscription] User is not a farmer, defaulting to starter");
-      setPlan("starter");
-      setSubscribed(false);
-      setSubscriptionEnd(null);
-      setIsLoading(false);
-      return;
-    }
-
-    // Authenticated farmer → resolve subscription
     let resolved = false;
     let quotaData: ListingQuota = { postedThisPeriod: 0, limitPerPeriod: 3, periodEnd: null };
 
-    // Strategy 1: Edge function
     try {
       const { data, error } = await supabase.functions.invoke("check-subscription");
-
       if (!error && data) {
         const resolvedPlan = (data.plan as PlanTier) || "starter";
         setPlan(resolvedPlan);
         setSubscribed(data.subscribed || false);
         setSubscriptionEnd(data.subscription_end || null);
         resolved = true;
-      } else if (error) {
-        console.warn("[Subscription] Edge function failed:", error.message);
       }
     } catch (e: unknown) {
       console.warn("[Subscription] Edge function exception:", e instanceof Error ? e.message : e);
     }
 
-    // Strategy 2: Direct DB fallback
     if (!resolved) {
       try {
         const { data: sub, error } = await supabase
@@ -144,7 +130,6 @@ export const SubscriptionProvider = ({ children }: { children: ReactNode }) => {
           .select("plan, status, renewal_date, listings_posted_this_period, listings_limit_per_period, period_end")
           .eq("farmer_id", user.id)
           .maybeSingle();
-
         if (!error && sub) {
           const fallbackPlan = (sub.plan as PlanTier) || "starter";
           setPlan(fallbackPlan);
@@ -153,9 +138,7 @@ export const SubscriptionProvider = ({ children }: { children: ReactNode }) => {
           resolved = true;
           quotaData = {
             postedThisPeriod: (sub as any).listings_posted_this_period ?? 0,
-            limitPerPeriod: (sub as any).listings_limit_per_period === null
-              ? null
-              : ((sub as any).listings_limit_per_period ?? 3),
+            limitPerPeriod: (sub as any).listings_limit_per_period === null ? null : ((sub as any).listings_limit_per_period ?? 3),
             periodEnd: (sub as any).period_end || null,
           };
         }
@@ -164,7 +147,6 @@ export const SubscriptionProvider = ({ children }: { children: ReactNode }) => {
       }
     }
 
-    // Always fetch quota from DB (edge function doesn't return it)
     try {
       const { data: sub } = await supabase
         .from("farmer_subscriptions")
@@ -174,28 +156,18 @@ export const SubscriptionProvider = ({ children }: { children: ReactNode }) => {
       if (sub) {
         quotaData = {
           postedThisPeriod: (sub as any).listings_posted_this_period ?? 0,
-          limitPerPeriod: (sub as any).listings_limit_per_period === null
-            ? null
-            : ((sub as any).listings_limit_per_period ?? 3),
+          limitPerPeriod: (sub as any).listings_limit_per_period === null ? null : ((sub as any).listings_limit_per_period ?? 3),
           periodEnd: (sub as any).period_end || null,
         };
       }
     } catch {}
 
     setListingQuota(quotaData);
-
-    if (!resolved) {
-      setPlan("starter");
-      setSubscribed(false);
-      setSubscriptionEnd(null);
-    }
-
+    if (!resolved) { setPlan("starter"); setSubscribed(false); setSubscriptionEnd(null); }
     setIsLoading(false);
   }, [authLoading, session, user]);
 
-  useEffect(() => {
-    refreshSubscription();
-  }, [refreshSubscription]);
+  useEffect(() => { refreshSubscription(); }, [refreshSubscription]);
 
   useEffect(() => {
     if (!session || user?.role !== "farmer") return;
@@ -204,7 +176,7 @@ export const SubscriptionProvider = ({ children }: { children: ReactNode }) => {
   }, [session, user, refreshSubscription]);
 
   const listingLimit: number | null = listingQuota.limitPerPeriod;
-  const postLimit: number | null = plan === "pro" ? null : (plan === "growth" ? 20 : 3);
+  const postLimit: number | null = plan === "pro" ? null : (plan === "growth" ? 6 : 3);
   const canTagProducts = plan === "growth" || plan === "pro";
 
   const canCreateListing = useCallback(() => {
@@ -222,14 +194,9 @@ export const SubscriptionProvider = ({ children }: { children: ReactNode }) => {
 
   const hasFeature = useCallback((feature: "analytics" | "featured_badge" | "farm_story" | "favorites") => {
     switch (feature) {
-      case "analytics":
-      case "farm_story":
-      case "favorites":
-        return plan === "growth" || plan === "pro";
-      case "featured_badge":
-        return plan === "pro";
-      default:
-        return false;
+      case "analytics": case "farm_story": case "favorites": return plan === "growth" || plan === "pro";
+      case "featured_badge": return plan === "pro";
+      default: return false;
     }
   }, [plan]);
 
